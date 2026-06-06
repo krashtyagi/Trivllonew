@@ -1,0 +1,115 @@
+import React from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  ResetPasswordProps,
+  ResetPasswordSchema,
+  type SignUpProps,
+  SignUpSchema,
+} from "@/schema/auth";
+import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/auth.store";
+import { toast } from "sonner";
+import { useCurrentUser } from "@/services/hotel/querys";
+import { dotoggleLike } from "@/services/hotel/hotel.service";
+import { RouterPush } from "@/components/RouterPush";
+
+export const useResetPassword = () => {
+  const [loading, setLoading] = React.useState<boolean>(false);
+  const navigate = useRouter();
+  const {
+    forgotPasswordEmail,
+    verifyForgotPasswordOTPEmail,
+    resetPasswordEmail,
+  } = useAuthStore();
+
+  const methods = useForm<ResetPasswordProps>({
+    resolver: zodResolver(ResetPasswordSchema),
+    defaultValues: {
+      email: "",
+      otp: "",
+      password: "",
+      confirmPassword: "",
+    },
+    mode: "onChange",
+  });
+  const { refetch } = useCurrentUser();
+
+  const onHandleSubmit = methods.handleSubmit(async (data) => {
+    setLoading(true);
+    try {
+      const result = await resetPasswordEmail({
+        email: data.email,
+        otp: data.otp,
+        newPassword: data.password,
+      });
+      if (result.success) {
+        toast.success(result.message || "password reset successfully");
+        RouterPush(navigate, "/");
+      } else {
+        toast.error(result.message || "Failed to reset password");
+      }
+    } catch (error) {
+      toast.error("An unexpected error occurred");
+    } finally {
+      setLoading(false);
+    }
+  });
+
+  const onVerify = async (
+    email: string,
+    otp: string,
+    onNext: React.Dispatch<React.SetStateAction<number>>,
+  ) => {
+    setLoading(true);
+
+    try {
+      const result = await verifyForgotPasswordOTPEmail({
+        email: email,
+        otp: otp,
+        endpoint: "/auth/otp-verify",
+      });
+      if (result.success) {
+        onNext((prev) => prev + 1);
+        toast.success(result.message || "OTP verified successfully");
+      } else {
+        toast.error(result.message || "Failed to verify OTP");
+      }
+    } catch (error) {
+      toast.error("An unexpected error occurred");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onGenerateOtp = async (
+    email: string,
+
+    onNext: React.Dispatch<React.SetStateAction<number>>,
+  ) => {
+    setLoading(true);
+    try {
+      const result = await forgotPasswordEmail({
+        email,
+      });
+      if (result.success) {
+        toast.success(result.message || "OTP sent to your email");
+        onNext((prev) => prev + 1);
+      } else {
+        toast.error(result.message || "Failed to send OTP");
+      }
+    } catch (error) {
+      toast.error("An unexpected error occurred");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return {
+    loading,
+    methods,
+    onHandleSubmit,
+    onVerify,
+    onGenerateOtp,
+  };
+};

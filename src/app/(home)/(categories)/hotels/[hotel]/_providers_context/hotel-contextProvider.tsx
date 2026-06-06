@@ -1,0 +1,129 @@
+import React, { useEffect, useState } from "react";
+import {
+  useHotelAvailabilityQuery,
+  useHotelDetailsQuery,
+} from "@/services/hotel/querys";
+import { useHotelStore } from "@/store/hotel.store";
+import { Hotel, RoomType } from "@/types";
+
+type Props = {
+  hotelId: string;
+  children: React.ReactNode;
+};
+
+const HotelContext = React.createContext<{
+  rooms: RoomType[];
+  availabilityResponse: Hotel | undefined;
+  availabilityLoading: boolean;
+  FetchRoomTypes: () => void;
+  fetch: boolean;
+  setFetch: React.Dispatch<React.SetStateAction<boolean>>;
+  refetchAvailability: () => void;
+} | null>(null);
+
+const HotelContextProvider = ({ hotelId, children }: Props) => {
+  const [fetch, setFetch] = useState(false);
+  // ✅ Zustand selectors (IMPORTANT)
+  const rawDate = useHotelStore((s) => s.date);
+  const guests = useHotelStore((s) => s.guests);
+  const isBookingMode = useHotelStore((s) => s.isBookingMode);
+
+  // ✅ Normalize dates (localStorage persist stores them as strings)
+  const date = React.useMemo(() => {
+    if (!rawDate) return undefined;
+    return {
+      from: rawDate.from ? new Date(rawDate.from) : undefined,
+      to: rawDate.to ? new Date(rawDate.to) : undefined,
+    };
+  }, [rawDate]);
+
+  // ✅ Auto-fetch availability when dates are available (including on mount)
+  useEffect(() => {
+    if (date?.from && date?.to) {
+      setFetch(true);
+    }
+  }, [date?.from, date?.to]);
+
+  // ✅ Memoize params
+  const availabilityParams = React.useMemo(
+    () => ({
+      hotelId,
+      checkIn: date?.from,
+      checkOut: date?.to,
+      adults: guests.adults,
+      children: guests.children,
+    }),
+    [hotelId, date?.from, date?.to, guests.adults, guests.children]
+  );
+
+
+  const { data: hotelDetailsData } =
+    useHotelDetailsQuery(hotelId);
+
+  const {
+    data: availabilityResponse,
+    isLoading: availabilityLoading,
+    refetch: refetchAvailability,
+  } = useHotelAvailabilityQuery(availabilityParams, fetch, setFetch);
+
+  const availabilityRooms = availabilityResponse?.roomTypes;
+
+  const rooms =
+    isBookingMode && availabilityRooms
+      ? availabilityRooms
+      : hotelDetailsData?.roomTypes || [];
+
+  const contextValue = React.useMemo(
+    () => ({
+      availabilityResponse,
+      availabilityLoading,
+      FetchRoomTypes: refetchAvailability,
+      refetchAvailability,
+      rooms,
+      fetch,
+      setFetch
+    }),
+    [
+      fetch,
+      setFetch,
+      availabilityResponse,
+      availabilityLoading,
+      refetchAvailability,
+      rooms,
+    ]
+  );
+
+  return (
+    <HotelContext.Provider value={contextValue}>
+      {children}
+    </HotelContext.Provider>
+  );
+};
+
+export default HotelContextProvider;
+
+export const useHotelContext = () => {
+  const context = React.useContext(HotelContext);
+  if (!context) {
+    throw new Error(
+      "useHotelContext must be used within HotelContextProvider"
+    );
+  }
+  return context;
+};
+export function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState(value)
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value)
+
+    }, delay)
+
+    return () => {
+      clearTimeout(handler)
+    }
+  }, [value, delay])
+
+  return debouncedValue
+}

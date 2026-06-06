@@ -1,0 +1,186 @@
+
+"use client";
+import { format } from "date-fns";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { useHotelStore } from "@/store/hotel.store";
+import { cn } from "@/lib/utils";
+import { useSliderIfNotChooseDate } from "../_providers_context/SliderIfNotChooseDate";
+import { motion } from "framer-motion";
+import { useState } from "react";
+import { AdventureService } from "../_providers_context/AdventureDetailsContextProvider";
+import {
+  ChevronRight,
+  ShieldCheck,
+  Zap,
+  Award,
+  Video,
+  Camera
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import { validimage } from "@/services/dailyfunctions";
+import { RouterPush } from "@/components/RouterPush";
+import { useAdventureStore } from "@/store/adventure.store";
+import { HotelImage } from "@/types";
+
+export function AdventureDetailsCardComp({
+  _id,
+  companyId,
+  basePrice,
+  discountPrice,
+  features,
+  itinerary,
+  taxPercentage,
+  title,
+  totalPriceWithTax,
+  totalTax,
+  type,
+  images: i
+}: AdventureService) {
+  const [loading, setLoading] = useState(false);
+  const { date, guests } = useAdventureStore();
+  const { handleClick } = useSliderIfNotChooseDate();
+  const router = useRouter();
+
+  // Logic helpers
+  const bothDateSelected = !!date?.to && !!date?.from;
+  const hasDiscount = basePrice > discountPrice;
+  const savings = basePrice - discountPrice;
+  const image = i?.url || "/adventures/adventure.png";
+  return (
+    <Card
+      className={cn(
+        "w-full overflow-hidden border border-border/60 bg-card",
+        "hover:shadow-lg transition-all duration-300 rounded-2xl mb-4 last:mb-0",
+        "dark:hover:shadow-[0_8px_20px_rgba(255,255,255,0.06)]",
+      )}
+    >
+      <div
+        className={cn(
+          "grid grid-cols-1 md:grid-cols-[minmax(0,240px)_1fr_minmax(0,200px)]",
+          "lg:grid-cols-[minmax(0,280px)_1fr_minmax(0,220px)]",
+          "md:h-[200px] lg:h-[220px]",
+        )}
+      >
+        {/* IMAGE SECTION */}
+        <div className="relative overflow-hidden p-3 h-48 md:h-auto">
+          <motion.div
+            layoutId={`image-${_id}`}
+            className="w-full h-full relative"
+          >
+            <img
+              src={image}
+              alt={title}
+              className="w-full h-full object-cover rounded-xl md:rounded-2xl"
+            />
+            <div className="absolute top-2 left-2 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider">
+              {type} session
+            </div>
+          </motion.div>
+
+          {hasDiscount && (
+            <div className="absolute top-5 right-5 bg-orange-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg">
+              SAVE ₹{savings}
+            </div>
+          )}
+        </div>
+
+        {/* INFO SECTION */}
+        <div className="p-4 md:p-5 flex flex-col border-b md:border-b-0 md:border-r border-border/50">
+          <div className="flex justify-between items-start mb-3">
+            <div>
+              <h3
+                onClick={() => RouterPush(router, `/adventures/services/${_id}`)}
+                className="text-xl md:text-2xl font-bold text-foreground tracking-tight hover:text-primary transition-colors duration-300 cursor-pointer line-clamp-1"
+              >
+                {title}
+              </h3>
+              <div className="flex items-center gap-2 mt-1 text-muted-foreground">
+                <ShieldCheck className="w-4 h-4 text-green-500" />
+                <span className="text-xs font-medium">International Safety Standards</span>
+              </div>
+            </div>
+
+            <div className="text-right shrink-0 ml-2">
+              <div className="flex items-center gap-1 justify-end">
+                <span className="text-[10px] md:text-xs font-bold text-primary">Certified</span>
+                <div className="bg-primary text-white text-[10px] md:text-xs font-bold px-1.5 py-0.5 rounded">A+</div>
+              </div>
+            </div>
+          </div>
+
+          {/* ADVENTURE SPECS GRID */}
+          <div className="grid grid-cols-2 gap-2 md:gap-3 mb-4">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <div className="p-1.5 bg-muted rounded-lg">
+                <Zap className="w-4 h-4 text-yellow-500" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[9px] md:text-[10px] uppercase font-bold text-muted-foreground/70">Experience</span>
+                <span className="text-xs md:text-sm font-semibold text-foreground">Extreme Adrenaline</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <div className="p-1.5 bg-muted rounded-lg">
+                <Award className="w-4 h-4 text-blue-500" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[9px] md:text-[10px] uppercase font-bold text-muted-foreground/70">Inclusions</span>
+                <span className="text-xs md:text-sm font-semibold text-foreground">Certificate Incl.</span>
+              </div>
+            </div>
+          </div>
+
+          {/* FEATURES TAGS */}
+          <div className="flex flex-wrap gap-1.5 mt-auto">
+            {features.map((feature, idx) => (
+              <span
+                key={idx}
+                className="flex items-center gap-1 text-[9px] md:text-[10px] font-bold bg-secondary/50 text-secondary-foreground px-2 py-1 rounded-md border border-border/40"
+              >
+                {feature.toLowerCase().includes('video') && <Video className="w-3 h-3" />}
+                {feature.toLowerCase().includes('photo') && <Camera className="w-3 h-3" />}
+                {feature}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* PRICING & ACTION */}
+        <div className="bg-muted/10 p-4 md:p-5 flex flex-col justify-center items-center md:items-end">
+          <div className="text-center md:text-right w-full mb-4">
+            {hasDiscount && (
+              <p className="text-xs text-muted-foreground line-through decoration-destructive/50">
+                ₹{basePrice.toLocaleString()}
+              </p>
+            )}
+            <div className="flex items-baseline justify-center md:justify-end gap-1">
+              <span className="text-2xl md:text-3xl lg:text-4xl font-black text-foreground">
+                ₹{discountPrice.toLocaleString()}
+              </span>
+              <span className="text-xs md:text-sm font-medium text-muted-foreground">/jump</span>
+            </div>
+            <p className="text-[10px] md:text-[11px] text-green-600 font-bold mt-1">
+              {taxPercentage}% Tax Incl. (₹{totalPriceWithTax.toLocaleString()} total)
+            </p>
+          </div>
+
+          <Button
+            onClick={() => RouterPush(router, `/adventures/services/${_id}`)}
+            size="lg"
+            className="w-full group/btn relative overflow-hidden rounded-xl font-bold h-10 md:h-12 shadow-md hover:shadow-primary/20"
+          >
+            <span className="relative z-10 flex items-center gap-2 text-xs md:text-sm">
+              {bothDateSelected ? "Book Experience" : "View Availability"}
+              <ChevronRight className="w-3 h-3 md:w-4 md:h-4 transition-transform group-hover/btn:translate-x-1" />
+            </span>
+          </Button>
+
+          <p className="text-[9px] md:text-[10px] text-muted-foreground mt-2 md:mt-3 text-center w-full uppercase tracking-tighter">
+            *Jumpers must be 12+ years old
+          </p>
+        </div>
+      </div>
+    </Card>
+  );
+}

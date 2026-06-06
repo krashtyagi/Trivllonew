@@ -1,0 +1,151 @@
+export type Categories = "hotels" | "cabs" | "adventures" | "tours" | "bikes";
+
+export interface Tabs {
+  name: string;
+  title?: string;
+  value?: string;
+  content?: string | React.ReactNode;
+}
+export interface HotelImage {
+  url: string;
+  public_id: string;
+  resource_type?: string;
+  _id?: string;
+}
+
+export interface RoomType {
+  _id: string;
+  hotelId: string;
+  name: string;
+
+  taxPercentage: number;
+  totalTax: number;
+  totalPriceWithTax: number;
+
+  description: string;
+  basePrice: number;
+  discountPrice: number;
+  capacity: {
+    adults: number;
+    children: number;
+  };
+  beds: {
+    quantity: number;
+    type: string;
+    _id: string;
+  }[];
+  bedType: string;
+  roomSizeSqm: number;
+  viewType: string;
+  amenities: string[];
+  images: (string | { url: string })[];
+  totalRooms: number;
+  isActive: boolean;
+  availableRooms: number;
+  finalPrice: number;
+  displayPrice?: number;
+  totalPrice?: number;
+  nights?: number;
+  rating?: number;
+  numReviews?: number;
+}
+
+export interface Hotel {
+  thumbnail: string;
+  _id: string;
+  vendorId?: string;
+  name: string;
+  description: string;
+  address: string;
+  city: string;
+  guests: {
+    adults: number;
+    children: number;
+  };
+  date: {
+    from: string;
+    to: string;
+  };
+  location: {
+    type: string;
+    coordinates: [number, number];
+  };
+  images: HotelImage[];
+  amenities: string[];
+  rating: number;
+  numReviews: number;
+  isFeatured: boolean;
+  isActive?: boolean;
+  distanceFromCenter?: string;
+  roomTypes: RoomType[];
+  createdAt?: string;
+  updatedAt?: string;
+  isFavorite: boolean;
+}
+
+export interface CityTrends {
+  name: string;
+  tagline: string;
+
+  tabs?: Tabs[];
+}
+/**
+ * Represents the rental company providing the service
+ */
+interface Company {
+  companyId: string;
+  name: string;
+  city: string;
+  rating: number;
+}
+
+/**
+ * Represents the bike service details
+ */
+export interface Bike {
+  serviceId: string;
+  bikeName: string;
+  bikeType: "scooter" | "motorcycle" | string; // Using a union type if types are known
+  pricePerDay: number;
+  totalPriceWithTax: number;
+  taxPercentage: number;
+  thumbnail: HotelImage; // URL
+  company: Company;
+}
+export interface CabCompany {
+  companyId: string;
+  name: string;
+  city: string;
+  rating: number;
+}
+
+export interface CabService {
+  serviceId: string;
+  title: string;
+  carName: string;
+  cabType: "sedan" | "suv" | "luxury" | string; // Literal types for better safety
+  capacity: number;
+  pickup: string;
+  drop: string;
+  distance: string;
+  duration: string;
+  price: number;
+  totalPriceWithTax: number;
+  taxPercentage: number;
+  thumbnail: HotelImage;
+  company: CabCompany;
+}
+
+export interface PaginationInfo {
+  page: number;
+  limit: number;
+  count: number;
+}
+
+export interface CabApiResponse {
+  success: boolean;
+  data: {
+    cabs: CabService[];
+    pagination: PaginationInfo;
+  };
+}

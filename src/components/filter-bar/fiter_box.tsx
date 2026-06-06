@@ -1,0 +1,421 @@
+
+
+"use client";
+
+import { SearchBoxValuesProps } from "@/constants/constants";
+import { AnimatePresence, motion } from "framer-motion";
+import React, { useEffect, useRef, useState } from "react";
+import { Button } from "../ui/button";
+import { Card } from "../ui/card";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
+import { Spinner } from "../spinner";
+import { RouterPush } from "../RouterPush";
+import { useHotelStore } from "@/store/hotel.store";
+import { useRouter } from "next/navigation";
+import { format } from "date-fns";
+import type { DateRange } from "react-day-picker";
+import { hooksSupplier } from "../navbar/filter-nav-bar/calander05";
+
+/** Returns dynamic display text for a filter block based on its label */
+function getFilterBlockDisplayText(
+  label: string,
+  fallback: string,
+  date: DateRange | undefined,
+  guests: { adults: number; children: number }
+): string {
+  const normalized = label.trim().toLowerCase();
+
+  if (normalized === "check in") {
+    return date?.from ? format(new Date(date.from), "dd MMM yyyy") : fallback;
+  }
+  if (normalized === "when") {
+    return date?.from ? format(new Date(date.from), "dd MMM yyyy") : fallback;
+  }
+  if (normalized === "booking date") {
+    return date?.from ? format(new Date(date.from), "dd MMM yyyy") : fallback;
+  }
+  if (normalized === "check out") {
+    return date?.to ? format(new Date(date.to), "dd MMM yyyy") : fallback;
+  }
+  if (normalized === "guests") {
+    const total = (guests?.adults ?? 0) + (guests?.children ?? 0);
+    if (total === 0) return fallback;
+    const parts: string[] = [];
+    if (guests.adults > 0) parts.push(`${guests.adults} Adult${guests.adults > 1 ? "s" : ""}`);
+    if (guests.children > 0) parts.push(`${guests.children} Child${guests.children > 1 ? "ren" : ""}`);
+    return parts.join(", ");
+  }
+
+  // For labels like "Company", "When", etc — just use fallback
+  return fallback;
+}
+
+const FilterBox = ({
+  FilterBoxValues,
+  link,
+  type,
+  directions, city, date, guests
+}: {
+  city: string;
+  date: DateRange | undefined;
+  guests: { adults: number; children: number };
+  FilterBoxValues: SearchBoxValuesProps;
+  link?: string;
+  type?: string;
+  directions: React.ReactNode;
+}) => {
+  const router = useRouter();
+  const ismobile = useIsMobile();
+  // const { city, date, guests } = useHotelStore();
+  const [loading, setLoading] = useState(false);
+  const [activeIdx, setActiveIdx] = useState<number | null>(null);
+  const [validationError, setValidationError] = useState<{ city: boolean; date: boolean } | null>(null);
+  const validationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const iscity = !!city;
+
+  const handleSearchClick = () => {
+    const missingCity = !city;
+    const missingDate = !date?.from || !date?.to;
+    if (missingCity || missingDate) {
+      if (validationTimeoutRef.current) clearTimeout(validationTimeoutRef.current);
+      setValidationError({ city: missingCity, date: missingDate });
+      validationTimeoutRef.current = setTimeout(() => setValidationError(null), 3500);
+      return;
+    }
+    RouterPush(router, `${link}/find`);
+    setLoading(true);
+  };
+
+  useEffect(() => {
+    const html = document.documentElement;
+    const body = document.body;
+
+    if (activeIdx !== null) {
+      const scrollY = window.scrollY;
+
+      body.style.position = 'fixed';
+      body.style.top = `-${scrollY}px`;
+      body.style.width = '100%';
+      body.style.overflowY = 'scroll';
+    } else {
+      const scrollY = body.style.top;
+
+      body.style.position = '';
+      body.style.top = '';
+      body.style.width = '';
+      body.style.overflowY = '';
+
+      window.scrollTo(0, parseInt(scrollY || '0') * -1);
+    }
+
+    return () => {
+      body.style.position = '';
+      body.style.top = '';
+      body.style.width = '';
+      body.style.overflowY = '';
+    };
+  }, [activeIdx]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setActiveIdx(null);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  // if (link?.substring(1, link.length) === "adventures" || link?.substring(1, link.length) === "tours") return null;
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 md:gap-6 items-start  mx-auto md:py-4 md:px-[43px] ">
+
+      <div className="lg:col-span-3 relative w-full group bg-transparent">
+        <Card className={cn(
+          "w-full flex flex-col gap-4 shadow-2xl dark:shadow-zinc-950 border-none bg-card/10 rounded-[1.5rem] px-4 pt-6 pb-12 md:px-8 md:pt-8 md:pb-14",
+          ismobile && "py-2 pb-7"
+        )}>
+          <div className="md:space-y-6 space-y-2">
+
+            {/* City field with validation */}
+            <div className="relative">
+              <AnimatePresence>
+                {validationError?.city && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0, marginBottom: 0 }}
+                    animate={{ opacity: 1, height: "auto", marginBottom: 6 }}
+                    exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+                    transition={{ height: { duration: 0.6, ease: "easeOut" }, opacity: { duration: 0.4, ease: "easeOut" }, marginBottom: { duration: 0.6, ease: "easeOut" } }}
+                    className="overflow-hidden"
+                  >
+                    <motion.div
+                      initial={{ x: -16 }}
+                      animate={{ x: 0 }}
+                      transition={{ type: "spring", damping: 20, stiffness: 180, delay: 0.15 }}
+                      className="flex items-center gap-1.5 pl-2 py-0.5"
+                    >
+                      <motion.div
+                        animate={{ y: [0, 3, 0] }}
+                        transition={{ repeat: Infinity, duration: 1.0, ease: "easeInOut" }}
+                        className="text-red-500"
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12l7 7 7-7" /></svg>
+                      </motion.div>
+                      <motion.span
+                        className="text-[10px] md:text-xs font-bold bg-gradient-to-r from-red-500 to-orange-400 bg-clip-text text-transparent"
+                        animate={{ opacity: [0.7, 1, 0.7] }}
+                        transition={{ repeat: Infinity, duration: 1.0, ease: "easeInOut" }}
+                      >
+                        Select a destination
+                      </motion.span>
+                    </motion.div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+              <motion.div
+                animate={validationError?.city ? {
+                  boxShadow: [
+                    "0 0 0 0px rgba(239,68,68,0)",
+                    "0 0 0 3px rgba(239,68,68,0.3)",
+                    "0 0 0 0px rgba(239,68,68,0)"
+                  ]
+                } : { boxShadow: "0 0 0 0px rgba(239,68,68,0)" }}
+                transition={{ repeat: validationError?.city ? Infinity : 0, duration: 1.0, ease: "easeInOut" }}
+                className="rounded-[12px]"
+              >
+                {directions}
+              </motion.div>
+            </div>
+
+
+            <div className="relative">
+              {/* Date fields validation indicator */}
+              <AnimatePresence>
+                {validationError?.date && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0, marginBottom: 0 }}
+                    animate={{ opacity: 1, height: "auto", marginBottom: 6 }}
+                    exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+                    transition={{ height: { duration: 0.6, ease: "easeOut", delay: 0.1 }, opacity: { duration: 0.4, ease: "easeOut", delay: 0.1 }, marginBottom: { duration: 0.6, ease: "easeOut", delay: 0.1 } }}
+                    className="overflow-hidden"
+                  >
+                    <motion.div
+                      initial={{ x: -16 }}
+                      animate={{ x: 0 }}
+                      transition={{ type: "spring", damping: 20, stiffness: 180, delay: 0.25 }}
+                      className="flex items-center gap-1.5 pl-2 py-0.5"
+                    >
+                      <motion.div
+                        animate={{ y: [0, 3, 0] }}
+                        transition={{ repeat: Infinity, duration: 1.4, ease: "easeInOut" }}
+                        className="text-primary"
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12l7 7 7-7" /></svg>
+                      </motion.div>
+                      <motion.span
+                        className="text-[10px] md:text-xs font-bold bg-primary/80 to-primary/70 bg-clip-text text-transparent"
+                        animate={{ opacity: [0.7, 1, 0.7] }}
+                        transition={{ repeat: Infinity, duration: 1.8, ease: "easeInOut" }}
+                      >
+                        Choose your dates
+                      </motion.span>
+                    </motion.div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+              <div className="flex gap-2 md:gap-3">
+                {FilterBoxValues.filterBlocks.map((item, idx) => {
+                  const IconValues = item.icon;
+                  const isActive = activeIdx === idx;
+                  const isDateBlock = ["check in", "check out", "when", "booking date"].includes(item.label.trim().toLowerCase());
+                  const highlightDate = !!(validationError?.date && isDateBlock);
+
+                  return (
+                    <div key={idx} className="flex-1">
+                      <motion.div
+                        onClick={() => setActiveIdx(isActive ? null : idx)}
+                        animate={highlightDate ? {
+                          boxShadow: [
+                            "0 0 0 0px rgba(249,115,22,0)",
+                            "0 0 0 3px rgba(249,115,22,0.35)",
+                            "0 0 0 0px rgba(249,115,22,0)"
+                          ]
+                        } : { boxShadow: "0 0 0 0px rgba(249,115,22,0)" }}
+                        transition={{ repeat: highlightDate ? Infinity : 0, duration: 1.5, ease: "easeInOut" }}
+                        className={cn(
+                          "flex md:flex-row flex-col w-full items-center gap-2 md:gap-3 bg-secondary/30 border border-border rounded-[12px] px-3 py-2 md:py-3 cursor-pointer relative z-[30]",
+                          isActive && "border-primary ring-2 ring-primary/10 bg-secondary"
+                        )}
+                      >
+                        <IconValues className="w-3 h-3 sm:w-5 sm:h-5 text-primary shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[9px] md:text-[10px] uppercase font-bold text-muted-foreground">{item.label}</p>
+                          <p className="text-[8px] md:text-sm font-semibold truncate text-foreground/70">{getFilterBlockDisplayText(item.label, item.text, date, guests)}</p>
+                        </div>
+                      </motion.div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {activeIdx !== null && FilterBoxValues.filterBlocks[activeIdx]?.element && (
+                <div
+                  className={cn(
+                    "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[70] bg-background border border-border shadow-2xl rounded-2xl p-6",
+                    "w-[95%] max-w-[500px] md:max-w-[650px] max-h-[80vh] overflow-y-auto flex justify-center"
+                  )}
+                >
+                  {FilterBoxValues.filterBlocks[activeIdx].element}
+                </div>
+              )}
+            </div>
+          </div>
+        </Card>
+
+        <div className="absolute -bottom-4 md:-bottom-6 left-1/2 -translate-x-1/2 z-30 w-full flex justify-center">
+          <motion.div
+            animate={validationError ? { x: [0, -8, 8, -8, 8, -4, 4, 0] } : { x: 0 }}
+            transition={{ duration: 0.5, ease: "easeInOut" }}
+          >
+            <Button
+              variant={"default"}
+              disabled={loading}
+              className={cn(
+                "w-[140px] md:min-w-[240px] md:px-7 hover:scale-105 flex backdrop-blur-md transition-all duration-300 items-center justify-center bg-primary dark:border-none text-zinc-100 h-9 md:h-14 rounded-full text-lg font-extrabold shadow-shadow border-[3px] border-zinc-100",
+                "disabled:opacity-100 text-xs md:text-lg",
+                validationError && "!bg-green-500 dark:!bg-green-500"
+              )}
+              onClick={handleSearchClick}
+            >
+              {loading ? <Spinner /> :
+                iscity && date && date.from && date.to ?
+                  `Search ${link?.substring(1, link.length)}`
+                  : `Select city and date`}
+            </Button>
+          </motion.div>
+        </div>
+      </div>
+
+      <div className="lg:col-span-2 w-full h-full lg:px-0 px-2 mt-4 lg:mt-0">
+        <LoopingVideoHero VIDEOS={FilterBoxValues?.videos || []} />
+      </div>
+
+      {activeIdx !== null && (
+        <div
+          onClick={() => setActiveIdx(null)}
+          className="fixed inset-0 bg-black/40 backdrop-blur-md z-[50] cursor-pointer"
+        />
+      )}
+    </div>
+  );
+};
+
+
+const ValuesSupplier = ({ hk, pos }: { hk: keyof typeof hooksSupplier, pos: number }) => {
+  const { date, guests, ...rest } = hooksSupplier[hk]();
+
+
+  switch (pos) {
+    case 1:
+      return (
+        date?.from
+
+      )
+
+
+    case 2:
+      return (
+        date?.to
+      )
+
+    case 3:
+      return (
+        `${guests.adults} Adults ${guests.children && `, ${guests.children} Children`}`
+      )
+    default:
+      return (
+        date?.from
+
+      )
+
+
+  }
+
+
+}
+
+export function LoopingVideoHero({ VIDEOS }: {
+  VIDEOS: {
+    title: string
+    description: string
+    link: string
+  }[]
+}) {
+  const [index, setIndex] = useState(0);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (VIDEOS.length <= 1) return;
+    const interval = setInterval(() => {
+      setIndex((prev) => (prev + 1) % VIDEOS.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [VIDEOS.length]);
+
+  return (
+    <div className="relative rounded-[1.5rem] overflow-hidden shadow-2xl w-full h-[140px] sm:h-[200px] md:h-[320px] lg:h-full group bg-transparent min-h-[140px]">
+      <AnimatePresence mode="popLayout">
+        <motion.video
+          key={`video-${index}`}
+          ref={videoRef}
+          src={VIDEOS[index]?.link}
+          initial={{ opacity: 0, scale: 1.1 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.95 }}
+          transition={{ duration: 0.8, ease: "easeInOut" }}
+          autoPlay
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover opacity-60 rounded-[1.5rem]"
+        />
+
+        <motion.div
+          key={`text-${index}`}
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: 20 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="absolute inset-0 flex items-center p-6 md:p-10 z-10 pointer-events-none"
+        >
+          <div className="flex flex-col gap-1 md:gap-2">
+            <h2 className="text-white font-bold text-lg md:text-3xl drop-shadow-lg">
+              {VIDEOS[index]?.title}
+            </h2>
+            <p className="text-zinc-200 text-xs md:text-base font-medium max-w-xs drop-shadow-md">
+              {VIDEOS[index]?.description}
+            </p>
+          </div>
+        </motion.div>
+      </AnimatePresence>
+
+      <div className="absolute rounded-[1.5rem] inset-0 bg-gradient-to-r from-black/60 to-transparent pointer-events-none" />
+
+      <div className="absolute bottom-4 left-6 flex gap-1.5 z-20">
+        {VIDEOS.map((_, i) => (
+          <div key={i} className="h-1 w-6 rounded-full bg-white/20 overflow-hidden">
+            {index === i && (
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: "100%" }}
+                transition={{ duration: 5, ease: "linear" }}
+                className="h-full bg-white"
+              />
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default FilterBox;
