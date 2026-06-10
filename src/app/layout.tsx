@@ -24,51 +24,52 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Hilexa | Hotels, Cabs & Adventure Experiences",
-    template: "%s | Hilexa",
+    default: "Trivllo | Hotels,Tours",
+    template: "%s | Trivllo",
   },
   description:
-    "Your ultimate travel companion. Book premium hotels, reliable cab services, and thrilling adventure activities all in one place with Hilexa.",
+    "Your ultimate travel companion. Book premium hotels, activities all in one place with Trivllo.",
   icons: {
-    icon: "/hilexa-logo.svg",
-    shortcut: "/hilexa-logo.svg",
-    apple: "/hilexa-logo.svg",
+    icon: "/triv-logo.svg",
+    shortcut: "/triv-logo.svg",
+    apple: "/triv-logo.svg",
   },
   // manifest: "/manifest.json",
 
   keywords: [
-    "Hilexa",
+    "Trivllo",
     "Hotel Booking",
-    "Cab Rental",
-    "Adventure Sports Booking",
-    "Rishikesh Adventures",
+    // "Cab Rental",
+    // "Adventure Sports Booking",
+    // "Rishikesh Adventures",
+    "Tours & Activities",
     "Travel Packages India",
-    "Hilexa App",
+    "Trivllo App",
   ],
-  authors: [{ name: "Hilexa Team" }],
+  authors: [{ name: "Trivllo Team" }],
 
   openGraph: {
     type: "website",
     locale: "en_IN",
-    url: "https://www.hilexa.com",
-    siteName: "Hilexa - Stays, Rides & Adventures",
-    title: "Hilexa | One Web App for All Your Travel Needs",
+    url: "https://www.Trivllo.com",
+    siteName: "Trivllo - Stays,Tours",
+    title: "Trivllo | One Web App for All Your Travel Needs",
     description:
-      "Discover luxury stays, seamless cab rides, and adrenaline-pumping adventures. Hilexa makes travel simple and memorable.",
+      "Discover luxury stays,  Trivllo makes travel simple and memorable.",
     images: [
       {
         url: "/og-main-preview.png",
         width: 1200,
         height: 630,
-        alt: "Hilexa - Hotels, Cabs, Adventures",
+        alt: "Trivllo - Hotels, Tours",
       },
     ],
   },
 
   twitter: {
     card: "summary_large_image",
-    title: "Hilexa | Premium Travel Services",
-    description: "Book Hotels, Cabs, and Adventures instantly.",
+    title: "Trivllo | Premium Hotels Tours Services",
+    description: "Book Hotels, Tours instantly.",
     images: ["/og-main-preview.png"],
   },
 };

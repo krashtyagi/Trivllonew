@@ -162,7 +162,7 @@ export function Footer() {
               <li>
                 <a
                   // href={process.env.NEXT_PUBLIC_PARTNER_URL}
-                  href="#"
+                  href="https://partner.trivllo.com/login"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="font-semibold hover:text-foreground transition"

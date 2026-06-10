@@ -124,7 +124,7 @@ export const DummyDataList: CarouselProps[] = [
             location: "Staring From Rupees 600/D",
             href: "",
         }, {
-            title: "Hilexa Cabs",
+            title: "trivllo Cabs",
             image: "/cabs/cb2.png",
             location: "Staring From Rupees 600/D",
             href: "",
@@ -161,7 +161,7 @@ export const DummyDataList: CarouselProps[] = [
             location: "Staring From Rupees 600/D",
             href: "",
         }, {
-            title: "Hilexa Cabs",
+            title: "trivllo Cabs",
             image: "/cabs/cb2.png",
             location: "Staring From Rupees 600/D",
             href: "",
@@ -198,7 +198,7 @@ export const DummyDataList: CarouselProps[] = [
             location: "Staring From Rupees 600/D",
             href: "",
         }, {
-            title: "Hilexa Cabs",
+            title: "trivllo Cabs",
             image: "/cabs/cb2.png",
             location: "Staring From Rupees 600/D",
             href: "",
@@ -235,7 +235,7 @@ export const DummyDataList: CarouselProps[] = [
             location: "Staring From Rupees 600/D",
             href: "",
         }, {
-            title: "Hilexa Cabs",
+            title: "trivllo Cabs",
             image: "/cabs/cb2.png",
             location: "Staring From Rupees 600/D",
             href: "",

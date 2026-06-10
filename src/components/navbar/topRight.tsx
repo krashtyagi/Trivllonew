@@ -39,7 +39,7 @@ const TopRight = ({ isMobile }: { isMobile: boolean }) => {
         <Button asChild variant={"ghost"} className="w-17 sm:w-17 md:w-19 lg:w-23 xl:w-25 text-xs py-0 h-7  bg-primary  hover:bg-primary hover:shadow-lg ">
           <a
             // href={process.env.NEXT_PUBLIC_PARTNER_URL}
-            href="#"
+            href="https://partner.trivllo.com/login"
             target="_blank" rel="noopener noreferrer" className="cursor-pointer font-bold text-card hover:text-background">Get Listed</a>
         </Button> : (
           <Button onClick={() => {

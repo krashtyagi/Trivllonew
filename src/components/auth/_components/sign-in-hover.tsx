@@ -158,9 +158,9 @@ export function SignupForm({ setTag, className }: {
                     <div className="flex  items-center justify-center rounded-md">
                       <LOGO />
                     </div>
-                    <span className="sr-only">Hilexa </span>
+                    <span className="sr-only">Trivllo </span>
                   </a>
-                  <h1 className="text-xl font-bold">Welcome to Hilexa</h1>
+                  <h1 className="text-xl font-bold">Welcome to Trivllo</h1>
                   {/* <p>
                     Don&apos;t have an account? <a href="/signup">Sign up</a>
                   </p> */}
@@ -333,9 +333,9 @@ export function SignInForm({ setTag, className }: {
           <div className="flex  items-center justify-center rounded-md">
             <LOGO />
           </div>
-          <span className="sr-only">Hilexa </span>
+          <span className="sr-only">trivllo </span>
         </a>
-        <h1 className="text-xl font-bold">Welcome to Hilexa </h1>
+        <h1 className="text-xl font-bold">Welcome to trivllo </h1>
         {/* <p>
           Don&apos;t have an account? <a href="/signup">Sign up</a>
         </p> */}
@@ -477,9 +477,9 @@ export function ResetPassword({ setTag, className, hideTag = false }: {
                     <div className="flex  items-center justify-center rounded-md">
                       <LOGO />
                     </div>
-                    <span className="sr-only">Hilexa </span>
+                    <span className="sr-only">trivllo </span>
                   </a>
-                  <h1 className="text-xl font-bold">Welcome to Hilexa</h1>
+                  <h1 className="text-xl font-bold">Welcome to trivllo</h1>
                   {/* <p>
                     Don&apos;t have an account? <a href="/signup">Sign up</a>
                   </p> */}
