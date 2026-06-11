@@ -250,7 +250,7 @@ export function useParam(
 export const handleShare = async () => {
   try {
     await navigator.share({
-      title: "Helix",
+      title: "Trivllo",
       text: "Check out this hotel!",
       url: window.location.href,
     });
