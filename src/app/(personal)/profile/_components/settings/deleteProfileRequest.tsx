@@ -65,7 +65,6 @@ export function DeleteAccountRequestDialog({
                 </DialogHeader>
 
                 <div className="py-4 space-y-4">
-                    {/* Reason Input */}
                     <Textarea
                         placeholder="Please tell us why you want to delete your account (optional)"
                         value={reason}
@@ -73,7 +72,6 @@ export function DeleteAccountRequestDialog({
                         className="resize-none"
                     />
 
-                    {/* Confirmation Input */}
                     <Input
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value)}

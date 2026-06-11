@@ -106,9 +106,9 @@ export function Footer() {
             </p>
 
             <div className="flex gap-3">
-              <SocialIcon icon={<Instagram size={18} />} />
-              <SocialIcon icon={<Facebook size={18} />} />
-              <SocialIcon icon={<Twitter size={18} />} />
+              <SocialIcon icon={<Instagram size={18} href="https://www.instagram.com/trivllo" />} />
+              <SocialIcon icon={<Facebook size={18} href="https://www.facebook.com/profile.php?id=61590569073379" />} />
+              <SocialIcon icon={<Twitter size={18} href="#" />} />
             </div>
           </div>
 
@@ -198,7 +198,7 @@ export function Footer() {
 
               <li>
                 <a
-                  href={process.env.NEXT_PUBLIC_PARTNER_URL}
+                  href={"https://partner.trivllo.com/login"}
                   target="_blank"
                   rel="noopener noreferrer"
                 >

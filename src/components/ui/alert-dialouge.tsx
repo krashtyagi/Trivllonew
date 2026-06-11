@@ -43,3 +43,33 @@ export function AlertOverlay({ trigger, title, description, canecelTitle, contin
     </AlertDialog>
   )
 }
+export function DeleteAlertOverlay({ trigger, title, description, canecelTitle, continueTitle, variant, handelSumbit }: {
+  trigger: string,
+  variant?: "default" | "destructive" | "link" | "outline" | "secondary" | "ghost"
+  title: string,
+  description: string,
+  canecelTitle: string,
+  continueTitle: string,
+  handelSumbit: () => void,
+}) {
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button variant={variant} >{trigger}</Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent >
+        <AlertDialogHeader>
+          <AlertDialogTitle>{title}</AlertDialogTitle>
+          <AlertDialogDescription>
+            {description}
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter className="flex-col flex">
+          <AlertDialogCancel>{canecelTitle}</AlertDialogCancel>
+          <AlertDialogAction onClick={handelSumbit} className="bg-destructive text-white">{continueTitle}</AlertDialogAction>
+          <DeleteAccountRequestDialog tag={"Delete my profile"} variant="destructive" />
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  )
+}
