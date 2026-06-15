@@ -76,6 +76,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import {
   Facebook,
   Instagram,
@@ -106,9 +107,9 @@ export function Footer() {
             </p>
 
             <div className="flex gap-3">
-              <SocialIcon icon={<Instagram size={18} href="https://www.instagram.com/trivllo" />} />
-              <SocialIcon icon={<Facebook size={18} href="https://www.facebook.com/profile.php?id=61590569073379" />} />
-              <SocialIcon icon={<Twitter size={18} href="#" />} />
+              <SocialIcon icon={<Instagram size={18} />} href="https://www.instagram.com/trivllo" />
+              <SocialIcon icon={<Facebook size={18} />} href="https://www.facebook.com/profile.php?id=61590569073379" />
+              <SocialIcon icon={<Twitter size={18} />} href="https://twitter.com/trivllo" />
             </div>
           </div>
 
@@ -119,20 +120,28 @@ export function Footer() {
             </h3>
 
             <ul className="space-y-3 text-sm text-muted-foreground">
-              <li className="hover:text-foreground cursor-pointer transition">
-                Help Center
+              <li>
+                <Link href="/contact" className="hover:text-foreground cursor-pointer transition">
+                  Help Center
+                </Link>
               </li>
 
-              <li className="hover:text-foreground cursor-pointer transition">
-                Booking Policy
+              <li>
+                <Link href="/terms#bookings" className="hover:text-foreground cursor-pointer transition">
+                  Booking Policy
+                </Link>
               </li>
 
-              <li className="hover:text-foreground cursor-pointer transition">
-                Refund & Cancellation
+              <li>
+                <Link href="/terms#cancellations" className="hover:text-foreground cursor-pointer transition">
+                  Refund & Cancellation
+                </Link>
               </li>
 
-              <li className="hover:text-foreground cursor-pointer transition">
-                Contact Us
+              <li>
+                <Link href="/contact" className="hover:text-foreground cursor-pointer transition">
+                  Contact Us
+                </Link>
               </li>
             </ul>
           </div>
@@ -143,20 +152,28 @@ export function Footer() {
             </h3>
 
             <ul className="space-y-3 text-sm text-muted-foreground">
-              <li className="hover:text-foreground cursor-pointer transition">
-                About Us
+              <li>
+                <Link href="/about" className="hover:text-foreground cursor-pointer transition">
+                  About Us
+                </Link>
               </li>
 
-              <li className="hover:text-foreground cursor-pointer transition">
-                Careers
+              <li>
+                <Link href="/careers" className="hover:text-foreground cursor-pointer transition">
+                  Careers
+                </Link>
               </li>
 
-              <li className="hover:text-foreground cursor-pointer transition">
-                Privacy Policy
+              <li>
+                <Link href="/privacy" className="hover:text-foreground cursor-pointer transition">
+                  Privacy Policy
+                </Link>
               </li>
 
-              <li className="hover:text-foreground cursor-pointer transition">
-                Terms of Services
+              <li>
+                <Link href="/terms" className="hover:text-foreground cursor-pointer transition">
+                  Terms of Services
+                </Link>
               </li>
 
               <li>
@@ -173,17 +190,24 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Mobile Accordion */}
           <div className="space-y-3 md:hidden">
             <MobileSection
               title="Support"
               isOpen={openSection === "support"}
               onClick={() => toggleSection("support")}
             >
-              <li>Help Center</li>
-              <li>Booking Policy</li>
-              <li>Refund & Cancellation</li>
-              <li>Contact Us</li>
+              <li>
+                <Link href="/contact">Help Center</Link>
+              </li>
+              <li>
+                <Link href="/terms#bookings">Booking Policy</Link>
+              </li>
+              <li>
+                <Link href="/terms#cancellations">Refund & Cancellation</Link>
+              </li>
+              <li>
+                <Link href="/contact">Contact Us</Link>
+              </li>
             </MobileSection>
 
             <MobileSection
@@ -191,10 +215,18 @@ export function Footer() {
               isOpen={openSection === "company"}
               onClick={() => toggleSection("company")}
             >
-              <li>About Us</li>
-              <li>Careers</li>
-              <li>Privacy Policy</li>
-              <li>Terms of Services</li>
+              <li>
+                <Link href="/about">About Us</Link>
+              </li>
+              <li>
+                <Link href="/careers">Careers</Link>
+              </li>
+              <li>
+                <Link href="/privacy">Privacy Policy</Link>
+              </li>
+              <li>
+                <Link href="/terms">Terms of Services</Link>
+              </li>
 
               <li>
                 <a
@@ -216,13 +248,13 @@ export function Footer() {
           <span>© 2026 Revellio. All Rights Reserved.</span>
 
           <div className="flex flex-wrap items-center justify-center gap-4 md:justify-end">
-            <span className="cursor-pointer hover:text-foreground transition">
+            <Link href="/privacy" className="cursor-pointer hover:text-foreground transition">
               Privacy Policy
-            </span>
+            </Link>
 
-            <span className="cursor-pointer hover:text-foreground transition">
+            <Link href="/terms" className="cursor-pointer hover:text-foreground transition">
               Terms of Use
-            </span>
+            </Link>
 
             <span className="cursor-pointer hover:text-foreground transition">
               Sales & Refunds
@@ -244,13 +276,20 @@ export function Footer() {
 
 function SocialIcon({
   icon,
+  href,
 }: {
   icon: React.ReactNode;
+  href: string;
 }) {
   return (
-    <div className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border text-primary transition hover:bg-secondary hover:text-white">
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex h-9 w-9 items-center justify-center rounded-full border text-primary transition hover:bg-secondary hover:text-white"
+    >
       {icon}
-    </div>
+    </a>
   );
 }
 

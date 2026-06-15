@@ -296,8 +296,8 @@ export function SignupForm({ setTag, className }: {
 
                 <FieldDescription className="px-6 text-center">
                   By clicking continue, you agree to our{" "}
-                  <a href="#">Terms of Service</a> and{" "}
-                  <a href="#">Privacy Policy</a>.
+                  <a href="/terms" target="_blank" className="text-primary hover:underline">Terms of Service</a> and{" "}
+                  <a href="/privacy" target="_blank" className="text-primary hover:underline">Privacy Policy</a>.
                 </FieldDescription>
 
               </div>
@@ -360,8 +360,8 @@ export function SignInForm({ setTag, className }: {
         </FieldDescription>
       </div>
       <FieldDescription className="px-6 text-center">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
-        and <a href="#">Privacy Policy</a>.
+        By clicking continue, you agree to our <a href="/terms" target="_blank" className="text-primary hover:underline">Terms of Service</a>{" "}
+        and <a href="/privacy" target="_blank" className="text-primary hover:underline">Privacy Policy</a>.
       </FieldDescription>
 
     </div>
@@ -551,8 +551,8 @@ export function ResetPassword({ setTag, className, hideTag = false }: {
 
                 <FieldDescription className="px-6 text-center">
                   By clicking continue, you agree to our{" "}
-                  <a href="#">Terms of Service</a> and{" "}
-                  <a href="#">Privacy Policy</a>.
+                  <a href="/terms" target="_blank" className="text-primary hover:underline">Terms of Service</a> and{" "}
+                  <a href="/privacy" target="_blank" className="text-primary hover:underline">Privacy Policy</a>.
                 </FieldDescription>
 
               </div>
