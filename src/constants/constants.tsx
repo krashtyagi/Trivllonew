@@ -6,6 +6,7 @@ import { Icon } from "@tabler/icons-react";
 import { Calendar, LucideProps, MapPin, PersonStanding, User, type LucideIcon } from "lucide-react";
 import SearchInput from "./search-box-components/search-input";
 import { useState } from "react";
+import { CityTrends } from "@/types";
 export type type = "home" | "filter" | "profile" | "settings" | "payments";
 
 export interface Pages {
@@ -479,7 +480,51 @@ export const Search_box_values: SearchBoxValuesProps[] = [
 
 
 
+export const HotelPopularCites: CityTrends[] = [
+  {
+    name: "cabs",
+    tagline: "Premium cabs services",
+    tabs: [
+      { name: "Primium" },
+      { name: "Luxury" },
+      { name: "Economy" },
+      { name: "Prime Luxury" },
+      {
+        name: "Elite"
+      }
+    ]
 
+  },
+  {
+    name: "Bangalore",
+    tagline: "Available feets near you",
+    tabs: [
+      { name: "Ecnomy" },
+      { name: "Mini" },
+      { name: "Sedan" },
+      { name: "Prime" },
+      {
+        name: "Ececutive"
+      }
+    ]
+  },
+  {
+    name: "south goa",
+    tagline: "Available feets near you"
+  },
+  {
+    name: "Bangalore",
+    tagline: "Available feets near you"
+  },
+  {
+    name: "south goa",
+    tagline: "Available feets near you"
+  },
+  {
+    name: "Bangalore",
+    tagline: "Available feets near you"
+  },
+]
 
 
 
