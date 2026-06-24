@@ -1,6 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-
+@import "@fortawesome/fontawesome-free/css/all.min.css";
 @custom-variant dark (&:is(.dark *));
 @import "leaflet/dist/leaflet.css";
 @theme inline {
