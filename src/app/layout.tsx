@@ -1,15 +1,13 @@
-
-
-
-
-/////------------ yogesh code with seo
-
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
+
 import "./globals.css";
+
 import MainProvider from "@/providers/main-provider/main-provider";
 import { Toaster } from "@/components/ui/sonner";
 import TopLoader from "./toploader";
+
 import trivlloData from "@/../trivllo.json";
 
 const geistSans = Geist({
@@ -22,64 +20,106 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-
 export const metadata: Metadata = {
+  metadataBase: new URL(trivlloData.contact.website),
+
   title: {
     default: `${trivlloData.company_name} | Hotels, Cabs & Adventure Experiences`,
     template: `%s | ${trivlloData.company_name}`,
   },
+
   description:
     `Your ultimate travel companion. Book premium hotels, reliable cab services, and thrilling adventure activities all in one place with ${trivlloData.company_name}.`,
+
+  keywords: [
+    trivlloData.company_name,
+    "Hotel Booking",
+    "Travel Packages India",
+    `${trivlloData.company_name} App`,
+    "Adventure Experiences",
+    "Travel Platform",
+    "Cab Booking",
+  ],
+
+  authors: [
+    {
+      name: `${trivlloData.company_name} Team`,
+    },
+  ],
+
+  creator: trivlloData.company_name,
+  publisher: trivlloData.company_name,
+
+  alternates: {
+    canonical: "/",
+  },
+
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-video-preview": -1,
+      "max-snippet": -1,
+    },
+  },
+
+  verification: {
+    other: {
+      "facebook-domain-verification":
+        "kthtqxpp6w141r75p1d6q8y6jgsymo",
+    },
+  },
+
   icons: {
     icon: "/trivllo-logo.svg",
     shortcut: "/trivllo-logo.svg",
     apple: "/trivllo-logo.svg",
   },
-  // manifest: "/manifest.json",
-
-  keywords: [
-    trivlloData.company_name,
-    "Hotel Booking",
-    // "Cab Rental",
-    // "Adventure Sports Booking",
-    // "Rishikesh Adventures",
-    "Travel Packages India",
-    `${trivlloData.company_name} App`,
-  ],
-  authors: [{ name: `${trivlloData.company_name} Team` }],
 
   openGraph: {
     type: "website",
     locale: "en_IN",
     url: trivlloData.contact.website,
-    siteName: `${trivlloData.company_name} - Stays, Rides & Adventures`,
-    title: `${trivlloData.company_name} | One Web App for All Your Travel Needs`,
+    siteName: trivlloData.company_name,
+
+    title:
+      `${trivlloData.company_name} | Hotels, Cabs & Adventure Experiences`,
+
     description:
-      `Discover luxury stays, seamless cab rides, and adrenaline-pumping adventures. ${trivlloData.company_name} makes travel simple and memorable.`,
+      `Discover luxury stays, seamless cab rides, and unforgettable adventures with ${trivlloData.company_name}.`,
+
     images: [
       {
-        url: "/og-main-preview.png",
+        url: `${trivlloData.contact.website}/og-main-preview.png`,
         width: 1200,
         height: 630,
-        alt: `${trivlloData.company_name} - Hotels, Cabs, Adventures`,
+        alt: `${trivlloData.company_name} Open Graph Preview`,
       },
     ],
   },
 
   twitter: {
     card: "summary_large_image",
-    title: `${trivlloData.company_name} | Premium Travel Services`,
-    description: "Book Hotels, Cabs, and Adventures instantly.",
-    images: ["/og-main-preview.png"],
+
+    title:
+      `${trivlloData.company_name} | Hotels, Cabs & Adventure Experiences`,
+
+    description:
+      `Book hotels, cabs and adventures in one place.`,
+
+    images: [
+      `${trivlloData.contact.website}/og-main-preview.png`,
+    ],
   },
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
-  themeColor: "#ff3838",
+  themeColor: "#015e09",
 };
 
 export default function RootLayout({
@@ -89,69 +129,25 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-
-      <head>
-        {/* Facebook Verification */}
-        <meta
-          name="facebook-domain-verification"
-          content="kthtqxpp6w141r75p1d6q8y6jgsymo"
-        />
-
-        {/* Font Awesome */}
-        <link
-          rel="preconnect"
-          href="https://cdnjs.cloudflare.com"
-        />
-
-        <link
-          rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-          integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
-          crossOrigin="anonymous"
-          referrerPolicy="no-referrer"
-        />
-      </head>
-      {/* <head>
-        <meta name="facebook-domain-verification" content="kthtqxpp6w141r75p1d6q8y6jgsymo" />
-        <link
-          rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-          integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
-          crossOrigin="anonymous"
-          referrerPolicy="no-referrer"
-        />
-
-      </head> */}
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <MainProvider>
           <TopLoader />
+
           {children}
-          <Toaster position="bottom-left" expand={true} />
+
+          <Toaster
+            position="bottom-left"
+            expand
+          />
         </MainProvider>
 
-        {/* Razorpay Script */}
-        <script
+        <Script
           src="https://checkout.razorpay.com/v1/checkout.js"
-          async
-        ></script>
+          strategy="lazyOnload"
+        />
       </body>
     </html>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
