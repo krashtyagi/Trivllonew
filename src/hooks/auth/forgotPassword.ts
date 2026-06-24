@@ -14,14 +14,11 @@ import { useCurrentUser } from "@/services/hotel/querys";
 import { dotoggleLike } from "@/services/hotel/hotel.service";
 import { RouterPush } from "@/components/RouterPush";
 
-export const useResetPassword = () => {
+export const useResetPassword = (onSuccess?: () => void) => {
   const [loading, setLoading] = React.useState<boolean>(false);
   const navigate = useRouter();
-  const {
-    forgotPasswordEmail,
-    verifyForgotPasswordOTPEmail,
-    resetPasswordEmail,
-  } = useAuthStore();
+  const { forgotPassword, verifyForgotPasswordOTP, resetPassword } =
+    useAuthStore();
 
   const methods = useForm<ResetPasswordProps>({
     resolver: zodResolver(ResetPasswordSchema),
@@ -38,13 +35,14 @@ export const useResetPassword = () => {
   const onHandleSubmit = methods.handleSubmit(async (data) => {
     setLoading(true);
     try {
-      const result = await resetPasswordEmail({
+      const result = await resetPassword({
         email: data.email,
         otp: data.otp,
         newPassword: data.password,
       });
       if (result.success) {
         toast.success(result.message || "password reset successfully");
+        onSuccess?.();
         RouterPush(navigate, "/");
       } else {
         toast.error(result.message || "Failed to reset password");
@@ -61,25 +59,14 @@ export const useResetPassword = () => {
     otp: string,
     onNext: React.Dispatch<React.SetStateAction<number>>,
   ) => {
-    setLoading(true);
-
-    try {
-      const result = await verifyForgotPasswordOTPEmail({
-        email: email,
-        otp: otp,
-        endpoint: "/auth/otp-verify",
-      });
-      if (result.success) {
-        onNext((prev) => prev + 1);
-        toast.success(result.message || "OTP verified successfully");
-      } else {
-        toast.error(result.message || "Failed to verify OTP");
-      }
-    } catch (error) {
-      toast.error("An unexpected error occurred");
-    } finally {
-      setLoading(false);
+    // Skip separate OTP verification API call.
+    // The OTP will be verified by /auth/reset-password when the user submits the new password.
+    // This avoids /auth/email-verify-otp clearing the OTP before reset-password can use it.
+    if (!otp || otp.length < 4) {
+      toast.error("Please enter a valid OTP");
+      return;
     }
+    onNext((prev) => prev + 1);
   };
 
   const onGenerateOtp = async (
@@ -89,7 +76,7 @@ export const useResetPassword = () => {
   ) => {
     setLoading(true);
     try {
-      const result = await forgotPasswordEmail({
+      const result = await forgotPassword({
         email,
       });
       if (result.success) {

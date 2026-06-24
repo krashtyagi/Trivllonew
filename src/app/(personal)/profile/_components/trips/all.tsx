@@ -114,8 +114,8 @@ export function AllReservations({
                 checkIn={val.checkIn}
                 checkOut={val.checkOut}
                 guests={{
-                  adults: val.guests.adults,
-                  children: val.guests.children,
+                  adults: val.guests?.adults,
+                  children: val.guests?.children,
                 }}
                 bookingId={val.bookingId}
                 status={val.status}

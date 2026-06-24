@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { userAccessToken } from "@/constants/auth";
+import { userAccessToken } from "@/types/auth";
 
 const NotAuthorise = ({ children, className, title, description }: {
     children: React.ReactNode,

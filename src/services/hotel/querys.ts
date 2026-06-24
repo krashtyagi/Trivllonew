@@ -1,7 +1,6 @@
 "use client";
 import { currentUser } from "../user.service";
 import { useQuery } from "@tanstack/react-query";
-import { userAccessToken } from "@/constants/auth";
 import {
   getHotels,
   getHotelDetails,
@@ -16,6 +15,7 @@ import {
 import { getBookingById, getMyBookings } from "../booking/booking.service";
 import { Filters } from "@/context/NuqsContentProvider";
 import { CompanyType } from "@/app/(home)/(categories)/_componentsRoot_categories/reviews";
+import { userAccessToken } from "@/types/auth";
 
 export const useSearchCity = (query: string) => {
   return useQuery({

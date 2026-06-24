@@ -1,5 +1,7 @@
 'use client'
-import { ResetPassword, Sign_in_hover, SignInForm, SignupForm } from '@/components/auth/_components/sign-in-hover'
+import { ResetPassword, SignInForm, SignupForm } from '@/components/auth/_components/sign-in-hover'
+import AuthContextProvider from '@/context/auth/auth-form-provider'
+import ResetPasswordContextProvider from '@/context/auth/resetpasswordsteps'
 import React from 'react'
 
 type Props = {}
@@ -9,9 +11,13 @@ const LoginPage = (props: Props) => {
     return (
         <div className='w-full h-full flex justify-center items-center'>
             {tag === "Sign-up" ? (
-                <SignupForm setTag={setTag} />
+                <AuthContextProvider>
+                    <SignupForm setTag={setTag} />
+                </AuthContextProvider>
             ) : tag === "ResetPassword" ? (
-                <ResetPassword setTag={setTag} />
+                <ResetPasswordContextProvider>
+                    <ResetPassword setTag={setTag} />
+                </ResetPasswordContextProvider>
             ) : (
                 <SignInForm setTag={setTag} />
             )}
@@ -19,4 +25,4 @@ const LoginPage = (props: Props) => {
     )
 }
 
-export default LoginPage
+export default LoginPage

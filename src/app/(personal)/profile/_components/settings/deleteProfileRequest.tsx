@@ -21,16 +21,19 @@ const CONFIRMATION_TEXT = "DELETEMYPROFILE";
 export function DeleteAccountRequestDialog({
     tag: tg,
     variant = "destructive",
-    className
+    className,
+    setOpen,
+    open
 }: {
     className?: string;
     tag: string;
     variant?: "link" | "default" | "destructive" | "outline" | "secondary" | "ghost";
+    open: boolean;
+    setOpen: (open: boolean) => void;
 }) {
     const [inputValue, setInputValue] = useState("");
     const [reason, setReason] = useState("");
     const [isLoading, setIsLoading] = useState(false);
-
     const handleDeleteAccountRequest = async () => {
         if (inputValue !== CONFIRMATION_TEXT) return;
 
@@ -46,11 +49,14 @@ export function DeleteAccountRequestDialog({
             toast.error("An unexpected error occurred");
         } finally {
             setIsLoading(false);
+            setOpen(false);
+            setReason("");
+            setInputValue("");
         }
     };
 
     return (
-        <Dialog>
+        <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
                 <Button variant={variant} className={cn("flex justify-start", className)}>
                     {tg}
@@ -65,6 +71,7 @@ export function DeleteAccountRequestDialog({
                 </DialogHeader>
 
                 <div className="py-4 space-y-4">
+                    {/* Reason Input */}
                     <Textarea
                         placeholder="Please tell us why you want to delete your account (optional)"
                         value={reason}
@@ -72,6 +79,7 @@ export function DeleteAccountRequestDialog({
                         className="resize-none"
                     />
 
+                    {/* Confirmation Input */}
                     <Input
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value)}

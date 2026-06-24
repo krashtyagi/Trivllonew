@@ -504,4 +504,16 @@ export const IconsBundle: Record<string, LucideIcon> = {
 };
 
 
+export const hotelFeatures: Record<string, LucideIcon> = {
+  ...FoodAndDrinks,
+  ...ConnectivityAndBusiness,
+  ...ComfortAndClimate,
+  ...RulesAndAccess,
+  ...Facilities,
+  ...RoomFeatures,
+  ...Transport,
+  ...Family,
+  ...Locations,
+};
+
 export const amenityIconMap: Record<string, LucideIcon> = { ...IconsBundle };

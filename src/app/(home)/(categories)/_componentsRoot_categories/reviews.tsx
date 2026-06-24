@@ -182,7 +182,7 @@ const ReviewCard = ({ comment }: { comment: any }) => {
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <Avatar className="w-10 h-10 border">
-                        <AvatarImage src={comment.userId?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`} />
+                        <AvatarImage src={comment.userId?.avatar || `https://api.dicebear.com/10.x/initials/svg?seed=${name}`} />
                         <AvatarFallback>{name.charAt(0)}</AvatarFallback>
                     </Avatar>
                     <div>
@@ -195,7 +195,7 @@ const ReviewCard = ({ comment }: { comment: any }) => {
 
             <div className="flex-1 flex flex-col justify-between gap-3">
                 <p className="text-sm text-zinc-600 leading-relaxed line-clamp-4">
-                    &quot;{comment.comment || "No comment left."}&quot;
+                    {comment.comment || "No comment left."}
                 </p>
 
                 {comment.vendorReply?.message && (

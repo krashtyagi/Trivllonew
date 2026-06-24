@@ -12,7 +12,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import TopRight from "./topRight";
 import { BottomNav, MobileNavWrapper } from "./mobilenav";
 import { PopLogin } from "./PopMessages";
-import { userAccessToken } from "@/constants/auth";
+import { userAccessToken } from "@/types/auth";
 
 const pagesNames = pages.map((page) => page.link.split("/")[1]);
 const NavWrapper = ({ children }: { children: React.ReactNode }) => {
@@ -137,11 +137,14 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
             <LOGO />
             {(
               <div className="hidden md:flex flex-col items-center gap-[5px] h-full md:block w-full">
-                {shouldShowNavbar && (
+                {shouldShowNavbar ? (
                   <div className="md:w-[485px] lg:w-[585px] ">
 
                     <FindTabsNav mobile={false} tabs={FilterOfPages} />
                   </div>
+                ) : (
+                  <TabsNav mobile={false} tabs={pages} />
+
                 )}
               </div>
             )}
@@ -149,13 +152,13 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
           </div>
 
 
-          {(
+          {/* {(
             <div className="hidden md:flex flex-col items-center gap-[5px] h-full md:block -my-1">
               {!shouldShowNavbar && (
                 <TabsNav mobile={false} tabs={pages} />
               )}
             </div>
-          )}
+          )} */}
 
 
         </div>
@@ -171,7 +174,7 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
         className={cn(
           "flex-1 bg-card",
           // shouldShowNavbar ? "pt-21" : "pt-29",
-          isMobile ? "pt-3" : "",
+          isMobile ? "pt-2" : "",
         )}
       >
         {!shouldShowNavbar && ismobile && <TabsNav mobile={false} tabs={pages} />}
@@ -184,9 +187,7 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
       </main>
       <div className="w-full border-1 mt-10" />
 
-      <div className="flex flex-col items-center px-auto">
-        <Footer />
-      </div>
+      <Footer />
       {/* CUSTOM LOGIN AD POPUP */}
       {showAdPopup && !hasDismissed && (
         <PopLogin setHasDismissed={setHasDismissed} setShowAdPopup={setShowAdPopup} />

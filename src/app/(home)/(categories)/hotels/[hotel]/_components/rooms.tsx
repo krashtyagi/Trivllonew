@@ -11,6 +11,7 @@ import { HotelRoomCard, HotelRoomCardSkeleton } from "./room-card";
 import { RoomType } from "@/types";
 import { useHotelContext } from "../_providers_context/hotel-contextProvider";
 import { useHotelStore } from "@/store/hotel.store";
+import { cn } from "@/lib/utils";
 
 export const RoomsMain = ({
   hotelId,
@@ -37,19 +38,13 @@ export const RoomsMain = ({
         </p>
       </div> */}
 
-      {isLoading && isBookingMode ? (
-        <div className="flex flex-col gap-4">
-          {[1, 2].map((i) => (
-            <HotelRoomCardSkeleton key={i} />
-          ))}
-        </div>
-      ) : (
+      <div className={cn("transition-all duration-300", isLoading && isBookingMode && "opacity-50 blur-[2px] pointer-events-none")}>
         <RoomsBedTabs
           roomTypes={rooms}
           hotelId={hotelId}
           isBookingMode={isBookingMode}
         />
-      )}
+      </div>
     </div>
   );
 };
@@ -189,7 +184,8 @@ export const RoomCardItem = ({
   isBookingMode: boolean;
 }) => {
   const { date: d } = useHotelStore();
-  const showReserveButton = !!d?.to && !!d?.from;
+  const { isStale } = useHotelContext();
+  const showReserveButton = !!d?.to && !!d?.from && !isStale;
   const totalBeds = room.beds.reduce(
     (acc: number, curr: { quantity: number }) => acc + curr.quantity,
     0,
@@ -221,6 +217,7 @@ export const RoomCardItem = ({
       totalTax={room.totalTax}
       totalPriceWithTax={room.totalPriceWithTax}
 
+      isStale={isStale}
       showReserveButton={showReserveButton}
       key={room._id}
       hotelId={hotelId}

@@ -13,7 +13,6 @@ export function LayoutGridDemo({ images: imagelist, v = "default" }: { images: H
       </div>
     );
   }
-  console.log("imagelist", imagelist)
 
   const imageUrls = imagelist
     ?.map((img) => img?.url)
@@ -35,6 +34,19 @@ export function LayoutGridDemo({ images: imagelist, v = "default" }: { images: H
     });
   }
 
+  const remainingImages = imageUrls.slice(5);
+  const additionalSections = [];
+  for (let i = 0; i < remainingImages.length; i += 4) {
+    const chunk = remainingImages.slice(i, i + 4);
+    additionalSections.push({
+      type: "grid",
+      images: chunk.map((src, idx) => ({
+        src,
+        alt: `Hotel view ${idx + 6 + i}`,
+      })),
+    });
+  }
+
   const gallerySections = [
     {
       images: [
@@ -48,6 +60,7 @@ export function LayoutGridDemo({ images: imagelist, v = "default" }: { images: H
       type: "grid",
       images: gridImages,
     },
+    ...additionalSections
   ];
 
   return (

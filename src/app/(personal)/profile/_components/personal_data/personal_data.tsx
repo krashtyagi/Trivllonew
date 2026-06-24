@@ -51,8 +51,8 @@ export function UserProfileFields({
     defaultValues: {
       firstName: currUser?.data?.firstName || "",
       lastName: currUser?.data?.lastName || "",
-      phoneNumber: currUser?.data?.phoneNumber || "",
       // email: currUser?.data?.email || "",
+      phoneNumber: currUser?.data?.phoneNumber || "",
       gender:
         (currUser?.data?.gender as "male" | "female" | "other") || "other",
       country: currUser?.data?.country || "India",
@@ -133,37 +133,26 @@ export function UserProfileFields({
                   <FieldLabel>{t("personal.email")}</FieldLabel>
                   <Input
                     disabled
-                    value={currUser?.data?.email || ""}
-                    // {...register("email")}
-                    // placeholder={t("personal.enterEmail")}
+                    defaultValue={currUser?.data?.email || ""}
+                    placeholder={t("personal.enterEmail")}
                     className="bg-muted cursor-not-allowed"
                   />
-
-                  {/* <div>
-                   {errors.email && (
-                    <span className="text-destructive text-xs">
-                      {errors.email.message}
-                    </span>
-                  )}
-                 </div> */}
-
+                  {/* <span className="text-destructive text-xs">
+                    {"Can't update email"}
+                  </span> */}
                 </Field>
                 <Field>
                   <FieldLabel htmlFor="phone">{t("personal.phone")}</FieldLabel>
                   <Input
                     {...register("phoneNumber")}
-                    defaultValue={currUser?.data?.phoneNumber || ""}
-                    className="bg-background"
                     placeholder="+1 (555) 000-0000"
                     type="tel"
                   />
-                  {
-                    errors.phoneNumber && (
-                      <span className="text-destructive text-xs">
-                        {errors.phoneNumber.message}
-                      </span>
-                    )
-                  }
+                  {errors.phoneNumber && (
+                    <span className="text-destructive text-xs">
+                      {errors.phoneNumber.message}
+                    </span>
+                  )}
                 </Field>
               </div>
               <div className="flex flex-col md:flex-row justify-between items-center gap-5">

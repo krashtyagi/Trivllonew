@@ -16,7 +16,7 @@ import { Pagination_console } from "@/components/ui/pagination-console";
 import SwitchGrids from "@/components/side-bar-filter/SwitchGrid";
 import { SideBarFilter } from "@/components/filter-bar/sidebar-filter";
 import { SheetNavigation } from "@/components/ui/sheetNavigation";
-import { items } from "@/constants/filter-constants";
+import { tourItems } from "@/constants/filter-constants";
 
 type Props = {};
 
@@ -32,7 +32,7 @@ export const ContentFrame = (props: Props) => {
           {<div className="block xl:hidden h-10    ">
             <SheetNavigation
               content={
-                <SideBarFilter items={items} mapSrc="/map-icons/map.png" alt="map image" overlayTitle="See Location on Map" />
+                <SideBarFilter items={tourItems} mapSrc="/map-icons/map.png" alt="map image" overlayTitle="See Location on Map" />
               }
               setOpen={setOpen}
               trigger={

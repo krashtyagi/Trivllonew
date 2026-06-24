@@ -44,7 +44,8 @@ import ResetPasswordContextProvider, { useResetPasswordForm } from "@/context/au
 import { ForgotPasswordOTPForm } from "./ForgotPassword";
 import { Eye, EyeOff } from "lucide-react";
 import ForgetPasswordHandeler from "./forgetpasswordhandelser";
-import { userAccessToken } from "@/constants/auth";
+import { userAccessToken } from "@/types/auth";
+import trivlloData from "@/../trivllo.json";
 const ConnectWithMedia = [
   {
     title: "Facebook",
@@ -66,8 +67,10 @@ export function Sign_in_hover({
   forLike,
   tag: tg,
   variant,
-  className
+  className,
+  handelClose,
 }: {
+  handelClose?: () => void
   forLike?: {
     content: React.ReactNode;
     id?: string;
@@ -86,19 +89,25 @@ export function Sign_in_hover({
 }) {
   // console.log("trigger menu");
   const [tag, setTag] = React.useState<"Log-in" | "Sign-up" | "ResetPassword">(tg);
+  const [open, setOpen] = React.useState(false);
   const { type: t, do: d } = forLike || {};
 
+  const closeAll = () => {
+    setOpen(false);
+    if (handelClose) {
+      handelClose();
+    }
+  };
 
   return (
-    <Dialog onOpenChange={(value) => {
+    <Dialog open={open} onOpenChange={(value) => {
+      setOpen(value);
       localStorage.setItem(t || "nextRoute", d || "/profile")
       if (t === "nextRoute") {
-
         localStorage.removeItem("like");
       } else {
         localStorage.removeItem("nextRoute");
       }
-
 
       if (!value) {
         localStorage.removeItem(forLike?.type || "nextRoute"); // triggers when dialog closes
@@ -118,15 +127,14 @@ export function Sign_in_hover({
 
         {tag === "Sign-up" ? (
           <AuthContextProvider>
-
-            <SignupForm setTag={setTag} />
+            <SignupForm setTag={setTag} handelClose={closeAll} />
           </AuthContextProvider>
         ) : tag === "ResetPassword" ? (
           <ResetPasswordContextProvider>
-            <ResetPassword setTag={setTag} />
+            <ResetPassword setTag={setTag} handelClose={closeAll} />
           </ResetPasswordContextProvider>
         ) : (
-          <SignInForm setTag={setTag} />
+          <SignInForm setTag={setTag} handelClose={closeAll} />
         )}
       </DialogContent>
     </Dialog>
@@ -134,15 +142,24 @@ export function Sign_in_hover({
 }
 
 
-export function SignupForm({ setTag, className }: {
+export function SignupForm({ setTag, className, handelClose }: {
   setTag: React.Dispatch<React.SetStateAction<"Log-in" | "Sign-up" | "ResetPassword">>
   className?: string
+  handelClose?: () => void
 }) {
   const { currentStep, setCurrentStep } = useAuthForm();
   const { loading, methods, onHandleSubmit } = useSignUp();
   const [onOTP, setOnOTP] = React.useState<string>("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  useEffect(() => {
+    const f = localStorage.getItem(userAccessToken);
+    if (f) {
+      handelClose && handelClose();
+    }
+  }, [loading]);
+
   return (
     <Form {...methods}>
       <form onSubmit={onHandleSubmit}>
@@ -158,9 +175,9 @@ export function SignupForm({ setTag, className }: {
                     <div className="flex  items-center justify-center rounded-md">
                       <LOGO />
                     </div>
-                    <span className="sr-only">Trivllo </span>
+                    <span className="sr-only">{trivlloData.company_name} </span>
                   </a>
-                  <h1 className="text-xl font-bold">Welcome to Trivllo</h1>
+                  <h1 className="text-xl font-bold">Welcome to {trivlloData.company_name}</h1>
                   {/* <p>
                     Don&apos;t have an account? <a href="/signup">Sign up</a>
                   </p> */}
@@ -176,7 +193,7 @@ export function SignupForm({ setTag, className }: {
                           <FormLabel>Email</FormLabel>
                           <FormControl>
                             <Input
-                              className="rounded-full [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                              className="rounded-full"
                               id="email"
                               type="email"
                               placeholder="Enter your email"
@@ -296,8 +313,8 @@ export function SignupForm({ setTag, className }: {
 
                 <FieldDescription className="px-6 text-center">
                   By clicking continue, you agree to our{" "}
-                  <a href="/terms" target="_blank" className="text-primary hover:underline">Terms of Service</a> and{" "}
-                  <a href="/privacy" target="_blank" className="text-primary hover:underline">Privacy Policy</a>.
+                  <a href="#">Terms of Service</a> and{" "}
+                  <a href="#">Privacy Policy</a>.
                 </FieldDescription>
 
               </div>
@@ -316,9 +333,10 @@ export function SignupForm({ setTag, className }: {
   );
 }
 
-export function SignInForm({ setTag, className }: {
+export function SignInForm({ setTag, className, handelClose }: {
   setTag: React.Dispatch<React.SetStateAction<"Log-in" | "Sign-up" | "ResetPassword">>
   className?: string
+  handelClose?: () => void
 }) {
 
 
@@ -333,14 +351,14 @@ export function SignInForm({ setTag, className }: {
           <div className="flex  items-center justify-center rounded-md">
             <LOGO />
           </div>
-          <span className="sr-only">trivllo </span>
+          <span className="sr-only">{trivlloData.company_name} </span>
         </a>
-        <h1 className="text-xl font-bold">Welcome to trivllo </h1>
+        <h1 className="text-xl font-bold">Welcome to {trivlloData.company_name} </h1>
         {/* <p>
           Don&apos;t have an account? <a href="/signup">Sign up</a>
         </p> */}
       </div>
-      <LofinFormFields />
+      <LofinFormFields handelClose={handelClose} />
 
       {/* <div className="flex flex-col items-center gap-2 text-center  md:hidden font-bold text-primary">
         <FieldDescription>
@@ -360,8 +378,8 @@ export function SignInForm({ setTag, className }: {
         </FieldDescription>
       </div>
       <FieldDescription className="px-6 text-center">
-        By clicking continue, you agree to our <a href="/terms" target="_blank" className="text-primary hover:underline">Terms of Service</a>{" "}
-        and <a href="/privacy" target="_blank" className="text-primary hover:underline">Privacy Policy</a>.
+        By clicking continue, you agree to our <a href="http://localhost:3000/terms-of-services">Terms of Service</a>{" "}
+        and <a href="http://localhost:3000/privacy-policy">Privacy Policy</a>.
       </FieldDescription>
 
     </div>
@@ -372,8 +390,6 @@ export const LofinFormFields = ({ handelClose }: { handelClose?: () => void }) =
   const [showPassword, setShowPassword] = useState(false);
   const { refetch } = useCurrentUser();
   const { loading, methods, onHandleSubmit } = useLogin({ refetch });
-  console.log("asdasd asd", userAccessToken);
-
   useEffect(() => {
     const f = localStorage.getItem(userAccessToken);
     if (f) {
@@ -397,7 +413,7 @@ export const LofinFormFields = ({ handelClose }: { handelClose?: () => void }) =
                       type="email"
                       placeholder="Enter your email"
                       disabled={loading}
-                      className="rounded-full [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      className="rounded-full"
                       {...field}
                     />
                   </FormControl>
@@ -452,13 +468,14 @@ export const LofinFormFields = ({ handelClose }: { handelClose?: () => void }) =
     </Form>
   )
 }
-export function ResetPassword({ setTag, className, hideTag = false }: {
+export function ResetPassword({ setTag, className, hideTag = false, handelClose }: {
   setTag: React.Dispatch<React.SetStateAction<"Log-in" | "Sign-up" | "ResetPassword">>
   className?: string
   hideTag?: boolean
+  handelClose?: () => void
 }) {
   const { currentStep, setCurrentStep } = useResetPasswordForm();
-  const { loading, methods, onHandleSubmit } = useResetPassword();
+  const { loading, methods, onHandleSubmit } = useResetPassword(handelClose);
   const [onOTP, setOnOTP] = React.useState<string>("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -477,9 +494,9 @@ export function ResetPassword({ setTag, className, hideTag = false }: {
                     <div className="flex  items-center justify-center rounded-md">
                       <LOGO />
                     </div>
-                    <span className="sr-only">trivllo </span>
+                    <span className="sr-only"> </span>
                   </a>
-                  <h1 className="text-xl font-bold">Welcome to trivllo</h1>
+                  <h1 className="text-xl font-bold">Welcome to {trivlloData.company_name}</h1>
                   {/* <p>
                     Don&apos;t have an account? <a href="/signup">Sign up</a>
                   </p> */}
@@ -495,10 +512,10 @@ export function ResetPassword({ setTag, className, hideTag = false }: {
                           <FormLabel>Email</FormLabel>
                           <FormControl>
                             <Input
-                              className="rounded-full [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                              id="phone"
-                              type="number"
-                              placeholder="Enter your phone"
+                              className="rounded-full"
+                              id="email"
+                              type="email"
+                              placeholder="Enter your email"
                               disabled={loading}
                               {...field}
 
@@ -551,8 +568,8 @@ export function ResetPassword({ setTag, className, hideTag = false }: {
 
                 <FieldDescription className="px-6 text-center">
                   By clicking continue, you agree to our{" "}
-                  <a href="/terms" target="_blank" className="text-primary hover:underline">Terms of Service</a> and{" "}
-                  <a href="/privacy" target="_blank" className="text-primary hover:underline">Privacy Policy</a>.
+                  <a href="#">Terms of Service</a> and{" "}
+                  <a href="#">Privacy Policy</a>.
                 </FieldDescription>
 
               </div>

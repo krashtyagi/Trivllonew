@@ -9,7 +9,7 @@ import MobileValueProvider from "@/context/mobile-value";
 import { NuqsAdapter } from "nuqs/adapters/react";
 import { Payment, useHotelStore } from "@/store/hotel.store";
 const MainProvider = ({ children }: { children: React.ReactNode }) => {
-  const queryClient = new QueryClient();
+  const [queryClient] = React.useState(() => new QueryClient());
   // // const theme = localStorage.getItem("theme")
   // const { setPayments } = useHotelStore();
   // useEffect(()=>{
@@ -20,16 +20,16 @@ const MainProvider = ({ children }: { children: React.ReactNode }) => {
 
     <NuqsAdapter>
       <QueryClientProviderLib client={queryClient}>
-        {/* <ThemeProvider
+        <ThemeProvider
 
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange>
-        </ThemeProvider> */}
-        <MobileValueProvider>
-          {children}
-        </MobileValueProvider>
+          <MobileValueProvider>
+            {children}
+          </MobileValueProvider>
+        </ThemeProvider>
       </QueryClientProviderLib>
     </NuqsAdapter>
   );

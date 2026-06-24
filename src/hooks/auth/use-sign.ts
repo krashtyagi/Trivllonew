@@ -12,7 +12,7 @@ import { RouterPush } from "@/components/RouterPush";
 export const useLogin = ({ refetch }: { refetch: () => void }) => {
   const [loading, setLoading] = React.useState<boolean>(false);
   const navigate = useRouter();
-  const { userLoginByEmail } = useAuthStore();
+  const { userLogin } = useAuthStore();
 
   // const {nextRoute , setNextRoute} = useRoutingStore()
   const methods = useForm<LoginFormProps>({
@@ -28,7 +28,7 @@ export const useLogin = ({ refetch }: { refetch: () => void }) => {
     setLoading(true);
 
     try {
-      const result = await userLoginByEmail(data);
+      const result = await userLogin(data);
       if (result.success) {
         toast.success(result.message || "Login successful!");
         // Redirect or close dialog

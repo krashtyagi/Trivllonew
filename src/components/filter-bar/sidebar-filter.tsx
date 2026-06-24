@@ -41,6 +41,8 @@ export const SideBarFilter = ({
     </div>
   );
 };
+
+import * as React from "react";
 import {
   Accordion,
   AccordionContent,
@@ -48,27 +50,47 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-
-
-
-
-
+import { useNuqsContext } from "@/context/NuqsContentProvider";
 
 export function FilterAccordion({
   items
 }: {
   items: AcordionItemType[]
 }) {
+  const { setFilters } = useNuqsContext();
+  const [openValues, setOpenValues] = React.useState<string[]>([]);
+
+  const handleClear = () => {
+    setFilters({
+      price: null,
+      typeOfPlace: null,
+      Bedrooms: null,
+      Beds: null,
+      Bathrooms: null,
+      roomSize: null,
+      distance: null,
+      amenities: null,
+      essentials: null,
+      features: null,
+      onsite: null,
+      roomsbeds: null,
+      location: null,
+      classification: null,
+      score: null,
+    } as any);
+    setOpenValues([]);
+  };
+
   return (
     <div className="w-full max-w-sm rounded-2xl border bg-zinc-50 dark:bg-zinc-900">
       <div className="flex items-center justify-between px-4 py-3 border-b">
         <p className="text-sm font-medium">Filter by</p>
-        <Button variant="ghost" size="sm">
+        <Button variant="ghost" size="sm" onClick={handleClear}>
           Clear
         </Button>
       </div>
 
-      <Accordion type="multiple">
+      <Accordion type="multiple" value={openValues} onValueChange={setOpenValues}>
         {items.map((item) => (
           <AccordionItem value={item.value} key={item.value}>
             <AccordionTrigger className="px-4">{item.trigger}</AccordionTrigger>

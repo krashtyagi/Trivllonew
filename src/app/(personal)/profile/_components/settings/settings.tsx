@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { AlertOverlay, DeleteAlertOverlay } from "@/components/ui/alert-dialouge";
+import { AlertOverlay, DeleteProfileRequestDialog } from "@/components/ui/alert-dialouge";
 import {
   Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader,
   DialogOverlay, DialogPortal, DialogTitle, DialogTrigger
@@ -144,7 +144,7 @@ const DeleteProfile = () => {
   const handelDeleteProfile = () => {
   };
   return (
-    <DeleteAlertOverlay
+    <DeleteProfileRequestDialog
       trigger={t("settings.deleteProfile")}
       variant="destructive"
       handelSumbit={handelDeleteProfile}

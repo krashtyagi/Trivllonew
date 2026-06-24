@@ -19,6 +19,7 @@ const HotelContext = React.createContext<{
   fetch: boolean;
   setFetch: React.Dispatch<React.SetStateAction<boolean>>;
   refetchAvailability: () => void;
+  isStale: boolean;
 } | null>(null);
 
 const HotelContextProvider = ({ hotelId, children }: Props) => {
@@ -37,12 +38,29 @@ const HotelContextProvider = ({ hotelId, children }: Props) => {
     };
   }, [rawDate]);
 
-  // ✅ Auto-fetch availability when dates are available (including on mount)
+  const [isStale, setIsStale] = useState(false);
+  const [initialFetchDone, setInitialFetchDone] = useState(false);
+
+  // ✅ Auto-fetch availability when dates are available ONLY on initial mount/hydrate
   useEffect(() => {
     if (date?.from && date?.to) {
-      setFetch(true);
+      if (!initialFetchDone) {
+        setFetch(true);
+        setInitialFetchDone(true);
+        setIsStale(false);
+      } else {
+        setIsStale(true);
+      }
+    } else {
+      setIsStale(true);
     }
-  }, [date?.from, date?.to]);
+  }, [date?.from?.getTime(), date?.to?.getTime(), guests.adults, guests.children]);
+
+  useEffect(() => {
+    if (fetch) {
+      setIsStale(false);
+    }
+  }, [fetch]);
 
   // ✅ Memoize params
   const availabilityParams = React.useMemo(
@@ -81,7 +99,8 @@ const HotelContextProvider = ({ hotelId, children }: Props) => {
       refetchAvailability,
       rooms,
       fetch,
-      setFetch
+      setFetch,
+      isStale
     }),
     [
       fetch,
@@ -90,6 +109,7 @@ const HotelContextProvider = ({ hotelId, children }: Props) => {
       availabilityLoading,
       refetchAvailability,
       rooms,
+      isStale,
     ]
   );
 

@@ -1,206 +1,111 @@
-import { HotelCheckBoxGroupOfClassification, HotelCheckBoxGroupOfRoomSize, HotelCheckBoxGroupOfScore, HotelCounters, HotelDistanceFromCenter, HotelPileGroup, HotelPileGroupOfAmenities, HotelPileGroupOfEssentials, HotelPileGroupOfFeatures, HotelPileGroupOfLocation, HotelPileGroupOfOnsite, HotelPriceRange } from "@/components/side-bar-filter/hotel/HotelPileGroup";
-import { amenityIconMap, ConnectivityAndBusiness, Facilities, Family, Locations, RoomFeatures, Transport } from "@/components/ui/icons";
-// export const ROOM_COUNTER_KEYS = ["Bedrooms", "Beds", "Bathrooms"] as const;
-
-// export type CounterKeys = typeof ROOM_COUNTER_KEYS[number];
 import {
-  Wifi,
-  Snowflake,
-  Flame,
-  WashingMachine,
-  Utensils,
+  HotelCheckBoxGroupOfClassification,
+  HotelCheckBoxGroupOfRoomSize,
+  HotelCheckBoxGroupOfScore,
+  HotelCounters,
+  HotelDistanceFromCenter,
+  HotelPileGroup,
+  HotelPileGroupOfAmenities,
+  HotelPileGroupOfEssentials,
+  HotelPileGroupOfFeatures,
+  HotelPileGroupOfLocation,
+  HotelPileGroupOfOnsite,
+  HotelPriceRange,
+} from "@/components/side-bar-filter/hotel/HotelPileGroup";
 
-  Wind,
-  Droplet,
-  Briefcase,
-  ConciergeBell,
-  Luggage,
-  Bus,
-  Coffee,
-  Waves,
-  ParkingSquare,
-  Dumbbell,
-  UtensilsCrossed,
-  MapPin,
-  Building,
-  Sun,
-  Bell,
-  DoorOpenIcon,
-} from "lucide-react";
-import { Home, Layers } from "lucide-react";
-// export const filterOptions = {
-//   typeOfPlace: [
-//     { value: "Any type", icon: <Layers size={16} /> },
-//     { value: "Room", icon: <DoorOpenIcon size={16} /> },
-//     { value: "Entire home", icon: <Home size={16} /> },
-//   ],
+import {
+  AdventurePileGroupOfFeatures,
+  AdventurePileGroupOfAmenities,
+  AdventurePriceRange,
+  AdventureCheckBoxGroupOfScore,
+} from "@/components/side-bar-filter/adventure/AdventurePileGroup";
 
-//   amenities: [
-//     { value: "Wi-Fi", icon: <Wifi size={16} /> },
-//     { value: "Air conditioning", icon: <Snowflake size={16} /> },
-//     { value: "BBQ grill", icon: <Flame size={16} /> },
-//     { value: "Washing machine", icon: <WashingMachine size={16} /> },
-//     { value: "Kitchen", icon: <Utensils size={16} /> },
-//     { value: "restaurant", icon: <Utensils size={16} /> }
-//   ],
+import {
+  TourPileGroupOfFeatures,
+  TourPileGroupOfAmenities,
+  TourPriceRange,
+  TourCheckBoxGroupOfScore,
+} from "@/components/side-bar-filter/tour/TourPileGroup";
 
-//   roomsbeds: ["Bedrooms", "Beds", "Bathrooms"] as const,
+import {
+  CabPileGroupOfFeatures,
+  CabPileGroupOfAmenities,
+  CabPriceRange,
+  CabCheckBoxGroupOfScore,
+} from "@/components/side-bar-filter/cab/CabPileGroup";
 
-//   essentials: [
-//     { value: "Heating", icon: <Wind size={16} /> },
-//     { value: "Iron", icon: <Wind size={16} /> },
-//     { value: "Hair dryer", icon: <Droplet size={16} /> },
-//     { value: "Dedicated workspace", icon: <Briefcase size={16} /> },
-//   ],
+import {
+  BikePileGroupOfFeatures,
+  BikePileGroupOfAmenities,
+  BikePriceRange,
+  BikeCheckBoxGroupOfScore,
+} from "@/components/side-bar-filter/bike/BikePileGroup";
 
-//   onsiteServices: [
-//     { value: "24-hour front desk", icon: <ConciergeBell size={16} /> },
-//     { value: "Room service", icon: <Bell size={16} /> },
-//     { value: "Luggage storage", icon: <Luggage size={16} /> },
-//     { value: "Airport shuttle", icon: <Bus size={16} /> },
-//   ],
+import {
+  FoodAndDrinks,
+  ConnectivityAndBusiness,
+  ComfortAndClimate,
+  RulesAndAccess,
+  Facilities,
+  Locations,
+  Transport,
+  Family,
+  TourFeatures,
+  TourAmenities,
+  AdventureFeatures,
+  AdventureAmenities,
+  CabFeatures,
+  CabAmenities,
+  BikeFeatures,
+  BikeAmenities,
+} from "@/components/ui/icons";
 
-//   features: [
-//     { value: "Breakfast included", icon: <Coffee size={16} /> },
-//     { value: "Pool", icon: <Waves size={16} /> },
-//     { value: "Hot tub", icon: <Sun size={16} /> },
-//     { value: "Free parking", icon: <ParkingSquare size={16} /> },
-//     { value: "Gym", icon: <Dumbbell size={16} /> },
-//     { value: "Restaurant", icon: <UtensilsCrossed size={16} /> },
-//   ],
-
-//   location: [
-//     { value: "Private beach area", icon: <Waves size={16} /> },
-//     { value: "Waterfront", icon: <MapPin size={16} /> },
-//     { value: "Balcony", icon: <Building size={16} /> },
-//   ],
-//   guest_score: [
-//     {
-//       value: 5,
-//       label: "5.0+ Excellent",
-//     },
-//     {
-//       value: 4,
-//       label: "4.0+ Very Good",
-//     },
-//     {
-//       value: 3,
-//       label: "3.0+ Good",
-//     },
-//     {
-//       value: 2,
-//       label: "2.0+ Fair",
-//     },
-//     {
-//       value: 1,
-//       label: "1.0+ Poor",
-//     },
-//   ],
-//   classification: [
-//     {
-//       value: 5,
-//       label: "5.0+ Excellent",
-//     },
-//     {
-//       value: 4,
-//       label: "4.0+ Very Good",
-//     },
-//     {
-//       value: 3,
-//       label: "3.0+ Good",
-//     },
-//     {
-//       value: 2,
-//       label: "2.0+ Fair",
-//     },
-//     {
-//       value: 1,
-//       label: "1.0+ Poor",
-//     },
-//   ],
-//   roomsize: [
-//     { value: 200, label: "small (<=25 msq" },
-//     { value: 500, label: "medium (25-50 msq)" },
-//     { value: 1000, label: "large (50-100 msq)" },
-
-//   ]
-// };
-export const filterOptions = {
-  typeOfPlace: Family,
-
-  amenities: ConnectivityAndBusiness,
-
-  roomsbeds: ["Bedrooms", "Beds", "Bathrooms"] as const,
-
-  essentials: Facilities,
-
-  onsiteServices: RoomFeatures,
-
-  features: Transport,
-
-  location: Locations,
-  guest_score: [
-    {
-      value: 5,
-      label: "5.0+ Excellent",
-    },
-    {
-      value: 4,
-      label: "4.0+ Very Good",
-    },
-    {
-      value: 3,
-      label: "3.0+ Good",
-    },
-    {
-      value: 2,
-      label: "2.0+ Fair",
-    },
-    {
-      value: 1,
-      label: "1.0+ Poor",
-    },
-  ],
-  classification: [
-    {
-      value: 5,
-      label: "5.0+ Excellent",
-    },
-    {
-      value: 4,
-      label: "4.0+ Very Good",
-    },
-    {
-      value: 3,
-      label: "3.0+ Good",
-    },
-    {
-      value: 2,
-      label: "2.0+ Fair",
-    },
-    {
-      value: 1,
-      label: "1.0+ Poor",
-    },
-  ],
-  roomsize: [
-    { value: 200, label: "small (<=25 msq" },
-    { value: 500, label: "medium (25-50 msq)" },
-    { value: 1000, label: "large (50-100 msq)" },
-
-  ]
-};
-type bedstype = "Bedrooms" | "Beds" | "Bathrooms"
 export type AcordionItemType = {
-  value: "type" | "Price" | "roomsbeds" | "Room size" | "distance_center" | "score" | "clasification" | "amenities" | "essentials" | "onsite" | "features" | "location",
-  trigger: string,
-  content: React.ReactNode
-}
-export const items: AcordionItemType[] = [
+  value: string;
+  trigger: string;
+  content: React.ReactNode;
+};
+
+const guestScoreOptions = [
+  { value: 5, label: "5.0+ Excellent" },
+  { value: 4, label: "4.0+ Very Good" },
+  { value: 3, label: "3.0+ Good" },
+  { value: 2, label: "2.0+ Fair" },
+  { value: 1, label: "1.0+ Poor" },
+];
+
+const classificationOptions = [
+  { value: 5, label: "5 Star" },
+  { value: 4, label: "4 Star" },
+  { value: 3, label: "3 Star" },
+  { value: 2, label: "2 Star" },
+  { value: 1, label: "1 Star" },
+];
+
+const roomSizeOptions = [
+  { value: 200, label: "Small (≤25 m²)" },
+  { value: 500, label: "Medium (25-50 m²)" },
+  { value: 1000, label: "Large (50-100 m²)" },
+];
+
+const hotelFilterOptions = {
+  typeOfPlace: Family,
+  amenities: ConnectivityAndBusiness,
+  essentials: { ...ComfortAndClimate, ...RulesAndAccess },
+  onsiteServices: Facilities,
+  features: { ...FoodAndDrinks, ...Transport },
+  location: Locations,
+  roomsbeds: ["Bedrooms", "Beds", "Bathrooms"] as const,
+  guest_score: guestScoreOptions,
+  classification: classificationOptions,
+  roomsize: roomSizeOptions,
+};
+
+export const hotelItems: AcordionItemType[] = [
   {
     value: "type",
     trigger: "Type of place",
-    content: <HotelPileGroup values={filterOptions.typeOfPlace} />,
+    content: <HotelPileGroup values={hotelFilterOptions.typeOfPlace} />,
   },
   {
     value: "Price",
@@ -210,17 +115,16 @@ export const items: AcordionItemType[] = [
   {
     value: "roomsbeds",
     trigger: "Rooms and beds",
-    content: (
-      <HotelCounters
-        values={filterOptions.roomsbeds} />
-
-    ),
+    content: <HotelCounters values={hotelFilterOptions.roomsbeds} />,
   },
   {
     value: "Room size",
-    trigger: "Rooms Size",
+    trigger: "Room Size",
     content: (
-      <HotelCheckBoxGroupOfRoomSize stars={false} values={filterOptions.roomsize} />
+      <HotelCheckBoxGroupOfRoomSize
+        stars={false}
+        values={hotelFilterOptions.roomsize}
+      />
     ),
   },
   {
@@ -232,39 +136,213 @@ export const items: AcordionItemType[] = [
     value: "score",
     trigger: "Guest Review Score",
     content: (
-      <HotelCheckBoxGroupOfScore stars={false} values={filterOptions.guest_score} />
+      <HotelCheckBoxGroupOfScore
+        stars={false}
+        values={hotelFilterOptions.guest_score}
+      />
     ),
   },
   {
     value: "clasification",
-    trigger: "Property Clasification",
+    trigger: "Property Classification",
     content: (
-      <HotelCheckBoxGroupOfClassification stars={true} values={filterOptions.classification} />
+      <HotelCheckBoxGroupOfClassification
+        stars={true}
+        values={hotelFilterOptions.classification}
+      />
     ),
   },
   {
     value: "amenities",
     trigger: "Amenities",
-    content: <HotelPileGroupOfAmenities values={filterOptions.amenities} />,
+    content: (
+      <HotelPileGroupOfAmenities values={hotelFilterOptions.amenities} />
+    ),
   },
   {
     value: "essentials",
     trigger: "Essentials",
-    content: <HotelPileGroupOfEssentials values={filterOptions.essentials} />,
+    content: (
+      <HotelPileGroupOfEssentials values={hotelFilterOptions.essentials} />
+    ),
   },
   {
     value: "onsite",
     trigger: "On-site Services",
-    content: <HotelPileGroupOfOnsite values={filterOptions.onsiteServices} />,
+    content: (
+      <HotelPileGroupOfOnsite values={hotelFilterOptions.onsiteServices} />
+    ),
   },
   {
     value: "features",
     trigger: "Features",
-    content: <HotelPileGroupOfFeatures values={filterOptions.features} />,
+    content: (
+      <HotelPileGroupOfFeatures values={hotelFilterOptions.features} />
+    ),
   },
   {
     value: "location",
     trigger: "Location",
-    content: <HotelPileGroupOfLocation values={filterOptions.location} />,
+    content: (
+      <HotelPileGroupOfLocation values={hotelFilterOptions.location} />
+    ),
+  },
+];
+
+export const items = hotelItems;
+
+const adventureFilterOptions = {
+  features: AdventureFeatures,
+  amenities: AdventureAmenities,
+  guest_score: guestScoreOptions,
+};
+
+export const adventureItems: AcordionItemType[] = [
+  {
+    value: "Price",
+    trigger: "Price range",
+    content: <AdventurePriceRange />,
+  },
+  {
+    value: "score",
+    trigger: "Review Score",
+    content: (
+      <AdventureCheckBoxGroupOfScore
+        stars={false}
+        values={adventureFilterOptions.guest_score}
+      />
+    ),
+  },
+  {
+    value: "features",
+    trigger: "Activity Types",
+    content: (
+      <AdventurePileGroupOfFeatures
+        values={adventureFilterOptions.features}
+      />
+    ),
+  },
+  {
+    value: "amenities",
+    trigger: "Safety & Inclusions",
+    content: (
+      <AdventurePileGroupOfAmenities
+        values={adventureFilterOptions.amenities}
+      />
+    ),
+  },
+];
+
+const tourFilterOptions = {
+  features: TourFeatures,
+  amenities: TourAmenities,
+  guest_score: guestScoreOptions,
+};
+
+export const tourItems: AcordionItemType[] = [
+  {
+    value: "Price",
+    trigger: "Price range",
+    content: <TourPriceRange />,
+  },
+  {
+    value: "score",
+    trigger: "Review Score",
+    content: (
+      <TourCheckBoxGroupOfScore
+        stars={false}
+        values={tourFilterOptions.guest_score}
+      />
+    ),
+  },
+  {
+    value: "features",
+    trigger: "Tour Types",
+    content: (
+      <TourPileGroupOfFeatures values={tourFilterOptions.features} />
+    ),
+  },
+  {
+    value: "amenities",
+    trigger: "Inclusions & Amenities",
+    content: (
+      <TourPileGroupOfAmenities values={tourFilterOptions.amenities} />
+    ),
+  },
+];
+
+const cabFilterOptions = {
+  features: CabFeatures,
+  amenities: CabAmenities,
+  guest_score: guestScoreOptions,
+};
+
+export const cabItems: AcordionItemType[] = [
+  {
+    value: "Price",
+    trigger: "Price range",
+    content: <CabPriceRange />,
+  },
+  {
+    value: "score",
+    trigger: "Driver Rating",
+    content: (
+      <CabCheckBoxGroupOfScore
+        stars={false}
+        values={cabFilterOptions.guest_score}
+      />
+    ),
+  },
+  {
+    value: "features",
+    trigger: "Vehicle Types",
+    content: (
+      <CabPileGroupOfFeatures values={cabFilterOptions.features} />
+    ),
+  },
+  {
+    value: "amenities",
+    trigger: "Cab Amenities",
+    content: (
+      <CabPileGroupOfAmenities values={cabFilterOptions.amenities} />
+    ),
+  },
+];
+
+const bikeFilterOptions = {
+  features: BikeFeatures,
+  amenities: BikeAmenities,
+  guest_score: guestScoreOptions,
+};
+
+export const bikeItems: AcordionItemType[] = [
+  {
+    value: "Price",
+    trigger: "Price range",
+    content: <BikePriceRange />,
+  },
+  {
+    value: "score",
+    trigger: "Rating",
+    content: (
+      <BikeCheckBoxGroupOfScore
+        stars={false}
+        values={bikeFilterOptions.guest_score}
+      />
+    ),
+  },
+  {
+    value: "features",
+    trigger: "Bike Types & Specs",
+    content: (
+      <BikePileGroupOfFeatures values={bikeFilterOptions.features} />
+    ),
+  },
+  {
+    value: "amenities",
+    trigger: "Rental Inclusions",
+    content: (
+      <BikePileGroupOfAmenities values={bikeFilterOptions.amenities} />
+    ),
   },
 ];

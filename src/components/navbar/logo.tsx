@@ -10,7 +10,7 @@ const LOGO = (props: Props) => {
     const ismobile = useIsMobile()
     const navigate = useRouter()
     return (
-        <div className={cn("min-w-14  px-2 rounded-full transition hover:scale-105", ismobile ? "h-9 px-4" : "h-14")} onClick={() => RouterPush(navigate, '/')}>
+        <div className={cn("min-w-14  px-2 rounded-full transition hover:scale-105", ismobile ? "h-10 px-3" : "h-14")} onClick={() => RouterPush(navigate, '/')}>
             <img
                 src="/logo.png"
                 alt="Company logo"

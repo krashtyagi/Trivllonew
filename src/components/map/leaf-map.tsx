@@ -66,7 +66,6 @@ const RoutingMachine = ({ userPos, destination, onRouteFound }: { userPos: [numb
       }).on('routesfound', function (e: any) {
         const routes = e.routes;
         const summary = routes[0].summary;
-        console.log(`Distance: ${(summary.totalDistance / 1000).toFixed(2)} km`);
         if (onRouteFoundRef.current) onRouteFoundRef.current();
       }).on('routingerror', function (e: any) {
         console.error("Routing error:", e);

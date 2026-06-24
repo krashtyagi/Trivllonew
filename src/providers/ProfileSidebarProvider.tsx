@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React from "react";
 import {
   IconChartBar,
   IconDashboard,
@@ -15,7 +15,6 @@ import { useQueryState } from "nuqs";
 import { Tabs, TabsTrigger } from "@/components/ui/tabscn";
 import TripsAccordion from "@/app/(personal)/profile/_components/trips_acordion";
 import { cn } from "@/lib/utils";
-import { usePathname } from "next/navigation";
 import { useTranslation } from "@/hooks/useTranslation";
 
 // --- Types ---
@@ -137,7 +136,6 @@ export const ProfileSidebarProvider = ({
   children: React.ReactNode;
   className?: string;
 }) => {
-  const pathname = usePathname();
   const sidebarData = useTranslatedSidebarData();
 
   const [tab, setTab] = useQueryState("tab", {
