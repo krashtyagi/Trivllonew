@@ -20,16 +20,16 @@ const MainProvider = ({ children }: { children: React.ReactNode }) => {
 
     <NuqsAdapter>
       <QueryClientProviderLib client={queryClient}>
-        <ThemeProvider
+        {/* <ThemeProvider
 
           attribute="class"
           defaultTheme="system"
           enableSystem
-          disableTransitionOnChange>
-          <MobileValueProvider>
-            {children}
-          </MobileValueProvider>
-        </ThemeProvider>
+          disableTransitionOnChange> */}
+        <MobileValueProvider>
+          {children}
+        </MobileValueProvider>
+        {/* </ThemeProvider> */}
       </QueryClientProviderLib>
     </NuqsAdapter>
   );

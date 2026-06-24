@@ -112,8 +112,8 @@ export const TabsNav = ({
           ref={scrollRef}
           className={cn(
             "flex items-center w-full mx-auto",
-            "bg-white dark:bg-zinc-900 rounded-[14px] p-1.5",
-            "border border-black/5 dark:border-white/10 shadow-sm   overflow-x-auto",
+            "bg-white/50 dark:bg-zinc-900/50 backdrop-blur-md rounded-[14px] p-1.5",
+            " dark:border-white/10 shadow-sm   overflow-x-auto",
             // "lg:min-w-[710px] xl:min-w-[910px] md:min-w-[410px]",
             containerClassName,
             ismobile ? "border-none shadow-none scrollbar-hide" : ""
