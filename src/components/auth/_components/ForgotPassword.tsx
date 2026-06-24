@@ -53,7 +53,7 @@ export function ForgotPasswordOTPForm({ onOTP, methods, setOnOTP, ...props }: OT
                     Enter verification code
                 </CardTitle>
                 <CardDescription>
-                    We sent a {OTP_LENGTH}-digit code to your phone number.
+                    We sent a {OTP_LENGTH}-digit code to your email.
                 </CardDescription>
             </CardHeader>
 

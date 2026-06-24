@@ -1,7 +1,6 @@
 'use client'
 import { Sign_in_hover } from "@/components/auth/_components/sign-in-hover";
 import { cn } from "@/lib/utils";
-import { userAccessToken } from "@/constants/auth";
 import { IconHeart, IconHeartFilled } from "@tabler/icons-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
@@ -228,6 +227,7 @@ export const handleCopy = async () => {
   }
 };
 import { useParams } from "next/navigation";
+import { userAccessToken } from "@/types/auth";
 export const validimage = (s: string | undefined, dummy: string) => {
   if (s && s.length > 50) {
     return s;
@@ -250,7 +250,7 @@ export function useParam(
 export const handleShare = async () => {
   try {
     await navigator.share({
-      title: "Trivllo",
+      title: "Adarsh Yatra",
       text: "Check out this hotel!",
       url: window.location.href,
     });

@@ -18,7 +18,7 @@ import SwitchGrids from "@/components/side-bar-filter/SwitchGrid";
 import { useNuqsContext } from "@/context/NuqsContentProvider";
 import { SideBarFilter } from "@/components/filter-bar/sidebar-filter";
 import { SheetNavigation } from "@/components/ui/sheetNavigation";
-import { items } from "@/constants/filter-constants";
+import { hotelItems } from "@/constants/filter-constants";
 
 type Props = {};
 
@@ -34,7 +34,7 @@ export const ContentFrame = (props: Props) => {
           {<div className="block xl:hidden h-10    ">
             <SheetNavigation
               content={
-                <SideBarFilter items={items} mapSrc="/map-icons/map.png" alt="map image" overlayTitle="See Location on Map" />
+                <SideBarFilter items={hotelItems} mapSrc="/map-icons/map.png" alt="map image" overlayTitle="See Location on Map" />
               }
               setOpen={setOpen}
               trigger={
@@ -131,6 +131,7 @@ export const Content = ({ className }: { className: string }) => {
             key={hotel._id}
             hotelId={hotel._id}
             image={firstImage}
+            hotelImages={(hotel as any).hotelImages ?? hotel.images ?? []}
             favourite={hotel.isFavorite}
             title={hotel.name}
             location={hotel.city ?? city}

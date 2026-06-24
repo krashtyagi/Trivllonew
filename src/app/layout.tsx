@@ -10,6 +10,7 @@ import "./globals.css";
 import MainProvider from "@/providers/main-provider/main-provider";
 import { Toaster } from "@/components/ui/sonner";
 import TopLoader from "./toploader";
+import trivlloData from "@/../trivllo.json";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,52 +25,51 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Trivllo | Hotels,Tours",
-    template: "%s | Trivllo",
+    default: `${trivlloData.company_name} | Hotels, Cabs & Adventure Experiences`,
+    template: `%s | ${trivlloData.company_name}`,
   },
   description:
-    "Your ultimate travel companion. Book premium hotels, activities all in one place with Trivllo.",
+    `Your ultimate travel companion. Book premium hotels, reliable cab services, and thrilling adventure activities all in one place with ${trivlloData.company_name}.`,
   icons: {
-    icon: "/triv-logo.svg",
-    shortcut: "/triv-logo.svg",
-    apple: "/triv-logo.svg",
+    icon: "/trivllo-logo.svg",
+    shortcut: "/trivllo-logo.svg",
+    apple: "/trivllo-logo.svg",
   },
   // manifest: "/manifest.json",
 
   keywords: [
-    "Trivllo",
+    trivlloData.company_name,
     "Hotel Booking",
     // "Cab Rental",
     // "Adventure Sports Booking",
     // "Rishikesh Adventures",
-    "Tours & Activities",
     "Travel Packages India",
-    "Trivllo App",
+    `${trivlloData.company_name} App`,
   ],
-  authors: [{ name: "Trivllo Team" }],
+  authors: [{ name: `${trivlloData.company_name} Team` }],
 
   openGraph: {
     type: "website",
     locale: "en_IN",
-    url: "https://www.Trivllo.com",
-    siteName: "Trivllo - Stays,Tours",
-    title: "Trivllo | One Web App for All Your Travel Needs",
+    url: trivlloData.contact.website,
+    siteName: `${trivlloData.company_name} - Stays, Rides & Adventures`,
+    title: `${trivlloData.company_name} | One Web App for All Your Travel Needs`,
     description:
-      "Discover luxury stays,  Trivllo makes travel simple and memorable.",
+      `Discover luxury stays, seamless cab rides, and adrenaline-pumping adventures. ${trivlloData.company_name} makes travel simple and memorable.`,
     images: [
       {
         url: "/og-main-preview.png",
         width: 1200,
         height: 630,
-        alt: "Trivllo - Hotels, Tours",
+        alt: `${trivlloData.company_name} - Hotels, Cabs, Adventures`,
       },
     ],
   },
 
   twitter: {
     card: "summary_large_image",
-    title: "Trivllo | Premium Hotels Tours Services",
-    description: "Book Hotels, Tours instantly.",
+    title: `${trivlloData.company_name} | Premium Travel Services`,
+    description: "Book Hotels, Cabs, and Adventures instantly.",
     images: ["/og-main-preview.png"],
   },
 };

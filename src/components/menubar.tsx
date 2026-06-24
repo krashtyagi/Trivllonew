@@ -1,132 +1,4 @@
-// "use client";
 
-// import { AnimatedThemeTogglerDemo } from "./ui/theme-toggle";
-// import { Sign_in_hover } from "./auth/_components/sign-in-hover";
-// import { usePathname, useRouter } from "next/navigation";
-// import { toast } from "sonner";
-
-// import { Button } from "@/components/ui/button";
-// import {
-//   DropdownMenu,
-//   DropdownMenuContent,
-//   DropdownMenuGroup,
-//   DropdownMenuItem,
-//   DropdownMenuLabel,
-//   DropdownMenuTrigger,
-// } from "@/components/ui/dropdown-menu";
-
-// import { Logout } from "@/app/(personal)/profile/_components/app-sidebar";
-// import { useNextGoingRoute } from "@/hooks/auth/route.hook";
-// import { Skeleton } from "./ui/skeleton";
-// import { useCurrentUser } from "@/services/hotel/querys";
-
-// export function MenuBar() {
-//   const { data: user, isLoading, refetch } = useCurrentUser();
-//   const router = useRouter();
-//   const pathname = usePathname();
-//   const { goWithAuth } = useNextGoingRoute();
-//   // safer login check
-//   const isLoggedIn = !!user?.data;
-
-//   const handleNavigate = (path: string) => {
-//     if (pathname === path) return;
-//     goWithAuth(path, isLoggedIn);
-
-//     toast.success("Redirecting...");
-//     // router.push(path);
-//   };
-
-//   if (isLoading) {
-//     return <div><Skeleton className="size-10 shrink-0 rounded-full" /></div>;
-//   }
-
-//   return (
-//     <DropdownMenu>
-//       <DropdownMenuTrigger asChild>
-//         <Button variant="ghost" className="p-0 rounded-full">
-//           <div className="md:w-12 md:h-12 h-8 w-8 rounded-full overflow-hidden border border-border hover:border-orange-400 transition">
-//             <img
-//               src={user?.data?.avatar || "/user.png"}
-//               alt="Profile"
-//               className="w-full h-full object-cover rounded-full"
-//             />
-//           </div>
-//         </Button>
-//       </DropdownMenuTrigger>
-
-//       <DropdownMenuContent
-//         className="w-44 mr-10 border-0 overflow-hidden relative"
-//         align="start"
-//       >
-//         {/* Account Section */}
-//         <DropdownMenuGroup>
-//           <DropdownMenuLabel>My Account</DropdownMenuLabel>
-
-//           {!isLoggedIn ? (
-//             <Sign_in_hover
-//               tag="Log-in"
-//               variant="ghost"
-//               forLike={{
-//                 content: (
-//                   <div className="px-2 cursor-pointer">
-//                     Profile
-//                   </div>
-//                 ),
-//                 type: "nextRoute",
-//                 do: "/profile",
-//                 id: "/profile",
-//               }}
-//             />
-//           ) : (
-//             <DropdownMenuItem onClick={() => handleNavigate("/profile")}>
-//               Profile
-//             </DropdownMenuItem>
-//           )}
-//           {/* <DropdownMenuItem onClick={() => handleNavigate("/profile")}>
-//                 Profile
-//               </DropdownMenuItem> */}
-
-//           {/* <DropdownMenuItem>
-//                 Settings
-//               </DropdownMenuItem> */}
-
-
-//           <DropdownMenuItem onClick={() => handleNavigate("/")}>
-//             Home
-//           </DropdownMenuItem>
-//         </DropdownMenuGroup>
-
-//         {/* Theme Toggle */}
-//         <DropdownMenuGroup className="px-2 w-full">
-//           <DropdownMenuItem asChild>
-//             <AnimatedThemeTogglerDemo />
-//           </DropdownMenuItem>
-//         </DropdownMenuGroup>
-
-//         {/* Auth Section */}
-//         {!isLoggedIn && (
-//           <DropdownMenuGroup>
-//             <DropdownMenuItem asChild>
-//               <Sign_in_hover tag="Log-in" variant="ghost" />
-//             </DropdownMenuItem>
-
-//             <DropdownMenuItem asChild>
-//               <Sign_in_hover tag="Sign-up" variant="ghost" />
-//             </DropdownMenuItem>
-//           </DropdownMenuGroup>
-//         )}
-
-//         {isLoggedIn && (
-//           <DropdownMenuGroup>
-//             <DropdownMenuItem asChild>
-//               <Logout refetch={refetch} />
-//             </DropdownMenuItem>
-//           </DropdownMenuGroup>
-//         )}
-//       </DropdownMenuContent>
-//     </DropdownMenu>
-//   );
-// }
 "use client";
 
 import Image from "next/image";
@@ -164,6 +36,8 @@ import { RouterPush } from "./RouterPush";
 import { useLanguageStore, type Language } from "@/store/language.store";
 import { useTranslation } from "@/hooks/useTranslation";
 import { Globe } from "lucide-react";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
 
 export function MenuBar() {
   const { data: user, isLoading, refetch } = useCurrentUser();
@@ -315,9 +189,9 @@ export function AppPrefrence() {
   const isLoggedIn = !!user?.data;
   const { language, setLanguage } = useLanguageStore();
   const { t } = useTranslation();
-
+  const [open, setOpen] = useState(false)
   return (
-    <DropdownMenu>
+    <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
@@ -340,11 +214,11 @@ export function AppPrefrence() {
           </div>
         </DropdownMenuLabel>
 
-        {/* <DropdownMenuSeparator className="my-1 sm:my-2" />
+        <DropdownMenuSeparator className="my-1 sm:my-2" />
 
         <div className="px-2 py-1">
           <AnimatedThemeTogglerDemo />
-        </div> */}
+        </div>
 
         {/* Language Switcher */}
         <div className="px-2 py-1">
@@ -357,8 +231,8 @@ export function AppPrefrence() {
               <button
                 onClick={(e) => { e.preventDefault(); setLanguage("en"); }}
                 className={`px-2 py-0.5 text-xs font-medium rounded-md transition-all duration-200 ${language === "en"
-                    ? "bg-background text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
                   }`}
               >
                 EN
@@ -366,8 +240,8 @@ export function AppPrefrence() {
               <button
                 onClick={(e) => { e.preventDefault(); setLanguage("hi"); }}
                 className={`px-2 py-0.5 text-xs font-medium rounded-md transition-all duration-200 ${language === "hi"
-                    ? "bg-background text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
                   }`}
               >
                 हि
@@ -380,7 +254,7 @@ export function AppPrefrence() {
 
         <DropdownMenuItem
           onClick={() => RouterPush(router, '/profile?tab=support')}
-          className="flex items-center gap-2 px-2.5 py-1.5 sm:px-3 sm:py-2 cursor-pointer focus:bg-orange-50 focus:text-orange-600 dark:focus:bg-orange-950/20"
+          className={cn("flex items-center gap-2 px-2.5 py-1.5 sm:px-3 sm:py-2 cursor-pointer focus:bg-orange-50 focus:text-orange-600 dark:focus:bg-orange-950/20", !isLoggedIn && "hidden")}
         >
           <CircleQuestionMark className="h-4 w-4 opacity-70" />
           <span className="text-sm font-medium">Help center</span>
@@ -396,6 +270,7 @@ export function AppPrefrence() {
                 </Link>
               ) : (
                 <Sign_in_hover
+                  handelClose={() => setOpen(false)}
                   tag="Log-in"
                   variant="ghost"
                   className="w-full justify-start gap-2 h-auto py-1.5 sm:py-2 text-sm font-medium px-2.5 sm:px-3"

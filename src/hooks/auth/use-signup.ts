@@ -12,7 +12,7 @@ import { RouterPush } from "@/components/RouterPush";
 export const useSignUp = () => {
   const [loading, setLoading] = React.useState<boolean>(false);
   const navigate = useRouter();
-  const { userSignupEmail, verifyOTPEmail } = useAuthStore();
+  const { userSignup, verifyOTP } = useAuthStore();
 
   const methods = useForm<SignUpProps>({
     resolver: zodResolver(SignUpSchema),
@@ -20,6 +20,7 @@ export const useSignUp = () => {
       email: "",
       password: "",
       confirmPassword: "",
+      otp: "",
     },
     mode: "onChange",
   });
@@ -28,10 +29,10 @@ export const useSignUp = () => {
     setLoading(true);
 
     try {
-      const result = await verifyOTPEmail({
+      const result = await verifyOTP({
         email: data.email,
         otp: data.otp,
-        endpoint: "/auth/verify-otp",
+        endpoint: "/auth/email-verify-otp",
       });
       if (result.success) {
         toast.success(result.message || "Account created successfully!");
@@ -67,7 +68,7 @@ export const useSignUp = () => {
   ) => {
     setLoading(true);
     try {
-      const result = await userSignupEmail({ email, password });
+      const result = await userSignup({ email, password });
       if (result.success) {
         toast.success(result.message || "OTP sent to your email");
         onNext((prev) => prev + 1);

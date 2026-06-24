@@ -1,8 +1,7 @@
 import { z } from "zod";
 
 export const LoginScshema = z.object({
-  email: z.email({ message: "Incorrect email format" }),
-  // phone: z.string().min(10, { message: "Incorrect phone format" }),
+  email: z.string().email({ message: "Incorrect email format" }),
 
   password: z
     .string()
@@ -20,8 +19,7 @@ export type LoginFormProps = z.infer<typeof LoginScshema>;
 
 export const SignUpSchema = z
   .object({
-    email: z.email({ message: "Incorrect email format" }),
-    // phone: z.string().min(10, { message: "Incorrect phone format" }),
+    email: z.string().email({ message: "Incorrect email format" }),
 
     password: z
       .string()
@@ -46,7 +44,7 @@ export const SignUpSchema = z
 export type SignUpProps = z.infer<typeof SignUpSchema>;
 
 export const ResetPasswordSchema = z.object({
-  email: z.email({ message: "Incorrect email format" }),
+  email: z.string().email({ message: "Incorrect email format" }),
   password: z
     .string()
     .min(8, { message: "Your password must be atleast 8 characters long" })
@@ -65,3 +63,4 @@ export const ResetPasswordSchema = z.object({
 });
 
 export type ResetPasswordProps = z.infer<typeof ResetPasswordSchema>;
+

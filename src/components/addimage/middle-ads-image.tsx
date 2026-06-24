@@ -26,7 +26,7 @@ export function ImagesSliderDemo({
   return (
     <div ref={containerRef}>
       <ImagesSlider
-        className="h-[12rem] sm:h-[18rem] md:h-[22rem] lg:h-[28rem] rounded-2xl my-6 md:my-10"
+        className="h-[12rem] sm:h-[18rem] md:h-[22rem] lg:h-[28rem] rounded-2xl my-2 md:my-3 w-full"
         images={images}
         interval={6000}
       >

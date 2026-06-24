@@ -4,8 +4,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-import { IconStarFilled } from "@tabler/icons-react";
 import React from "react";
+import { StarRating } from "@/app/(home)/(categories)/_componentsRoot_categories/star-rating";
 import { useRouter } from "next/navigation";
 import { LikeIcon } from "@/services/dailyfunctions";
 import { MapPin, Navigation, Building2, ZoomIn, Clock, Percent, Compass } from "lucide-react";
@@ -55,7 +55,7 @@ export const ToursCard = ({ tour, wrap, favourite }: ToursCardProps) => {
   // ── Mobile ──────────────────────────────────────────────────────────────────
   if (isMobile) {
     return (
-      <Card className="group overflow-hidden rounded-xl border bg-card w-full shadow-md pt-0">
+      <Card className="group overflow-hidden rounded-xl border bg-card w-full shadow-md pt-0" onClick={() => RouterPush(navigate, `/tours/services/${serviceId}`)}>
         <ImagePreview src={image} alt={title}>
           <div className="relative w-full h-[180px]">
             <img
@@ -90,7 +90,7 @@ export const ToursCard = ({ tour, wrap, favourite }: ToursCardProps) => {
 
           {/* Company & Location */}
           <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
-            <div className="flex items-center gap-1 cursor-pointer" onClick={() => RouterPush(navigate, `/tours/${company.companyId}`)}>
+            <div className="flex items-center gap-1 cursor-pointer" onClick={(e) => { e.stopPropagation(); RouterPush(navigate, `/tours/${company.companyId}`) }}>
               <Building2 className="h-3.5 w-3.5 text-primary" />
               <span className="font-medium line-clamp-1">{company?.name}</span>
             </div>
@@ -113,17 +113,7 @@ export const ToursCard = ({ tour, wrap, favourite }: ToursCardProps) => {
                 {ratingLabel(company?.rating || 0)}
               </span>
               <div className="flex gap-0.5">
-                {[...Array(5)].map((_, i) => (
-                  <IconStarFilled
-                    key={i}
-                    size={11}
-                    className={cn(
-                      i < Math.round(company?.rating || 0)
-                        ? "text-yellow-400"
-                        : "text-zinc-200 dark:text-zinc-700"
-                    )}
-                  />
-                ))}
+                <StarRating rating={company?.rating || 0} className="h-[11px] w-[11px]" />
               </div>
             </div>
             <div className="bg-primary text-white font-black h-8 w-8 flex items-center justify-center rounded-lg rounded-bl-none text-sm shadow-inner">
@@ -164,7 +154,7 @@ export const ToursCard = ({ tour, wrap, favourite }: ToursCardProps) => {
 
   // ── Desktop ─────────────────────────────────────────────────────────────────
   return (
-    <Card
+    <Card onClick={() => RouterPush(navigate, `/tours/services/${serviceId}`)}
       className={cn(
         "group overflow-hidden rounded-2xl border bg-card transition-all duration-300 hover:shadow-lg",
         isHorizontal
@@ -225,7 +215,7 @@ export const ToursCard = ({ tour, wrap, favourite }: ToursCardProps) => {
 
             {/* Company & Location */}
             <div className="flex items-center gap-3 text-sm text-muted-foreground mt-1">
-              <div className="flex items-center gap-1.5 cursor-pointer" onClick={() => RouterPush(navigate, `/tours/${company.companyId}`)}>
+              <div className="flex items-center gap-1.5 cursor-pointer" onClick={(e) => { e.stopPropagation(); RouterPush(navigate, `/tours/${company.companyId}`) }}>
                 <Building2 className="h-4 w-4 text-primary" />
                 <span className="font-medium">{company?.name}</span>
               </div>
@@ -253,17 +243,7 @@ export const ToursCard = ({ tour, wrap, favourite }: ToursCardProps) => {
             {/* Stars row */}
             <div className="flex items-center gap-2 pt-1.5">
               <div className="flex gap-0.5">
-                {[...Array(5)].map((_, i) => (
-                  <IconStarFilled
-                    key={i}
-                    size={14}
-                    className={cn(
-                      i < Math.round(company?.rating || 0)
-                        ? "text-yellow-400"
-                        : "text-zinc-200 dark:text-zinc-700"
-                    )}
-                  />
-                ))}
+                <StarRating rating={company?.rating || 0} className="h-3.5 w-3.5" />
               </div>
               <span className="text-xs text-muted-foreground">
                 {ratingLabel(company?.rating || 0)}

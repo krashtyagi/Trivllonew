@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import React from "react"
+// <DeleteAccountRequestDialog tag={"Delete my profile"} variant="destructive" />
 
 export function AlertOverlay({ trigger, title, description, canecelTitle, continueTitle, variant, handelSumbit }: {
   trigger: string,
@@ -36,14 +37,13 @@ export function AlertOverlay({ trigger, title, description, canecelTitle, contin
         </AlertDialogHeader>
         <AlertDialogFooter className="flex-col flex">
           <AlertDialogCancel>{canecelTitle}</AlertDialogCancel>
-          <AlertDialogAction onClick={handelSumbit} className="bg-destructive text-white">{continueTitle}</AlertDialogAction>
-          {/* <DeleteAccountRequestDialog tag={"Delete my profile"} variant="destructive" /> */}
+          <AlertDialogAction onClick={handelSumbit}>{continueTitle}</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
   )
 }
-export function DeleteAlertOverlay({ trigger, title, description, canecelTitle, continueTitle, variant, handelSumbit }: {
+export function DeleteProfileRequestDialog({ trigger, title, description, canecelTitle, continueTitle, variant, handelSumbit }: {
   trigger: string,
   variant?: "default" | "destructive" | "link" | "outline" | "secondary" | "ghost"
   title: string,
@@ -52,8 +52,9 @@ export function DeleteAlertOverlay({ trigger, title, description, canecelTitle, 
   continueTitle: string,
   handelSumbit: () => void,
 }) {
+  const [open, setOpen] = React.useState(false);
   return (
-    <AlertDialog>
+    <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
         <Button variant={variant} >{trigger}</Button>
       </AlertDialogTrigger>
@@ -66,8 +67,7 @@ export function DeleteAlertOverlay({ trigger, title, description, canecelTitle, 
         </AlertDialogHeader>
         <AlertDialogFooter className="flex-col flex">
           <AlertDialogCancel>{canecelTitle}</AlertDialogCancel>
-          <AlertDialogAction onClick={handelSumbit} className="bg-destructive text-white">{continueTitle}</AlertDialogAction>
-          <DeleteAccountRequestDialog tag={"Delete my profile"} variant="destructive" />
+          <DeleteAccountRequestDialog tag={"Delete my profile"} variant="destructive" setOpen={setOpen} open={open} />
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

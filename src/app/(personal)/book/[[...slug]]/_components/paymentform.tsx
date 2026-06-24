@@ -36,7 +36,7 @@ import { handleRefresh } from "@/services/dailyfunctions";
 import { useQueryClient } from "@tanstack/react-query";
 
 export const BookingForm = ({ slug }: { slug: string[] }) => {
-  const { setPayments, payments, date, guests } = useHotelStore();
+  const { setPayments, payments, date, guests, selectedRoom } = useHotelStore();
   const { setCurrentStep, currentstep } = usePaymentsContext();
   const [loading, setLoading] = useState<boolean>(false);
   const navigate = useRouter();
@@ -66,6 +66,13 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
     },
     mode: "onChange",
   });
+
+  React.useEffect(() => {
+    if (!selectedRoom && currentstep !== 3) {
+      navigate.replace("/");
+    }
+  }, [selectedRoom, navigate, currentstep]);
+
   React.useEffect(() => {
     if (date?.from && date?.to) {
       methods.setValue("dates.checkin", format(date.from, "yyyy-MM-dd"));
@@ -132,14 +139,20 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
           description: `Booking for ${booking.bookingReference}`,
           order_id: razorpayOrder.id,
           handler: async function (response: any) {
-            const verifyResult = await verifyPayment(response);
-            if (verifyResult.success) {
-              toast.success("Payment successful! Booking confirmed.");
-              setCurrentStep((val) => val + 1);
-              handleRefresh(queryClient, ["hotel_details", "hotel_availability"]);
-              setLoading(false);
-            } else {
+            try {
+              setLoading(true);
+              const verifyResult = await verifyPayment(response);
+              if (verifyResult.success) {
+                toast.success("Payment successful! Booking confirmed.");
+                setCurrentStep((val) => val + 1);
+                handleRefresh(queryClient, ["hotel_details", "hotel_availability"]);
+              } else {
+                toast.error("Payment verification failed.");
+              }
+            } catch (err) {
               toast.error("Payment verification failed.");
+            } finally {
+              setLoading(false);
             }
           },
           prefill: {
@@ -148,6 +161,11 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
             contact: data.guestInformation[0].phone,
           },
           theme: { color: "#EA580C" },
+          modal: {
+            ondismiss: function () {
+              setLoading(false);
+            }
+          }
         };
 
         const rzp = new (window as any).Razorpay(options);
@@ -155,11 +173,11 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
 
       } else {
         toast.error(result?.message || "Failed to create booking.");
+        setLoading(false);
       }
     } catch (error: any) {
       toast.error(error.response?.data?.message || "An error occurred.");
-    } finally {
-
+      setLoading(false);
     }
   };
   const ismobile = useIsMobile();

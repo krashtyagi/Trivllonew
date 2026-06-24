@@ -15,11 +15,11 @@ import { motion } from "framer-motion"; // fixed typo: motion/react → framer-m
 import { useState } from "react";
 import { Spinner } from "@/components/spinner";
 import { Skeleton } from "@/components/ui/skeleton";
-import { userAccessToken } from "@/constants/auth";
 
 export interface RoomCardProps {
   hotelId: string;
   showReserveButton?: boolean;
+  isStale?: boolean;
   id: string;
   title: string;
   imageUrl: string;
@@ -43,6 +43,7 @@ export interface RoomCardProps {
 }
 import NProgress from "nprogress";
 import { RouterPush } from "@/components/RouterPush";
+import { userAccessToken } from "@/types/auth";
 export function HotelRoomCard({
   hotelId,
   id,
@@ -65,6 +66,7 @@ export function HotelRoomCard({
   roomsLeft,
   discountPercent = 0,
   isBookingMode,
+  isStale = false,
 }: RoomCardProps) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -255,9 +257,10 @@ export function HotelRoomCard({
             </div>
           </div>
 
-          <div className="w-full mt-4 md:mt-5">
-            {(!isAuthenticated) ? (
-              <Sign_in_hover
+          {!isStale && (
+            <div className="w-full mt-4 md:mt-5">
+              {(!isAuthenticated) ? (
+                <Sign_in_hover
                 tag="Log-in"
                 variant="ghost"
                 forLike={{
@@ -307,6 +310,7 @@ export function HotelRoomCard({
               </Button>
             )}
           </div>
+          )}
         </div>
       </div>
     </Card>

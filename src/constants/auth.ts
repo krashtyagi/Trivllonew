@@ -1,1 +1,0 @@
-export const userAccessToken = "__%trivllo%_token$__" as string;

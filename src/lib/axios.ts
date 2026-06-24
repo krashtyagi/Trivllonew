@@ -48,9 +48,9 @@
 //     Authorization: `Bearer ${token}`,
 //   },
 // });
+import { userAccessToken } from "@/types/auth";
 import axios from "axios";
 // import { API_BASE_URL } from "@/config/env";
-import { userAccessToken } from "@/constants/auth";
 
 export const axiosApi = axios.create({
   baseURL: `${process.env.NEXT_PUBLIC_API_URL}/api/v1`,

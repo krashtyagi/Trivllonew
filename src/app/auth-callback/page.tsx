@@ -4,7 +4,8 @@ import { useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { RouterPush } from "@/components/RouterPush";
-import { userAccessToken } from "@/constants/auth";
+import { userAccessToken } from "@/types/auth";
+import { clearBookingDates } from "@/store/auth.store";
 
 function AuthCallbackHandler() {
   const router = useRouter();
@@ -23,8 +24,8 @@ function AuthCallbackHandler() {
 
     if (token) {
       localStorage.setItem(userAccessToken, token);
+      clearBookingDates();
 
-      // You can optionally fetch user data here using the token
       toast.success("Successfully logged in!");
       const nextRoute = localStorage.getItem("nextRoute");
       if (nextRoute) {

@@ -18,7 +18,8 @@ const Gallery = ({
   sections: GallerySection[]
   variant?: GalleryVariant
 }) => {
-  console.log("sections", sections)
+  const totalImagesCount = sections.flatMap((s) => s.images).length;
+
   return (
     <DrawerDemo
       sections={sections}
@@ -33,10 +34,12 @@ const Gallery = ({
                 className="absolute inset-0 w-full h-full object-cover"
               />
 
-              {/* 4+ overlay */}
-              <div className="absolute bottom-3 right-3 bg-black/70 text-white text-xs px-2 py-1 rounded-md">
-                +4 more
-              </div>
+              {/* dynamic overlay count */}
+              {totalImagesCount > 1 && (
+                <div className="absolute bottom-3 right-3 bg-black/70 text-white text-xs px-2 py-1 rounded-md">
+                  +{totalImagesCount - 1} more
+                </div>
+              )}
             </div>
 
             {/* Bottom Images */}
@@ -59,7 +62,6 @@ const Gallery = ({
             </div>
           </div>
         ) : (
-          // YOUR OLD CODE EXACTLY SAME
           <div className='grid grid-cols-2 md:gap-1 gap-0.5 rounded-xl md:rounded-2xl cursor-pointer  overflow-hidden w-full aspect-[4/3] md:aspect-auto xl:h-[430px] md:h-[300px]'>
             {sections.slice(0, 2).map((section, sectionIndex) => (
               <div
@@ -71,18 +73,28 @@ const Gallery = ({
                     : 'block'
                 )}
               >
-                {section.images.map((image, imageIndex) => (
-                  <div
-                    key={imageIndex}
-                    className="relative w-full h-full overflow-hidden"
-                  >
-                    <img
-                      src={image.src || "/hotels/roomIdeal.png"}
-                      alt={image.alt}
-                      className='absolute inset-0 w-full h-full object-cover hover:grayscale-60 '
-                    />
-                  </div>
-                ))}
+                {section.images.map((image, imageIndex) => {
+                  const isLastVisibleImage = sectionIndex === 1 && imageIndex === 3;
+                  const hasMore = totalImagesCount > 5;
+                  return (
+                    <div
+                      key={imageIndex}
+                      className="relative w-full h-full overflow-hidden"
+                    >
+                      <img
+                        src={image.src || "/hotels/roomIdeal.png"}
+                        alt={image.alt}
+                        className='absolute inset-0 w-full h-full object-cover hover:grayscale-60 '
+                      />
+                      {isLastVisibleImage && hasMore && (
+                        <div className="absolute inset-0 bg-black/55 hover:bg-black/45 transition-colors flex flex-col items-center justify-center text-white">
+                          <Grid3X3 className="h-5 w-5 mb-1" />
+                          <span className="text-xs font-semibold">+{totalImagesCount - 5} more</span>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             ))}
           </div>
@@ -125,7 +137,7 @@ export function DrawerDemo({ content, sections }: { content: React.ReactNode, se
       <DrawerTrigger asChild>
         {content}
       </DrawerTrigger>
-      <DrawerContent className='data-[vaul-drawer-direction=bottom]:max-h-[92vh] rounded-4xl'>
+      <DrawerContent className='data-[vaul-drawer-direction=bottom]:max-h-[95vh] rounded-4xl '>
         <DrawerHeader>
           <DrawerTitle>Hotel Gallery</DrawerTitle>           {/* ← Add this */}
           {/* Optional: */}

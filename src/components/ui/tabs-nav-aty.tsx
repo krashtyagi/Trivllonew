@@ -72,12 +72,14 @@ export const TabsNav = ({
       animate={{ y: isVisible ? 0 : -100 }}
       className={cn(
         "z-10 w-full flex justify-center",
-        ismobile ? "z-50 pb-0" : "",
+        ismobile ? "z-50 pb-0 -mt-2" : "",
         className
       )}
     >
       {/* Wrapper for arrows + scrollable container */}
-      <div className="relative w-full flex items-center">
+      <div className={cn("relative w-full flex items-center  ",
+        "md:px-20 lg:px-30 xl:px-40"
+      )}>
         {/* Left arrow + fade — mobile only */}
         <AnimatePresence>
           {ismobile && canScrollLeft && (
@@ -110,13 +112,11 @@ export const TabsNav = ({
           ref={scrollRef}
           className={cn(
             "flex items-center w-full mx-auto",
-            // "dark:bg-zinc-900",
-            "bg-primary/3  rounded-[14px] p-1.5",
-            "border border-black/5 dark:border-white/10 shadow-sm md:min-w-[410px]  overflow-x-auto",
-            "lg:min-w-[710px] xl:min-w-[910px]",
+            "bg-white dark:bg-zinc-900 rounded-[14px] p-1.5",
+            "border border-black/5 dark:border-white/10 shadow-sm   overflow-x-auto",
+            // "lg:min-w-[710px] xl:min-w-[910px] md:min-w-[410px]",
             containerClassName,
-            ismobile ? "border-none shadow-none scrollbar-hide" : "",
-            // "bg-transparent bg-none border-none "
+            ismobile ? "border-none shadow-none scrollbar-hide" : ""
           )}
         >
           {propTabs.map((tab, index) => (
@@ -126,7 +126,7 @@ export const TabsNav = ({
                 className={cn(
                   "relative flex-1 flex items-center justify-center px-2 sm:px-4 py-2 rounded-[12px]",
                   "md:text-base text-sm font-medium transition-all whitespace-nowrap",
-                  "border-none",
+                  "hover:bg-pink-50 dark:hover:bg-zinc-800 border-none",
                   tabClassName
                 )}
               >
@@ -135,7 +135,7 @@ export const TabsNav = ({
                     layoutId="active-nav-tab"
                     transition={{ type: "spring", bounce: 0.3, duration: 0.6 }}
                     className={cn(
-                      "absolute inset-0 rounded-[12px] bg-primary/20 dark:bg-zinc-800",
+                      "absolute inset-0 rounded-[12px] bg-pink-100 dark:bg-zinc-800",
                       activeTabClassName
                     )}
                   />
@@ -146,7 +146,7 @@ export const TabsNav = ({
                     <div className="shrink-0">
                       <Image
                         className={cn(
-                          "rounded-full object-cover transition-transform duration-300 scale-145 group/link:hover:scale-150",
+                          "rounded-full object-cover transition-transform duration-300 scale-145",
                           tab.iconUrl === active?.iconUrl && "scale-100"
                         )}
                         src={tab.iconUrl}

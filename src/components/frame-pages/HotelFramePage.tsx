@@ -9,7 +9,7 @@ import { hoteldata, HotelFramePageProps } from "@/app/(home)/(categories)/hotels
 import { MapPin } from "lucide-react";
 import FrameColursals from "./frame_coloursals";
 
-// No tabs in this design → so we pass tabs={undefined}
+
 type SectionConfig = {
   tagline: string;
   city: string;
@@ -40,7 +40,7 @@ const MainFramePage = ({ className, type, popularTrends }: HotelFramePageProps) 
   const { data, isLoading, error } = useGetNewHotels();
 
 
-  // 1. Group once (optional but efficient if many sections)
+
   const groupedByCity = useMemo(() => {
     if (!data?.data) return {};
 
@@ -52,14 +52,12 @@ const MainFramePage = ({ className, type, popularTrends }: HotelFramePageProps) 
       return acc;
     }, {} as Record<string, hoteldata[]>);
   }, [data?.data]);
-  // let allciti =
-  // 2. Prepare carousel items for each section
+
   const sectionItems = useMemo(() => {
     return POPULAR_SECTIONS.map((section) => {
       const hotelsInCity = groupedByCity[section.city] || [];
 
-      // Optional: sort by some criteria (e.g. newest first if _id is chronological)
-      // hotelsInCity.sort((a, b) => b._id.localeCompare(a._id)); 
+
 
       const sliced = section.limit ? hotelsInCity.slice(0, section.limit) : hotelsInCity;
 
@@ -73,7 +71,7 @@ const MainFramePage = ({ className, type, popularTrends }: HotelFramePageProps) 
   }, [groupedByCity]);
 
   return (
-    <FrameColursals className={cn(className, " ")}>
+    <FrameColursals className={cn(className, "w-full ")}>
       {POPULAR_SECTIONS.map((section, i) => {
         const items = sectionItems[i] || [];
 

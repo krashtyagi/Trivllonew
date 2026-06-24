@@ -1,7 +1,8 @@
 "use client";
 
-import { IconShare, IconStarFilled, IconMapPin } from "@tabler/icons-react";
+import { IconShare, IconMapPin } from "@tabler/icons-react";
 import React, { useEffect, useState } from "react";
+import { StarRating } from "@/app/(home)/(categories)/_componentsRoot_categories/star-rating";
 import { TabsLine } from "./tabs";
 import { cn } from "@/lib/utils";
 
@@ -35,17 +36,7 @@ const TourDetailsItems = ({
             </h1>
 
             <div className="flex items-center gap-0.5">
-              {[...Array(5)].map((_, i) => (
-                <IconStarFilled
-                  key={i}
-                  className={
-                    cn(i < Math.round(data.company.rating)
-                      ? "text-yellow-400"
-                      : "text-muted", "h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5")
-                  }
-
-                />
-              ))}
+              <StarRating rating={data.company.rating} />
               <span className="ml-2 text-xs font-bold text-muted-foreground">
                 {data.company.rating === 0 ? "No Rating" : data.company.rating}
               </span>

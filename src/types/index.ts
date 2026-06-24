@@ -119,6 +119,12 @@ export interface CabCompany {
   rating: number;
 }
 
+export interface CompanyTrivllo {
+  companyId: string;
+  name: string;
+  city: string;
+  rating: number;
+}
 export interface CabService {
   serviceId: string;
   title: string;

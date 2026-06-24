@@ -114,6 +114,17 @@ export const HotelCalender = ({ className, methods, hookname }: {
     hookname: keyof typeof hooksSupplier
 }) => {
     const { date, setDate } = hooksSupplier[hookname]();
+
+    React.useEffect(() => {
+        setDate(undefined);
+        if (methods) {
+            methods.setValue("dates", {
+                checkin: "",
+                checkout: ""
+            });
+        }
+    }, [setDate, methods]);
+
     return (
         <BookingCalender
             setDateRange={setDate}

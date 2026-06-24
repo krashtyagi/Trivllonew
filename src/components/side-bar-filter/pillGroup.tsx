@@ -53,10 +53,18 @@ export default function PillGroup({
     }
   })
 
+  const formatLabel = (key: string) => {
+    return key
+      .split(/[_-]/)
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
+
   return (
     <div className="flex flex-wrap gap-2">
       {optionss.map((opt) => {
         const active = selectedValues.includes(opt.value)
+        const Icon = opt.icon
 
         return (
           <Button
@@ -64,9 +72,10 @@ export default function PillGroup({
             type="button"
             variant={active ? "default" : "outline"}
             onClick={() => toggle(opt.value)}
-            className="rounded-full"
+            className="rounded-full flex items-center gap-1.5 px-3 py-1.5 h-auto text-xs"
           >
-            {opt.value}
+            {Icon && <Icon className="h-3.5 w-3.5" />}
+            <span>{formatLabel(opt.value)}</span>
           </Button>
         )
       })}

@@ -8,7 +8,6 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
-import { useQueryState } from "nuqs";
 import { toast } from "sonner";
 export function MobileNavWrapper({ isMobile, content }: { isMobile: boolean, content: React.ReactNode }) {
   const { scrollY } = useScroll();
@@ -110,11 +109,10 @@ export function BottomNav() {
   const [light, setLight] = useState(false);
   const iconSize = 22;
   const isActive = (path: string) => pathname === path;
-  const [tab, setTab] = useQueryState("tab", {
-    defaultValue: "/",
-    shallow: true,
-  });
+  const searchParams = useSearchParams();
+  const tab = searchParams.get("tab") || "";
 
+  const isBookingTab = ["all", "active", "cancelled", "completed"].includes(tab);
 
   return (
     <nav className="flex items-center justify-around w-full max-w-lg mx-auto h-14 px-4">
@@ -152,15 +150,10 @@ export function BottomNav() {
       {/* 4. Bookings Button (Conditional) */}
       {isLoggedIn && (
         <IndividualNavButton
-          // Use the 'tab' value directly for the active state
-          active={pathname.includes("/profile") && (tab === "all" || tab === "active" || tab === "cancelled" || tab === "completed")}
+          active={pathname.includes("/profile") && isBookingTab}
           label="Bookings"
           icon={History}
-          onClick={() => {
-            // This updates the URL and the 'tab' state simultaneously
-            setTab("all");
-            RouterPush(router, "/profile?tab=all");
-          }}
+          onClick={() => RouterPush(router, "/profile?tab=all")}
           size={iconSize}
         />
       )}
@@ -184,7 +177,7 @@ export function BottomNav() {
           )
         ) : (
           <IndividualNavButton
-            active={isActive("/profile") && (tab !== "all" && tab !== "active" && tab !== "cancelled" && tab !== "completed")}
+            active={isActive("/profile") && !isBookingTab}
             onClick={() => RouterPush(router, "/profile")}
             icon={User}
             label="You"

@@ -21,8 +21,7 @@ import { PageSkeleton } from "@/components/loader/skeleton";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RouterPush } from "@/components/RouterPush";
 import { useCurrentUser } from "@/services/hotel/querys";
-import { userAccessToken } from "@/constants/auth";
-
+import { userAccessToken } from "@/types/auth";
 export default function Layout({ children }: { children: React.ReactNode }) {
   const navigate = useRouter();
 
