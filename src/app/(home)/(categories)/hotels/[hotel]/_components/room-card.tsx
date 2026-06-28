@@ -3,7 +3,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Users, Square, Bed } from "lucide-react";
+import { Users, Square, Bed, ChevronLeft, ChevronRight } from "lucide-react";
 import { amenityIconMap } from "@/components/ui/icons";
 import { useRouter } from "next/navigation";
 import { useHotelStore } from "@/store/hotel.store";
@@ -12,7 +12,7 @@ import { Sign_in_hover } from "@/components/auth/_components/sign-in-hover";
 import { toast } from "sonner";
 import { useSliderIfNotChooseDate } from "../_providers_context/SliderIfNotChooseDate";
 import { motion } from "framer-motion"; // fixed typo: motion/react → framer-motion
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Spinner } from "@/components/spinner";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -40,6 +40,7 @@ export interface RoomCardProps {
   taxPercentage: number;
   totalTax: number;
   totalPriceWithTax: number;
+  roomImages?: (string | { url: string })[];
 }
 import NProgress from "nprogress";
 import { RouterPush } from "@/components/RouterPush";
@@ -67,12 +68,28 @@ export function HotelRoomCard({
   discountPercent = 0,
   isBookingMode,
   isStale = false,
+  showReserveButton = false,
+  roomImages,
 }: RoomCardProps) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { setSelectedRoom, date } = useHotelStore();
   const { handleClick } = useSliderIfNotChooseDate();
   const bothdate = !!date?.to && !!date?.from;
+
+  // Image slider state
+  const slides = roomImages && roomImages.length > 0
+    ? roomImages.map(img => typeof img === "string" ? { url: img } : { url: (img as { url: string }).url || "/hotels/img1.png" })
+    : [{ url: imageUrl || "/hotels/img1.png" }];
+  const [imgIdx, setImgIdx] = useState(0);
+  const prevImg = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    setImgIdx((i) => (i === 0 ? slides.length - 1 : i - 1));
+  }, [slides.length]);
+  const nextImg = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    setImgIdx((i) => (i === slides.length - 1 ? 0 : i + 1));
+  }, [slides.length]);
 
   const handleReserve = () => {
     localStorage.removeItem("like");
@@ -141,19 +158,50 @@ export function HotelRoomCard({
           "min-h-[220px] md:min-h-[260px]",
         )}
       >
-        {/* IMAGE SECTION – tighter on mobile */}
-        <div className="relative w-full aspect-[4/3] md:aspect-auto md:h-full overflow-hidden flex-shrink-0 px-2 pt-2 md:pt-0 md:px-3">
+        {/* IMAGE SECTION with slider */}
+        <div className="relative w-full aspect-[4/3] md:aspect-auto md:h-68 overflow-hidden flex-shrink-0 px-2 pt-2 md:pt-0 md:px-3 group/slider">
           <motion.div
             layoutId={`image-${id}`}
             className="w-full h-full"
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
           >
             <img
-              src={imageUrl || "/hotels/img1.png"}
+              src={slides[imgIdx]?.url || "/hotels/img1.png"}
               alt={title}
-              className="w-full h-full object-cover rounded-xl md:rounded-2xl"
+              className="w-full h-full object-cover rounded-xl md:rounded-2xl transition-opacity duration-300"
             />
           </motion.div>
+
+          {slides.length > 1 && (
+            <>
+              <button
+                onClick={prevImg}
+                className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 dark:bg-black/60 backdrop-blur-sm rounded-full p-1.5 shadow-md opacity-0 group-hover/slider:opacity-100 transition-opacity z-10"
+              >
+                <ChevronLeft className="h-4 w-4 text-foreground" />
+              </button>
+              <button
+                onClick={nextImg}
+                className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 dark:bg-black/60 backdrop-blur-sm rounded-full p-1.5 shadow-md opacity-0 group-hover/slider:opacity-100 transition-opacity z-10"
+              >
+                <ChevronRight className="h-4 w-4 text-foreground" />
+              </button>
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+                {slides.map((_, i) => (
+                  <span
+                    key={i}
+                    onClick={(e) => { e.stopPropagation(); setImgIdx(i); }}
+                    className={cn(
+                      "h-1.5 rounded-full cursor-pointer transition-all",
+                      i === imgIdx
+                        ? "w-4 bg-white shadow-sm"
+                        : "w-1.5 bg-white/50 hover:bg-white/70"
+                    )}
+                  />
+                ))}
+              </div>
+            </>
+          )}
 
           {discountPercent > 0 && (
             <div className="absolute top-3 right-3 bg-primary text-primary-foreground text-[10px] md:text-[11px] font-bold px-2.5 py-1 rounded-full shadow-md z-10">
@@ -257,59 +305,59 @@ export function HotelRoomCard({
             </div>
           </div>
 
-          {!isStale && (
+          {showReserveButton && (
             <div className="w-full mt-4 md:mt-5">
               {(!isAuthenticated) ? (
                 <Sign_in_hover
-                tag="Log-in"
-                variant="ghost"
-                forLike={{
-                  content: (
-                    <Button
-                      disabled={isBookingMode && roomsLeft === 0}
-                      size="sm"
-                      className={cn(
-                        "w-full h-9 md:h-11 lg:h-12 font-semibold rounded-xl text-sm md:text-base",
-                        isBookingMode && roomsLeft === 0
-                          ? "bg-muted text-muted-foreground"
-                          : "bg-primary hover:bg-primary/90 shadow-sm",
-                      )}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleReserve();
-                      }}
-                    >
-                      {isBookingMode && roomsLeft === 0 ? "Not Available" : "Reserve"}
-                    </Button>
-                  ),
-                  type: "nextRoute",
-                  do: bothdate ? `/book/${hotelId}/${id}` : "",
-                  id: `reserve-button-${id}`,
-                }}
-              />
-            ) : (
-              <Button
-                disabled={isBookingMode && roomsLeft === 0 || loading}
-                size="sm"
-                className={cn(
-                  "w-full h-9 md:h-11 lg:h-12 font-semibold rounded-xl text-sm md:text-base",
-                  isBookingMode && roomsLeft === 0
-                    ? "bg-muted text-muted-foreground"
-                    : "bg-primary hover:bg-primary/90 shadow-sm",
-                )}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleReserve_with_Alrady_Login();
-                }}
-              >
-                {isBookingMode && bothdate && roomsLeft === 0
-                  ? "Not Available"
-                  : loading
-                    ? <Spinner />
-                    : bothdate ? "Reserve" : "Select Dates"}
-              </Button>
-            )}
-          </div>
+                  tag="Log-in"
+                  variant="ghost"
+                  forLike={{
+                    content: (
+                      <Button
+                        disabled={isBookingMode && roomsLeft === 0}
+                        size="sm"
+                        className={cn(
+                          "w-full h-9 md:h-11 lg:h-12 font-semibold rounded-xl text-sm md:text-base",
+                          isBookingMode && roomsLeft === 0
+                            ? "bg-muted text-muted-foreground"
+                            : "bg-primary hover:bg-primary/90 shadow-sm",
+                        )}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleReserve();
+                        }}
+                      >
+                        {isBookingMode && roomsLeft === 0 ? "Not Available" : "Reserve"}
+                      </Button>
+                    ),
+                    type: "nextRoute",
+                    do: bothdate ? `/book/${hotelId}/${id}` : "",
+                    id: `reserve-button-${id}`,
+                  }}
+                />
+              ) : (
+                <Button
+                  disabled={isBookingMode && roomsLeft === 0 || loading}
+                  size="sm"
+                  className={cn(
+                    "w-full h-9 md:h-11 lg:h-12 font-semibold rounded-xl text-sm md:text-base",
+                    isBookingMode && roomsLeft === 0
+                      ? "bg-muted text-muted-foreground"
+                      : "bg-primary hover:bg-primary/90 shadow-sm",
+                  )}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleReserve_with_Alrady_Login();
+                  }}
+                >
+                  {isBookingMode && bothdate && roomsLeft === 0
+                    ? "Not Available"
+                    : loading
+                      ? <Spinner />
+                      : bothdate ? "Reserve" : "Select Dates"}
+                </Button>
+              )}
+            </div>
           )}
         </div>
       </div>

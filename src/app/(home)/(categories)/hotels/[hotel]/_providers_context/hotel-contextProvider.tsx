@@ -27,8 +27,6 @@ const HotelContextProvider = ({ hotelId, children }: Props) => {
   // ✅ Zustand selectors (IMPORTANT)
   const rawDate = useHotelStore((s) => s.date);
   const guests = useHotelStore((s) => s.guests);
-  const isBookingMode = useHotelStore((s) => s.isBookingMode);
-
   // ✅ Normalize dates (localStorage persist stores them as strings)
   const date = React.useMemo(() => {
     if (!rawDate) return undefined;
@@ -37,6 +35,8 @@ const HotelContextProvider = ({ hotelId, children }: Props) => {
       to: rawDate.to ? new Date(rawDate.to) : undefined,
     };
   }, [rawDate]);
+
+  const isBookingMode = !!date?.from && !!date?.to;
 
   const [isStale, setIsStale] = useState(false);
   const [initialFetchDone, setInitialFetchDone] = useState(false);

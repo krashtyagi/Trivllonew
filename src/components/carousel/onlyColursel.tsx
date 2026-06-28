@@ -23,9 +23,10 @@ type Props = {
   items: Item[];
   isLoading?: boolean;
   icon?: React.ReactNode;
+  galleryCardHide?: boolean;
 };
 
-export const OnlyCarousel = ({ type, tagline, items, isLoading, icon }: Props) => {
+export const OnlyCarousel = ({ type, tagline, items, isLoading, icon, galleryCardHide = false }: Props) => {
   const router = useRouter();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canLeft, setCanLeft] = useState(false);
@@ -128,7 +129,7 @@ export const OnlyCarousel = ({ type, tagline, items, isLoading, icon }: Props) =
               />
             ))}
 
-            <div className="w-[170px] md:w-[216px] flex-none snap-start cursor-pointer pl-1">
+            {!galleryCardHide && <div className="w-[170px] md:w-[216px] flex-none snap-start cursor-pointer pl-1">
               <GalleryCard
                 onClick={handleSeeAll}
                 images={[
@@ -137,7 +138,7 @@ export const OnlyCarousel = ({ type, tagline, items, isLoading, icon }: Props) =
                   "/hotels/room3.png",
                 ]}
               />
-            </div>
+            </div>}
           </>
         )}
       </div>
