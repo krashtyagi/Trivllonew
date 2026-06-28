@@ -208,6 +208,16 @@ function BookingCard({
       to: rawDate.to ? new Date(rawDate.to) : undefined,
     };
   }, [rawDate]);
+
+  const isInvalidDates = React.useMemo(() => {
+    if (!date?.from || !date?.to) return true;
+    return (
+      date.from.getFullYear() === date.to.getFullYear() &&
+      date.from.getMonth() === date.to.getMonth() &&
+      date.from.getDate() === date.to.getDate()
+    );
+  }, [date]);
+
   const { t } = useTranslation();
   const [showCalendar, setShowCalendar] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -297,7 +307,8 @@ function BookingCard({
           )}
         </div>
         <Button
-          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold h-14 rounded-2xl text-lg shadow-lg transition-all active:scale-[0.98]"
+          disabled={isInvalidDates}
+          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold h-14 rounded-2xl text-lg shadow-lg transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
           onClick={async (e) => {
             e.preventDefault();
             const el = document.getElementById("rooms");

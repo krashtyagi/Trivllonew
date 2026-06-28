@@ -23,6 +23,7 @@ const POPULAR_SECTIONS: SectionConfig[] = [
   { tagline: "Popular Stays In Bengaluru", city: "Bengaluru" },
   { tagline: "Popular Homes In Rishikesh", city: "Rishikesh" },
   { tagline: "Luxury in Mumbai", city: "Mumbai" },
+  { tagline: "Stays in Gwalior", city: "Gwalior" },
 
   { tagline: "Villas & Resorts in Udaipur", city: "Udaipur" },
   { tagline: "Stays in Jaipur", city: "Jaipur" },

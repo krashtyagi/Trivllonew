@@ -26,8 +26,8 @@ function ImageOverlay({ slides, initialIndex, onClose }: { slides: { url: string
     return () => window.removeEventListener("keydown", handler);
   }, [onClose, prev, next]);
   return (
-    <div className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center" onClick={onClose}>
-      <button className="absolute top-4 right-4 text-white/80 hover:text-white z-10" onClick={onClose}><X className="h-7 w-7" /></button>
+    <div className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center" onClick={(e) => { e.stopPropagation(); onClose(); }}>
+      <button className="absolute top-4 right-4 text-white/80 hover:text-white z-10" onClick={(e) => { e.stopPropagation(); onClose(); }}><X className="h-7 w-7" /></button>
       <button className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur rounded-full p-2 z-10" onClick={(e) => { e.stopPropagation(); prev(); }}><ChevronLeft className="h-6 w-6 text-white" /></button>
       <button className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur rounded-full p-2 z-10" onClick={(e) => { e.stopPropagation(); next(); }}><ChevronRight className="h-6 w-6 text-white" /></button>
       <img src={slides[idx]?.url} alt="" className="max-h-[85vh] max-w-[90vw] object-contain rounded-lg shadow-2xl" onClick={(e) => e.stopPropagation()} />
@@ -106,7 +106,10 @@ export const HotelCard = ({
           <img
             src={slides[imgIdx]?.url || "/hotels/hotel-temp.png"}
             alt={title}
-            onClick={() => setOverlayOpen(true)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setOverlayOpen(true)
+            }}
             className="h-full w-full object-cover rounded-t-xl transition-opacity duration-300 cursor-zoom-in"
           />
           {slides.length > 1 && (
@@ -236,7 +239,11 @@ export const HotelCard = ({
         <img
           src={slides[imgIdx]?.url || image}
           alt={title}
-          onClick={() => setOverlayOpen(true)}
+          onClick={(e) => {
+            e.stopPropagation();
+
+            setOverlayOpen(!overlayOpen)
+          }}
           className="h-full w-full aspect-video rounded-md object-cover transition-opacity duration-300 cursor-zoom-in"
         />
         {slides.length > 1 && (
@@ -357,7 +364,7 @@ export const HotelCard = ({
   );
 }
 
-export const HotelCardSkeleton = ({ wrap }: { wrap?: boolean }) => {
+export const HotelCardSkeleton = ({ wrap = false }: { wrap?: boolean }) => {
   const isMobile = useIsMobile();
   const isHorizontal = !isMobile && !wrap;
 

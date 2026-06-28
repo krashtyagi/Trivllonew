@@ -10,11 +10,12 @@ import { NuqsAdapter } from "nuqs/adapters/react";
 import { Payment, useHotelStore } from "@/store/hotel.store";
 const MainProvider = ({ children }: { children: React.ReactNode }) => {
   const [queryClient] = React.useState(() => new QueryClient());
-  // // const theme = localStorage.getItem("theme")
-  // const { setPayments } = useHotelStore();
-  // useEffect(()=>{
-  //   setPayments(null as unknown as Payment);
-  // },[])
+  
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      (window as any).__hasLoadedApp = true;
+    }
+  }, []);
 
   return (
 

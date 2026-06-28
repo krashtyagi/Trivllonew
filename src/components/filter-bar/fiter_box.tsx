@@ -281,7 +281,7 @@ const FilterBox = ({
               variant={"default"}
               disabled={loading}
               className={cn(
-                "w-[140px] md:min-w-[240px] md:px-7 hover:scale-105 flex backdrop-blur-md transition-all duration-300 items-center justify-center bg-primary dark:border-none text-zinc-100 h-9 md:h-14 rounded-full text-lg font-extrabold shadow-[0_10px_20px_rgba(254,50,48,0.3)] border-[3px] border-zinc-100",
+                "w-[140px] md:min-w-[240px] md:px-7 hover:scale-105 flex backdrop-blur-md transition-all duration-300 items-center justify-center bg-primary dark:border-none text-zinc-100 h-9 md:h-14 rounded-full text-lg font-extrabold shadow-md border-[3px] border-zinc-100",
                 "disabled:opacity-100 text-xs md:text-lg",
                 validationError && "!bg-red-500 dark:!bg-red-500"
               )}

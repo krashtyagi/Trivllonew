@@ -228,6 +228,7 @@ export const RoomCardItem = ({
           ? room.images[0]
           : room.images?.[0]?.url || "/hotels/img1.png"
       }
+      roomImages={room.images}
       originalPrice={originalPrice}
       discountedPrice={currentNightlyPrice}
       totalPrice={room.totalPrice}

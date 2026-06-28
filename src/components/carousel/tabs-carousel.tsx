@@ -20,6 +20,7 @@ export type CarouselProps = {
   items: Item[]
   isLoading?: boolean
   icon?: React.ReactNode
+  galleryCardHide?: boolean;
 }
 
 export function PopularDestinationCarousel({
@@ -29,6 +30,7 @@ export function PopularDestinationCarousel({
   items,
   isLoading,
   icon = <MapPin className="h-3 w-3 shrink-0" />,
+  galleryCardHide = false
 }: CarouselProps) {
   const [active, setActive] = useState(tabs?.[0]?.name ?? "")
   const [activeIndex, setActiveIndex] = useState(0)
@@ -54,7 +56,7 @@ export function PopularDestinationCarousel({
 
   if (!tabs) {
     return (
-      <OnlyCarousel type={type} tagline={tagline} items={items} isLoading={isLoading} icon={icon} />
+      <OnlyCarousel type={type} tagline={tagline} items={items} isLoading={isLoading} icon={icon} galleryCardHide={galleryCardHide} />
     )
   }
 
@@ -108,7 +110,7 @@ export function PopularDestinationCarousel({
 
       {/* Content */}
       <div className="mt-2 min-h-[190px] sm:min-h-[260px]">
-        <OnlyCarousel key={active} type={type} items={items} isLoading={isLoading} icon={icon} />
+        <OnlyCarousel key={active} type={type} items={items} isLoading={isLoading} icon={icon} galleryCardHide={galleryCardHide} />
       </div>
     </div>
   )

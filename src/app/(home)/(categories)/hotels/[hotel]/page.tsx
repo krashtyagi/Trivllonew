@@ -18,17 +18,23 @@ import { MessageModal } from "@/components/messagemodal";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const HotelDetails = ({ className }: { className?: string }) => {
-  const [isBookingMode, setIsBookingMode] = React.useState(false);
+  const { date, guests } = useHotelStore();
+  const isBookingMode = !!date?.from && !!date?.to;
   const ismobile = useIsMobile();
   localStorage.removeItem("nextRoute")
   localStorage.removeItem("like")
+
+  React.useEffect(() => {
+    if (typeof window !== "undefined" && !(window as any).__hasLoadedApp) {
+      useHotelStore.getState().setDate(undefined);
+    }
+  }, []);
+
   const { hotel: hotelIdParam } = useParams();
 
   const hotelId = Array.isArray(hotelIdParam)
     ? hotelIdParam[0]
     : hotelIdParam || "";
-
-  const { date, guests } = useHotelStore();
 
   const { data: hotelDetailsData } =
     useHotelDetailsQuery(hotelId);
