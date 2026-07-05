@@ -191,7 +191,7 @@ export const BookingForm = ({
           key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
           amount: razorpayOrder.amount,
           currency: razorpayOrder.currency,
-          name: "Hilex Booking",
+          name: "Trivllo Booking",
           description: `Booking for ${booking.bookingReference}`,
           order_id: razorpayOrder.id,
           handler: async function (response: any) {
