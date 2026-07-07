@@ -11,7 +11,7 @@ export function Footer() {
 
   return (
     <footer className="relative bg-background md:px-10 sm:px-5 overflow-hidden">
-      <FlowingRibbons ribbonCount={10} />
+      <FlowingRibbons ribbonCount={1} lineWidth={22} linesPerRibbon={30} />
       {/* <WaveShader
         color="142, 72%, 55%"
         colorSecondary="158, 60%, 48%"
@@ -27,10 +27,10 @@ export function Footer() {
         position="bottom"
         height="60%"
       /> */}
-      <div className="relative z-10 mx-auto max-w-7xl px-6 py-14">
+      <div className="relative z-10 mx-auto max-w-7xl px-6 py-14 ">
         <div className="grid grid-cols-1 gap-8 md:gap-10 md:grid-cols-4">
           <div className="space-y-4">
-            <h2 className="text-2xl font-bold text-green-500">{trivlloData.company_name}</h2>
+            <h2 className="text-2xl font-bold text-zinc-500">{trivlloData.company_name}</h2>
             <p className="text-sm text-muted-foreground max-w-xs">
               Explore the world with {trivlloData.company_name}. Your trusted platform for hotels,
               tours, and experiences.
@@ -75,12 +75,12 @@ export function Footer() {
             </button>
             <ul className={`mt-4 space-y-3 text-sm text-muted-foreground md:block ${supportOpen ? "block" : "hidden"}`}>
               <li>
-                <Link href="/terms-of-services" className="hover:text-green-500 transition">
+                <Link href="/terms-of-services" className="hover:text-zinc-500 transition">
                   Terms & Conditions
                 </Link>
               </li>
               <li>
-                <Link href="/privacy-policy" className="hover:text-green-500 transition">
+                <Link href="/privacy-policy" className="hover:text-zinc-500 transition">
                   Privacy Policy
                 </Link>
               </li>
@@ -99,7 +99,7 @@ export function Footer() {
             </button>
             <ul className={`mt-4 space-y-3 text-sm text-muted-foreground md:block ${companyOpen ? "block" : "hidden"}`}>
               <li>
-                <Link href="/about-us" className="hover:text-green-500 transition">
+                <Link href="/about-us" className="hover:text-zinc-500 transition">
                   About Us
                 </Link>
               </li>
@@ -119,13 +119,13 @@ export function Footer() {
         <div className="flex flex-col items-center justify-between gap-4 text-sm text-muted-foreground md:flex-row">
           <span>© 2026 {trivlloData.company_name}. All Rights Reserved</span>
           <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 md:justify-end">
-            <Link href="/terms-of-services" className="hover:text-green-500 transition">
+            <Link href="/terms-of-services" className="hover:text-zinc-500 transition">
               Terms & Conditions
             </Link>
-            <Link href="/privacy-policy" className="hover:text-green-500 transition">
+            <Link href="/privacy-policy" className="hover:text-zinc-500 transition">
               Privacy Policy
             </Link>
-            <Link href="/about-us" className="hover:text-green-500 transition">
+            <Link href="/about-us" className="hover:text-zinc-500 transition">
               About Us
             </Link>
             <a href={process.env.NEXT_PUBLIC_PARTNER_URL || "https://partner.trivllo.com/login"} target="_blank" rel="noopener noreferrer" className="hover:text-green-500 transition">
@@ -140,7 +140,7 @@ export function Footer() {
 
 function SocialIcon({ icon }: { icon: React.ReactNode }) {
   return (
-    <div className="flex h-9 w-9 items-center justify-center rounded-full border text-green-500 hover:bg-green-500 hover:text-white transition">
+    <div className="flex h-9 w-9 items-center justify-center rounded-full border text-zinc-500 hover:bg-zinc-500 hover:text-white transition">
       {icon}
     </div>
   );
