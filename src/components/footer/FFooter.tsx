@@ -11,7 +11,7 @@ export function Footer() {
 
   return (
     <footer className="relative bg-background md:px-10 sm:px-5 overflow-hidden">
-      <FlowingRibbons ribbonCount={1} lineWidth={22} linesPerRibbon={30} />
+      {/* <FlowingRibbons ribbonCount={1} lineWidth={22} linesPerRibbon={30} /> */}
       {/* <WaveShader
         color="142, 72%, 55%"
         colorSecondary="158, 60%, 48%"
