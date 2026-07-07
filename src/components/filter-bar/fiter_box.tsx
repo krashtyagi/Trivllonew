@@ -261,7 +261,7 @@ const FilterBox = ({
               {activeIdx !== null && FilterBoxValues.filterBlocks[activeIdx]?.element && (
                 <div
                   className={cn(
-                    "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[70] bg-background border border-border shadow-2xl rounded-2xl p-6",
+                    "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[160] bg-background border border-border shadow-2xl rounded-2xl p-6",
                     "w-[95%] max-w-[500px] md:max-w-[650px] max-h-[80vh] overflow-y-auto flex justify-center"
                   )}
                 >
@@ -303,7 +303,7 @@ const FilterBox = ({
       {activeIdx !== null && (
         <div
           onClick={() => setActiveIdx(null)}
-          className="fixed inset-0 bg-black/40 backdrop-blur-md z-[50] cursor-pointer"
+          className="fixed inset-0 bg-black/40 backdrop-blur-md z-[150] cursor-pointer"
         />
       )}
     </div>

@@ -34,7 +34,7 @@ export function ImagesSliderDemo({
           initial={{ opacity: 0 }}
           animate={isInView ? { opacity: 1 } : {}}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="z-50 flex flex-col justify-center items-center px-6 text-center max-w-2xl mx-auto"
+          className="z-0 flex flex-col justify-center items-center px-6 text-center max-w-2xl mx-auto"
         >
           {/* Animated title with stagger per character */}
           <div className="overflow-hidden">

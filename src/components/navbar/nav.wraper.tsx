@@ -13,6 +13,8 @@ import TopRight from "./topRight";
 import { BottomNav, MobileNavWrapper } from "./mobilenav";
 import { PopLogin } from "./PopMessages";
 import { userAccessToken } from "@/types/auth";
+import { WaveShader } from "../ui/wave-shader";
+import { FlowingRibbons } from "../ui/flowing-ribbons";
 
 const pagesNames = pages.map((page) => page.link.split("/")[1]);
 const NavWrapper = ({ children }: { children: React.ReactNode }) => {
@@ -124,13 +126,25 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
     <div className=" flex flex-col pb-20 md:pb-0   ">
       <div
         className={cn(
-          " top-0 left-0 z-50 w-full bg-card    flex flex-col justify-center bg-gradient-to-br from-zinc-100 to-transparent dark:bg-gradient-to-bl dark:from-zinc-700  border-b border-gray-300 dark:border-gray-700 ",
+          "relative top-0 left-0 z-50 w-full bg-card flex flex-col justify-center bg-gradient-to-br from-zinc-100 to-transparent dark:bg-gradient-to-bl dark:from-zinc-700 border-b border-gray-300 dark:border-gray-700",
           "h-auto",
-          "bg-background",
+          "bg-background overflow-hidden",
           isMobile ? "bg-transparent border-none shadow-sm static" : ""
-
         )}
       >
+        {/* <WaveShader
+          color="142, 72%, 55%"
+          colorSecondary="158, 60%, 48%"
+          angle={45}
+          waveCount={5}
+          amplitude={18}
+          wavelength={1.2}
+          speed={0.2}
+          opacity={0.08}
+          randomness={0.6}
+          blur={35}
+          position="full"
+        /> */}
         <div className="flex flex-col  justify-center md:py-3 md:px-5  sm:pr-3 px-2 h-full">
 
           <div className="flex  justify-between py-3     h-full">
@@ -172,18 +186,21 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
 
       <main
         className={cn(
-          "flex-1 bg-card",
+          "flex-1 bg-card relative overflow-hidden",
           // shouldShowNavbar ? "pt-21" : "pt-29",
           isMobile ? "pt-2" : "",
         )}
       >
-        {!shouldShowNavbar && ismobile && <TabsNav mobile={false} tabs={pages} />}
-        {/* {!shouldShowNavbar && (
-          <div className="mb-3 ">
-            <FilterBarLayout pages={pages} />
-          </div>
-        )} */}
-        {children}
+
+        <div className="relative z-10">
+          {!shouldShowNavbar && ismobile && <TabsNav mobile={false} tabs={pages} />}
+          {/* {!shouldShowNavbar && (
+            <div className="mb-3 ">
+              <FilterBarLayout pages={pages} />
+            </div>
+          )} */}
+          {children}
+        </div>
       </main>
       <div className="w-full border-1 mt-10" />
 
