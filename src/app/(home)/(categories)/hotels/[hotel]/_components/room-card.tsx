@@ -176,13 +176,13 @@ export function HotelRoomCard({
             <>
               <button
                 onClick={prevImg}
-                className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 dark:bg-black/60 backdrop-blur-sm rounded-full p-1.5 shadow-md opacity-0 group-hover/slider:opacity-100 transition-opacity z-10"
+                className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 dark:bg-black/60 backdrop-blur-sm rounded-full p-1.5 shadow-md opacity-100 md:opacity-0 md:group-hover/slider:opacity-100 transition-opacity z-10"
               >
                 <ChevronLeft className="h-4 w-4 text-foreground" />
               </button>
               <button
                 onClick={nextImg}
-                className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 dark:bg-black/60 backdrop-blur-sm rounded-full p-1.5 shadow-md opacity-0 group-hover/slider:opacity-100 transition-opacity z-10"
+                className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 dark:bg-black/60 backdrop-blur-sm rounded-full p-1.5 shadow-md opacity-100 md:opacity-0 md:group-hover/slider:opacity-100 transition-opacity z-10"
               >
                 <ChevronRight className="h-4 w-4 text-foreground" />
               </button>

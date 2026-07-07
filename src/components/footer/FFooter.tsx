@@ -2,17 +2,35 @@ import { useState } from "react";
 import { Facebook, Instagram, Youtube, ChevronDown, ChevronUp } from "lucide-react";
 import Link from "next/link";
 import trivlloData from "@/../trivllo.json";
+import { WaveShader } from "@/components/ui/wave-shader";
+import { FlowingRibbons } from "../ui/flowing-ribbons";
 
 export function Footer() {
   const [supportOpen, setSupportOpen] = useState(false);
   const [companyOpen, setCompanyOpen] = useState(false);
 
   return (
-    <footer className="bg-background">
-      <div className="mx-auto max-w-7xl px-6 py-14">
+    <footer className="relative bg-background md:px-10 sm:px-5 overflow-hidden">
+      <FlowingRibbons ribbonCount={10} />
+      {/* <WaveShader
+        color="142, 72%, 55%"
+        colorSecondary="158, 60%, 48%"
+        angle={0}
+        waveCount={6}
+        amplitude={25}
+        wavelength={1.5}
+        speed={0.15}
+        opacity={0.10}
+        randomness={0.7}
+        blur={30}
+        flowFromBottom={true}
+        position="bottom"
+        height="60%"
+      /> */}
+      <div className="relative z-10 mx-auto max-w-7xl px-6 py-14">
         <div className="grid grid-cols-1 gap-8 md:gap-10 md:grid-cols-4">
           <div className="space-y-4">
-            <h2 className="text-2xl font-bold text-red-500">{trivlloData.company_name}</h2>
+            <h2 className="text-2xl font-bold text-green-500">{trivlloData.company_name}</h2>
             <p className="text-sm text-muted-foreground max-w-xs">
               Explore the world with {trivlloData.company_name}. Your trusted platform for hotels,
               tours, and experiences.
@@ -57,12 +75,12 @@ export function Footer() {
             </button>
             <ul className={`mt-4 space-y-3 text-sm text-muted-foreground md:block ${supportOpen ? "block" : "hidden"}`}>
               <li>
-                <Link href="/terms-of-services" className="hover:text-red-500 transition">
+                <Link href="/terms-of-services" className="hover:text-green-500 transition">
                   Terms & Conditions
                 </Link>
               </li>
               <li>
-                <Link href="/privacy-policy" className="hover:text-red-500 transition">
+                <Link href="/privacy-policy" className="hover:text-green-500 transition">
                   Privacy Policy
                 </Link>
               </li>
@@ -81,7 +99,7 @@ export function Footer() {
             </button>
             <ul className={`mt-4 space-y-3 text-sm text-muted-foreground md:block ${companyOpen ? "block" : "hidden"}`}>
               <li>
-                <Link href="/about-us" className="hover:text-red-500 transition">
+                <Link href="/about-us" className="hover:text-green-500 transition">
                   About Us
                 </Link>
               </li>
@@ -95,22 +113,22 @@ export function Footer() {
         </div>
       </div>
 
-      <div className="w-full border-t border-zinc-150 dark:border-zinc-800 mt-10" />
+      <div className="relative z-10 w-full border-t border-zinc-150 dark:border-zinc-800 mt-10" />
 
-      <div className="w-full px-6 py-6">
+      <div className="relative z-10 w-full px-6 py-6">
         <div className="flex flex-col items-center justify-between gap-4 text-sm text-muted-foreground md:flex-row">
           <span>© 2026 {trivlloData.company_name}. All Rights Reserved</span>
-          <div className="flex flex-wrap gap-6">
-            <Link href="/terms-of-services" className="hover:text-red-500 transition">
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 md:justify-end">
+            <Link href="/terms-of-services" className="hover:text-green-500 transition">
               Terms & Conditions
             </Link>
-            <Link href="/privacy-policy" className="hover:text-red-500 transition">
+            <Link href="/privacy-policy" className="hover:text-green-500 transition">
               Privacy Policy
             </Link>
-            <Link href="/about-us" className="hover:text-red-500 transition">
+            <Link href="/about-us" className="hover:text-green-500 transition">
               About Us
             </Link>
-            <a href={process.env.NEXT_PUBLIC_PARTNER_URL || "https://partner.trivllo.com/login"} target="_blank" rel="noopener noreferrer" className="hover:text-red-500 transition">
+            <a href={process.env.NEXT_PUBLIC_PARTNER_URL || "https://partner.trivllo.com/login"} target="_blank" rel="noopener noreferrer" className="hover:text-green-500 transition">
               Partner With Us
             </a>
           </div>
@@ -122,7 +140,7 @@ export function Footer() {
 
 function SocialIcon({ icon }: { icon: React.ReactNode }) {
   return (
-    <div className="flex h-9 w-9 items-center justify-center rounded-full border text-red-500 hover:bg-red-500 hover:text-white transition">
+    <div className="flex h-9 w-9 items-center justify-center rounded-full border text-green-500 hover:bg-green-500 hover:text-white transition">
       {icon}
     </div>
   );

@@ -120,13 +120,13 @@ export const TabsNav = ({
           )}
         >
           {propTabs.map((tab, index) => (
-            <div key={tab.title} className="flex flex-1 items-center min-w-19 min-h-16">
+            <div key={tab.title} className={cn("flex flex-1 items-center min-w-19 ", ismobile && "min-h-14")}>
               <Link
                 href={tab.link}
                 className={cn(
                   "relative flex-1 flex items-center justify-center px-2 sm:px-4 py-2 rounded-[12px]",
                   "md:text-base text-sm font-medium transition-all whitespace-nowrap",
-                  "hover:bg-pink-50 dark:hover:bg-zinc-800 border-none",
+                  "hover:bg-zinc-100 dark:hover:bg-zinc-800 border-none",
                   tabClassName
                 )}
               >
@@ -135,7 +135,7 @@ export const TabsNav = ({
                     layoutId="active-nav-tab"
                     transition={{ type: "spring", bounce: 0.3, duration: 0.6 }}
                     className={cn(
-                      "absolute inset-0 rounded-[12px] bg-pink-100 dark:bg-zinc-800",
+                      "absolute inset-0 rounded-[12px] bg-green-100 dark:bg-zinc-800",
                       activeTabClassName
                     )}
                   />
@@ -163,7 +163,7 @@ export const TabsNav = ({
                     </div>
                   )}
                   {(
-                    <span className="hidden xl:block text-xs sm:text-sm">
+                    <span className=" xl:block text-xs sm:text-sm">
                       {(() => {
                         const cleanKey = tab.title.replace(/\s+/g, "");
                         const finalKey = `nav.${cleanKey.charAt(0).toLowerCase()}${cleanKey.slice(1)}`;
