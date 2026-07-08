@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import React, { useEffect, useRef, useState } from "react";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
+import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { Spinner } from "../spinner";
@@ -258,16 +259,17 @@ const FilterBox = ({
                 })}
               </div>
 
-              {activeIdx !== null && FilterBoxValues.filterBlocks[activeIdx]?.element && (
-                <div
+              <Dialog open={activeIdx !== null} onOpenChange={(open) => { if (!open) setActiveIdx(null); }}>
+                <DialogContent
                   className={cn(
-                    "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[160] bg-background border border-border shadow-2xl rounded-2xl p-6",
+                    "z-[160] bg-background border border-border shadow-2xl rounded-2xl p-6",
                     "w-[95%] max-w-[500px] md:max-w-[650px] max-h-[80vh] overflow-y-auto flex justify-center"
                   )}
                 >
-                  {FilterBoxValues.filterBlocks[activeIdx].element}
-                </div>
-              )}
+                  <DialogTitle className="sr-only">Filter Options</DialogTitle>
+                  {activeIdx !== null && FilterBoxValues.filterBlocks[activeIdx]?.element}
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
         </Card>
@@ -300,12 +302,6 @@ const FilterBox = ({
         <LoopingVideoHero VIDEOS={FilterBoxValues?.videos || []} />
       </div>
 
-      {activeIdx !== null && (
-        <div
-          onClick={() => setActiveIdx(null)}
-          className="fixed inset-0 bg-black/40 backdrop-blur-md z-[150] cursor-pointer"
-        />
-      )}
     </div>
   );
 };
