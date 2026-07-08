@@ -10,7 +10,7 @@ export function Footer() {
   const [companyOpen, setCompanyOpen] = useState(false);
 
   return (
-    <footer className="relative bg-background md:px-10 sm:px-5 overflow-hidden">
+    <footer className="relative bg-zinc-200 md:px-10 sm:px-5 overflow-hidden">
       {/* <FlowingRibbons ribbonCount={1} lineWidth={22} linesPerRibbon={30} /> */}
       {/* <WaveShader
         color="142, 72%, 55%"

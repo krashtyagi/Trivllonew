@@ -115,7 +115,7 @@ export const PagesFilterBarButtons = ({
             }}
             style={{ originX: 0.5 }}
             className={cn(
-              "absolute left-1/2 -translate-x-1/2 z-40 md:w-[95vw] w-[90vw] min-h-[100px] max-w-xl  overflow-hidden md:rounded-[3rem] rounded-[1rem] border border-border-100 bg-background md:p-2 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.25)]",
+              "absolute left-1/2 -translate-x-1/2 z-40 md:w-[95vw] w-[90vw] min-h-[100px] max-w-xl md:rounded-[3rem] rounded-[1rem] border border-border-100 bg-background md:p-2 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.25)]",
               "bottom-full mb-4 md:bottom-auto md:top-full md:mt-3"
             )}
           >
@@ -129,7 +129,7 @@ export const PagesFilterBarButtons = ({
                   exit={{ opacity: 0, x: -10 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <div className="min-h-[300px] w-full py-5 ">
+                  <div className="w-full py-3">
                     {PagesFilterBarValues[selectedId].element}
                   </div>
                 </motion.div>

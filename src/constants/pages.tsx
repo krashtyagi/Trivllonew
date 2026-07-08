@@ -10,9 +10,13 @@ import {
   ToursFilterBarValues,
   // Search_box_values,
   type Pages,
+  type FilterBarValues,
 } from "./constants";
 import { PagesFilterBarButtons } from "@/components/filter-bar/filterBar";
 import FilterBox from "@/components/filter-bar/fiter_box";
+import { NavSearchDestination } from "@/components/filter-bar/nav-search-destination";
+import HotelCalendern from "@/components/navbar/filter-nav-bar/calander05";
+import GuestSelector from "@/components/filter-bar/newui-selectedCounter";
 // import {
 //   Calendar05,
 //   PagesFilterBarButtons,
@@ -26,6 +30,49 @@ import FilterBox from "@/components/filter-bar/fiter_box";
 //    icon: LucideIcon;
 //     filter_bar?: React.ReactNode;
 // };
+// Nav-specific filter bar values: use inline NavSearchDestination for "Where"
+const NavHotelFilterBarValues: FilterBarValues[] = [
+  {
+    value: "Where",
+    description: "Search Destination",
+    element: <NavSearchDestination />,
+    tagline: "Where do you want to go?",
+  },
+  {
+    value: "When",
+    description: "Add dates",
+    element: <HotelCalendern hookname="hotels" />,
+    tagline: "Choose your dates",
+  },
+  {
+    value: "Who",
+    description: "Add Guests",
+    element: <GuestSelector />,
+    tagline: "Who is coming?",
+  },
+];
+
+const NavToursFilterBarValues: FilterBarValues[] = [
+  {
+    value: "Where",
+    description: "Search Destination",
+    element: <NavSearchDestination />,
+    tagline: "Where do you want to go?",
+  },
+  {
+    value: "When",
+    description: "Add dates",
+    element: <HotelCalendern hookname="tours" />,
+    tagline: "Choose your dates",
+  },
+  {
+    value: "Who",
+    description: "Add Guests",
+    element: <GuestSelector />,
+    tagline: "Who is coming?",
+  },
+];
+
 export const FilterOfPages: Pages[] = [
   {
     type: "filter",
@@ -33,7 +80,7 @@ export const FilterOfPages: Pages[] = [
     title: "Filter Hotels",
     icon: IconHome,
     filter_bar: (
-      <PagesFilterBarButtons PagesFilterBarValues={HotelFilterBarValues} type="home" category="hotels" />
+      <PagesFilterBarButtons PagesFilterBarValues={NavHotelFilterBarValues} type="home" category="hotels" />
     ),
 
   },
@@ -63,7 +110,7 @@ export const FilterOfPages: Pages[] = [
     title: "Filter Tours",
     icon: IconHome,
     filter_bar: (
-      <PagesFilterBarButtons PagesFilterBarValues={ToursFilterBarValues} type="home" category="tours" />
+      <PagesFilterBarButtons PagesFilterBarValues={NavToursFilterBarValues} type="home" category="tours" />
     ),
 
   },
