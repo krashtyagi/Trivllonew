@@ -7,15 +7,20 @@ import trivlloData from "@/../trivllo.json";
 
 // ─── Core Constants ────────────────────────────────────────────────────────────
 
-export const SITE_URL = trivlloData.contact.website; // https://www.trivllo.com
-export const SITE_NAME = trivlloData.company_name;   // Trivllo
+export const SITE_URL = trivlloData.contact.website; // https://trivllo.com
+export const SITE_NAME = trivlloData.company_name; // Trivllo
 export const SITE_EMAIL = trivlloData.contact.email;
-export const OG_IMAGE = `${SITE_URL}/og-main-preview.png`;
-export const LOGO_URL = `${SITE_URL}/trivllo-logo.svg`;
+export const OG_IMAGE = `/logo.png`;
+export const LOGO_URL = `/trivllo-logo.svg`;
 export const LOCALE = "en_IN";
 
 export const DEFAULT_KEYWORDS = [
   SITE_NAME,
+  `${SITE_NAME} Travel`,
+  `${SITE_NAME} Booking`,
+  `${SITE_NAME} Hotels`,
+  "Trivllo.com",
+  "Trivllo",
   "Hotel Booking",
   "Travel Packages India",
   `${SITE_NAME} App`,
@@ -33,6 +38,101 @@ export const DEFAULT_KEYWORDS = [
   "Premium Stays",
   "Weekend Getaway",
   "Vacation Rentals India",
+
+  // Airbnb-style + Homestays + Unique Stays
+  "Vacation Rentals",
+  "Homestays India",
+  "Airbnb Alternative India",
+  "Unique Stays India",
+  "Villa Booking India",
+  "Cottage Rentals",
+  "Beach House Rentals",
+  "Mountain Cabin Booking",
+  "Luxury Villas India",
+  "Pet Friendly Homestays",
+  "Rooftop Stays",
+  "Treehouse Stays India",
+  "Farm Stays India",
+  "Houseboat Booking Kerala",
+  "Serviced Apartments",
+  "Short Term Rentals",
+
+  // Trivllo + Hotel Focused
+  "Trivllo Hotels",
+  "Trivllo Tours",
+  "Trivllo Cab Booking",
+  "Trivllo Holiday Packages",
+  "Book Hotels Trivllo",
+  "Cheap Hotels India",
+  "Luxury Hotels Booking",
+  "Budget Hotels India",
+  "5 Star Hotels India",
+  "Boutique Hotels India",
+  "Resorts Booking India",
+  "Heritage Hotels Rajasthan",
+  "Instant Hotel Booking",
+  "Pay at Hotel",
+  "Free Cancellation Hotels",
+
+  // Tours & Experiences
+  "Guided Tours India",
+  "Adventure Tours India",
+  "Cultural Tours India",
+  "Wildlife Safari Tours",
+  "Heritage Walks India",
+  "Backpacking Tours",
+  "Group Tours India",
+  "Solo Travel Tours",
+  "Honeymoon Tours India",
+  "Family Tour Packages",
+  "Day Tours India",
+  "Multi City Tours",
+  "Golden Triangle Tour",
+  "Kerala Backwaters Tour",
+  "Rajasthan Desert Safari",
+  "Himachal Adventure Tours",
+  "Goa Beach Tours",
+
+  // Booking & Deals
+  "Travel Deals India",
+  "Last Minute Deals",
+  "Early Bird Offers",
+  "Holiday Packages",
+  "Flight Hotel Combo",
+  "Hotel + Cab Package",
+  "Tour + Hotel Packages",
+  "Best Travel App India",
+  "Online Travel Agency India",
+  "Trivllo Offers",
+  "Trivllo Coupons",
+  "Trivllo Discount Code",
+  "Guaranteed Lowest Price",
+
+  // Popular Destinations & Services
+  "Hotels in Goa",
+  "Hotels in Mumbai",
+  "Hotels in Delhi",
+  "Hotels in Jaipur",
+  "Hotels in Kerala",
+  "Hotels in Manali",
+  "Hotels in Udaipur",
+  "Hotels in Rishikesh",
+  "Hotels in Andaman",
+  "Cab Booking Delhi",
+  "Cab Booking Mumbai",
+  "Airport Transfer Booking",
+
+  // Others
+  "India Tourism Packages",
+  "Domestic Travel Booking",
+  "24x7 Travel Support",
+  "Trivllo Login",
+  "Trivllo Sign Up",
+  "Trivllo Reviews",
+  "Best Places to Visit in India",
+  "Custom Tour Packages",
+  "Eco Friendly Stays",
+  "Wedding Destination Booking",
 ];
 
 // ─── Per-page SEO Data ─────────────────────────────────────────────────────────
@@ -232,8 +332,10 @@ export function generateOrganizationJsonLd() {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: SITE_NAME,
+    alternateName: ["Trivllo Travel", "Trivllo Hotels", "Trivllo India"],
     url: SITE_URL,
     logo: LOGO_URL,
+    image: [OG_IMAGE, LOGO_URL],
     foundingDate: `${trivlloData.founded}`,
     description: `${SITE_NAME} is India's next-generation travel platform for booking hotels, tours, and adventure experiences.`,
     email: SITE_EMAIL,
@@ -261,7 +363,9 @@ export function generateWebSiteJsonLd() {
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: SITE_NAME,
+    alternateName: ["Trivllo Travel", "Trivllo.com"],
     url: SITE_URL,
+    image: OG_IMAGE,
     description: `Book hotels, tours, and adventure experiences across India with ${SITE_NAME}.`,
     publisher: {
       "@type": "Organization",
@@ -284,7 +388,7 @@ export function generateWebSiteJsonLd() {
 
 /** BreadcrumbList schema */
 export function generateBreadcrumbJsonLd(
-  items: { name: string; url: string }[]
+  items: { name: string; url: string }[],
 ) {
   return {
     "@context": "https://schema.org",
@@ -316,8 +420,8 @@ export function generateTravelAgencyJsonLd() {
     },
     geo: {
       "@type": "GeoCoordinates",
-      latitude: "26.2183",
-      longitude: "78.1828",
+      latitude: "26.2659639",
+      longitude: " 78.2112098",
     },
     priceRange: "₹₹",
     openingHoursSpecification: {
@@ -343,7 +447,7 @@ export function generateTravelAgencyJsonLd() {
 
 /** FAQPage schema — for policy pages */
 export function generateFAQJsonLd(
-  faqs: { question: string; answer: string }[]
+  faqs: { question: string; answer: string }[],
 ) {
   return {
     "@context": "https://schema.org",
