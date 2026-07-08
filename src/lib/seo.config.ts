@@ -1,0 +1,421 @@
+/**
+ * Centralized SEO configuration for Trivllo
+ * All SEO-related constants, helpers, and JSON-LD generators live here.
+ */
+
+import trivlloData from "@/../trivllo.json";
+
+// ─── Core Constants ────────────────────────────────────────────────────────────
+
+export const SITE_URL = trivlloData.contact.website; // https://www.trivllo.com
+export const SITE_NAME = trivlloData.company_name;   // Trivllo
+export const SITE_EMAIL = trivlloData.contact.email;
+export const OG_IMAGE = `${SITE_URL}/og-main-preview.png`;
+export const LOGO_URL = `${SITE_URL}/trivllo-logo.svg`;
+export const LOCALE = "en_IN";
+
+export const DEFAULT_KEYWORDS = [
+  SITE_NAME,
+  "Hotel Booking",
+  "Travel Packages India",
+  `${SITE_NAME} App`,
+  "Adventure Experiences",
+  "Travel Platform",
+  "Cab Booking",
+  "Tour Packages",
+  "Online Hotel Booking",
+  "Best Hotels India",
+  "Holiday Packages India",
+  "Guided Tours India",
+  "Travel Deals",
+  "Book Hotels Online",
+  "Affordable Hotels",
+  "Premium Stays",
+  "Weekend Getaway",
+  "Vacation Rentals India",
+];
+
+// ─── Per-page SEO Data ─────────────────────────────────────────────────────────
+
+export type PageSEO = {
+  title: string;
+  description: string;
+  keywords?: string[];
+  canonical: string;
+  ogType?: "website" | "article";
+  noIndex?: boolean;
+};
+
+export const PAGE_SEO: Record<string, PageSEO> = {
+  // ── Home ──
+  home: {
+    title: `${SITE_NAME} | Book Hotels, Tours & Adventure Experiences in India`,
+    description: `Your ultimate travel companion. Book premium hotels, guided tours, and thrilling adventure activities across India with ${SITE_NAME}. Best prices guaranteed.`,
+    canonical: "/",
+    keywords: [
+      ...DEFAULT_KEYWORDS,
+      "book hotels online India",
+      "best travel platform",
+      "cheap hotels near me",
+    ],
+  },
+
+  // ── Hotels ──
+  hotels: {
+    title: `Book Hotels & Stays | ${SITE_NAME}`,
+    description: `Find and book the best hotels, resorts, and homestays across India on ${SITE_NAME}. Compare prices, read reviews, and secure the lowest rates with instant confirmation.`,
+    canonical: "/hotels",
+    keywords: [
+      ...DEFAULT_KEYWORDS,
+      "book hotels",
+      "luxury hotels India",
+      "budget hotels",
+      "resorts near me",
+      "homestays India",
+    ],
+  },
+
+  hotelsFind: {
+    title: `Search & Filter Hotels | ${SITE_NAME}`,
+    description: `Search from thousands of hotels with advanced filters. Compare prices, amenities, ratings & locations to find your perfect stay on ${SITE_NAME}.`,
+    canonical: "/hotels/find",
+    keywords: [
+      ...DEFAULT_KEYWORDS,
+      "search hotels",
+      "filter hotels by price",
+      "hotel comparison",
+      "find hotels near me",
+    ],
+  },
+
+  // ── Tours ──
+  tours: {
+    title: `Book Guided Tours & Holiday Packages | ${SITE_NAME}`,
+    description: `Discover curated holiday packages and guided tours across India on ${SITE_NAME}. Expert guides, secure bookings, and customized itineraries for every traveler.`,
+    canonical: "/tours",
+    keywords: [
+      ...DEFAULT_KEYWORDS,
+      "guided tours India",
+      "holiday packages",
+      "curated travel packages",
+      "group tours",
+      "family vacation India",
+    ],
+  },
+
+  toursFind: {
+    title: `Search & Filter Tours | ${SITE_NAME}`,
+    description: `Browse and filter from hundreds of curated tour packages. Find the perfect guided tour with flexible dates and group sizes on ${SITE_NAME}.`,
+    canonical: "/tours/find",
+    keywords: [
+      ...DEFAULT_KEYWORDS,
+      "search tours",
+      "find tour packages",
+      "compare tours India",
+      "tour deals",
+    ],
+  },
+
+  // ── Auth ──
+  login: {
+    title: `Login or Sign Up | ${SITE_NAME}`,
+    description: `Sign in to your ${SITE_NAME} account to manage bookings, wishlists, and travel plans. New user? Create a free account in seconds.`,
+    canonical: "/login",
+    noIndex: true,
+  },
+
+  // ── Profile / Personal ──
+  profile: {
+    title: `My Profile | ${SITE_NAME}`,
+    description: `Manage your ${SITE_NAME} profile, bookings, payment methods, and travel preferences all in one place.`,
+    canonical: "/profile",
+    noIndex: true,
+  },
+
+  book: {
+    title: `Complete Your Booking | ${SITE_NAME}`,
+    description: `Securely complete your hotel booking on ${SITE_NAME}. Review your stay details, apply coupons, and pay with confidence.`,
+    canonical: "/book",
+    noIndex: true,
+  },
+
+  booknow: {
+    title: `Confirm & Pay | ${SITE_NAME}`,
+    description: `Finalize your reservation on ${SITE_NAME}. Secure payment gateway with instant booking confirmation.`,
+    canonical: "/booknow",
+    noIndex: true,
+  },
+
+  // ── Policy / Details Pages ──
+  aboutUs: {
+    title: `About Us | ${SITE_NAME} — India's Next-Gen Travel Platform`,
+    description: `Learn about ${SITE_NAME}, India's innovative travel platform founded in ${trivlloData.founded}. Our mission is to make premium travel accessible to everyone with cutting-edge technology.`,
+    canonical: "/about-us",
+    ogType: "article",
+    keywords: [
+      SITE_NAME,
+      `about ${SITE_NAME}`,
+      "travel startup India",
+      "Gwalior startup",
+      "travel technology company",
+    ],
+  },
+
+  privacyPolicy: {
+    title: `Privacy Policy | ${SITE_NAME}`,
+    description: `Read ${SITE_NAME}'s privacy policy. Learn how we collect, use, and protect your personal data when you use our travel booking platform.`,
+    canonical: "/privacy-policy",
+    ogType: "article",
+  },
+
+  termsOfServices: {
+    title: `Terms of Service | ${SITE_NAME}`,
+    description: `Review ${SITE_NAME}'s terms and conditions for using our hotel, tour, and adventure booking services. Know your rights and responsibilities.`,
+    canonical: "/terms-of-services",
+    ogType: "article",
+  },
+
+  partnerWithUs: {
+    title: `Partner With Us | List Your Property on ${SITE_NAME}`,
+    description: `Grow your business by partnering with ${SITE_NAME}. List your hotel, resort, or tour service and reach millions of travelers across India.`,
+    canonical: "/partner-with-us",
+    keywords: [
+      SITE_NAME,
+      "list hotel online",
+      "partner with travel platform",
+      "hotel listing India",
+      "tour operator partnership",
+    ],
+  },
+
+  cancellationPolicy: {
+    title: `Cancellation & Refund Policy | ${SITE_NAME}`,
+    description: `Understand ${SITE_NAME}'s cancellation and refund policies. Hassle-free cancellations with transparent refund timelines for all bookings.`,
+    canonical: "/cancellation-policy",
+    ogType: "article",
+  },
+
+  bookingPolicy: {
+    title: `Booking Policy | ${SITE_NAME}`,
+    description: `Read ${SITE_NAME}'s booking policy. Understand booking confirmation, modification rules, and payment terms for hotels and tours.`,
+    canonical: "/booking-policy",
+    ogType: "article",
+  },
+
+  codeOfConduct: {
+    title: `Code of Conduct | ${SITE_NAME}`,
+    description: `${SITE_NAME}'s community code of conduct. Guidelines for guests, hosts, and partners to ensure safe and respectful travel experiences.`,
+    canonical: "/code-of-conduct",
+    ogType: "article",
+  },
+
+  secureBookingsAndPayments: {
+    title: `Secure Bookings & Payments | ${SITE_NAME}`,
+    description: `Learn about ${SITE_NAME}'s secure payment infrastructure. PCI-compliant processing, encrypted transactions, and verified booking guarantees.`,
+    canonical: "/secure-bookings-and-payments",
+    ogType: "article",
+  },
+
+  trustedHostPolicy: {
+    title: `Trusted Host Policy | ${SITE_NAME}`,
+    description: `Discover how ${SITE_NAME} verifies and maintains quality standards for all listed properties. Our trusted host program ensures safe, reliable stays.`,
+    canonical: "/trusted-host-policy",
+    ogType: "article",
+  },
+};
+
+// ─── JSON-LD Structured Data Generators ────────────────────────────────────────
+
+/** Organization schema — injected once in the root layout */
+export function generateOrganizationJsonLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: SITE_NAME,
+    url: SITE_URL,
+    logo: LOGO_URL,
+    foundingDate: `${trivlloData.founded}`,
+    description: `${SITE_NAME} is India's next-generation travel platform for booking hotels, tours, and adventure experiences.`,
+    email: SITE_EMAIL,
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: trivlloData.headquarters.city,
+      addressRegion: trivlloData.headquarters.state,
+      addressCountry: trivlloData.headquarters.country,
+    },
+    sameAs: [
+      // Add social profiles when available
+    ],
+    contactPoint: {
+      "@type": "ContactPoint",
+      email: SITE_EMAIL,
+      contactType: "customer service",
+      availableLanguage: ["English", "Hindi"],
+    },
+  };
+}
+
+/** WebSite schema with SearchAction — enables Google Sitelinks Searchbox */
+export function generateWebSiteJsonLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: SITE_NAME,
+    url: SITE_URL,
+    description: `Book hotels, tours, and adventure experiences across India with ${SITE_NAME}.`,
+    publisher: {
+      "@type": "Organization",
+      name: SITE_NAME,
+      logo: {
+        "@type": "ImageObject",
+        url: LOGO_URL,
+      },
+    },
+    potentialAction: {
+      "@type": "SearchAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: `${SITE_URL}/hotels/find?city={search_term_string}`,
+      },
+      "query-input": "required name=search_term_string",
+    },
+  };
+}
+
+/** BreadcrumbList schema */
+export function generateBreadcrumbJsonLd(
+  items: { name: string; url: string }[]
+) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.name,
+      item: `${SITE_URL}${item.url}`,
+    })),
+  };
+}
+
+/** TravelAgency schema — more specific than Organization for travel */
+export function generateTravelAgencyJsonLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "TravelAgency",
+    name: SITE_NAME,
+    url: SITE_URL,
+    logo: LOGO_URL,
+    image: OG_IMAGE,
+    description: `${SITE_NAME} is India's premier travel booking platform offering hotels, guided tours, and adventure experiences.`,
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: trivlloData.headquarters.city,
+      addressRegion: trivlloData.headquarters.state,
+      addressCountry: "IN",
+    },
+    geo: {
+      "@type": "GeoCoordinates",
+      latitude: "26.2183",
+      longitude: "78.1828",
+    },
+    priceRange: "₹₹",
+    openingHoursSpecification: {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday",
+      ],
+      opens: "00:00",
+      closes: "23:59",
+    },
+    areaServed: {
+      "@type": "Country",
+      name: "India",
+    },
+  };
+}
+
+/** FAQPage schema — for policy pages */
+export function generateFAQJsonLd(
+  faqs: { question: string; answer: string }[]
+) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((faq) => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: faq.answer,
+      },
+    })),
+  };
+}
+
+// ─── Metadata Helper ───────────────────────────────────────────────────────────
+
+import type { Metadata } from "next";
+
+/**
+ * Generate a full Next.js Metadata object from a PageSEO key.
+ * Usage: `export const metadata = buildMetadata("aboutUs");`
+ */
+export function buildMetadata(pageKey: keyof typeof PAGE_SEO): Metadata {
+  const seo = PAGE_SEO[pageKey];
+  if (!seo) throw new Error(`SEO config not found for page: ${pageKey}`);
+
+  return {
+    title: seo.title,
+    description: seo.description,
+    keywords: seo.keywords ?? DEFAULT_KEYWORDS,
+
+    alternates: {
+      canonical: seo.canonical,
+    },
+
+    robots: seo.noIndex
+      ? { index: false, follow: false }
+      : {
+          index: true,
+          follow: true,
+          googleBot: {
+            index: true,
+            follow: true,
+            "max-image-preview": "large" as const,
+            "max-video-preview": -1,
+            "max-snippet": -1,
+          },
+        },
+
+    openGraph: {
+      type: (seo.ogType ?? "website") as "website" | "article",
+      locale: LOCALE,
+      url: `${SITE_URL}${seo.canonical}`,
+      siteName: SITE_NAME,
+      title: seo.title,
+      description: seo.description,
+      images: [
+        {
+          url: OG_IMAGE,
+          width: 1200,
+          height: 630,
+          alt: `${SITE_NAME} — ${seo.title}`,
+        },
+      ],
+    },
+
+    twitter: {
+      card: "summary_large_image",
+      title: seo.title,
+      description: seo.description,
+      images: [OG_IMAGE],
+    },
+  };
+}

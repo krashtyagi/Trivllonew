@@ -10,6 +10,13 @@ import TopLoader from "./toploader";
 
 import trivlloData from "@/../trivllo.json";
 
+import JsonLd from "@/components/seo/JsonLd";
+import {
+  generateOrganizationJsonLd,
+  generateWebSiteJsonLd,
+  generateTravelAgencyJsonLd,
+} from "@/lib/seo.config";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -132,6 +139,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        {/* ── JSON-LD Structured Data for SEO ── */}
+        <JsonLd data={generateOrganizationJsonLd()} />
+        <JsonLd data={generateWebSiteJsonLd()} />
+        <JsonLd data={generateTravelAgencyJsonLd()} />
+
         <MainProvider>
           <TopLoader />
 
