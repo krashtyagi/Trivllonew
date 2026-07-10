@@ -15,6 +15,7 @@ import {
   generateOrganizationJsonLd,
   generateWebSiteJsonLd,
   generateTravelAgencyJsonLd,
+  DEFAULT_KEYWORDS,
 } from "@/lib/seo.config";
 
 const geistSans = Geist({
@@ -40,12 +41,18 @@ export const metadata: Metadata = {
 
   keywords: [
     trivlloData.company_name,
+    "Trivllo",
+    "Trivllo.com",
+    "Trivllo Hotels",
+    "Trivllo Tours",
+    "Trivllo Booking",
     "Hotel Booking",
     "Travel Packages India",
     `${trivlloData.company_name} App`,
     "Adventure Experiences",
     "Travel Platform",
     "Cab Booking",
+    ...DEFAULT_KEYWORDS,
   ],
 
   authors: [
@@ -74,6 +81,7 @@ export const metadata: Metadata = {
   },
 
   verification: {
+    google: "IdaATQaw8qSY4vzBkTXx9oTe1cOObbEync0xz6iXUTQ",
     other: {
       "facebook-domain-verification":
         "kthtqxpp6w141r75p1d6q8y6jgsymo",
@@ -100,7 +108,7 @@ export const metadata: Metadata = {
 
     images: [
       {
-        url: `${trivlloData.contact.website}/og-main-preview.png`,
+        url: `/logo.png`,
         width: 1200,
         height: 630,
         alt: `${trivlloData.company_name} Open Graph Preview`,
@@ -118,7 +126,7 @@ export const metadata: Metadata = {
       `Book hotels, cabs and adventures in one place.`,
 
     images: [
-      `${trivlloData.contact.website}/og-main-preview.png`,
+      `/logo.png`,
     ],
   },
 };
