@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Facebook, Instagram, Youtube, ChevronDown, ChevronUp } from "lucide-react";
+import { Facebook, Instagram, Youtube, ChevronDown, ChevronUp, Twitter } from "lucide-react";
 import Link from "next/link";
 import trivlloData from "@/../trivllo.json";
 import { WaveShader } from "@/components/ui/wave-shader";
@@ -10,7 +10,7 @@ export function Footer() {
   const [companyOpen, setCompanyOpen] = useState(false);
 
   return (
-    <footer className="relative bg-zinc-200 md:px-10 sm:px-5 overflow-hidden">
+    <footer className="relative bg-gradient-to-b from-zinc-100 to-background md:px-10 sm:px-5 overflow-hidden">
       {/* <FlowingRibbons ribbonCount={1} lineWidth={22} linesPerRibbon={30} /> */}
       {/* <WaveShader
         color="142, 72%, 55%"
@@ -27,7 +27,7 @@ export function Footer() {
         position="bottom"
         height="60%"
       /> */}
-      <div className="relative z-10 mx-auto max-w-7xl px-6 py-14 ">
+      <div className="relative z-0 mx-auto max-w-7xl px-6 py-14 ">
         <div className="grid grid-cols-1 gap-8 md:gap-10 md:grid-cols-4">
           <div className="space-y-4">
             <h2 className="text-2xl font-bold text-zinc-500">{trivlloData.company_name}</h2>
@@ -56,9 +56,9 @@ export function Footer() {
                 href={`https://twitter.com/trivllo`}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="YouTube"
+                aria-label="Twitter"
               >
-                <SocialIcon icon={<Youtube />} />
+                <SocialIcon icon={<Twitter />} />
               </a>
             </div>
           </div>
