@@ -135,7 +135,7 @@ export const TabsNav = ({
                     layoutId="active-nav-tab"
                     transition={{ type: "spring", bounce: 0.3, duration: 0.6 }}
                     className={cn(
-                      "absolute inset-0 rounded-[12px] bg-green-100 dark:bg-zinc-800",
+                      "absolute inset-0 rounded-[12px] bg-zinc-200 dark:bg-zinc-800",
                       activeTabClassName
                     )}
                   />

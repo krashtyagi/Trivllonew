@@ -2,6 +2,7 @@
 import { amenityIconMap } from "@/components/ui/icons";
 import React from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { formatLabel } from "@/components/side-bar-filter/pillGroup";
 
 type Props = {
   amenities: string[];
@@ -23,7 +24,7 @@ const AmenitiesValues = ({ amenities, title = "Amenities" }: Props) => {
 
             <div key={amenity} className="inline-flex items-center gap-1.5 text-xs sm:text-sm dark:bg-muted bg-gray-200 px-2 py-1 sm:px-4 sm:py-2 rounded-full cursor-default">
               {Icon && title === "Amenities" && <Icon className="h-3 w-3 sm:h-4 sm:w-4" />}
-              <span>{amenity.charAt(0).toUpperCase() + amenity.slice(1)}</span>
+              <span>{formatLabel(amenity.charAt(0).toUpperCase() + amenity.slice(1))}</span>
             </div>
 
           );

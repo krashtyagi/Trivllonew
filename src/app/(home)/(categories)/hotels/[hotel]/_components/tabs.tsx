@@ -223,6 +223,18 @@ function BookingCard({
   const containerRef = useRef<HTMLDivElement>(null);
   const { rooms, setFetch } = useHotelContext();
 
+  useEffect(() => {
+    if (showCalendar && !isInvalidDates) {
+      setShowCalendar(false);
+      setTimeout(() => {
+        const btn = document.getElementById("show-rooms-btn");
+        if (btn) {
+          btn.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        }
+      }, 150);
+    }
+  }, [isInvalidDates, showCalendar]);
+
   const validPrices = rooms
     .map((r: RoomType) => r.finalPrice || r.displayPrice || r.totalPrice)
     .filter((p): p is number => typeof p === "number" && !isNaN(p));
@@ -307,6 +319,7 @@ function BookingCard({
           )}
         </div>
         <Button
+          id="show-rooms-btn"
           disabled={isInvalidDates}
           className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold h-14 rounded-2xl text-lg shadow-lg transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
           onClick={async (e) => {

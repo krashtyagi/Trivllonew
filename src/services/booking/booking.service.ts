@@ -14,8 +14,9 @@ export const createBooking = async (data: any) => {
     const response = await axiosApi.post("/bookings", data);
 
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error(error, "from createBooking  error");
+    throw error;
   }
 };
 
