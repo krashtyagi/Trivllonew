@@ -10,7 +10,7 @@ export function Footer() {
   const [companyOpen, setCompanyOpen] = useState(false);
 
   return (
-    <footer className="relative bg-gradient-to-b from-zinc-100 to-background md:px-10 sm:px-5 overflow-hidden">
+    <footer className=" bg-gradient-to-b from-zinc-100 to-background md:px-10 sm:px-5 overflow-hidden">
       {/* <FlowingRibbons ribbonCount={1} lineWidth={22} linesPerRibbon={30} /> */}
       {/* <WaveShader
         color="142, 72%, 55%"
@@ -27,7 +27,7 @@ export function Footer() {
         position="bottom"
         height="60%"
       /> */}
-      <div className="relative z-0 mx-auto max-w-7xl px-6 py-14 ">
+      <div className=" z-0 mx-auto max-w-7xl px-6 py-14 ">
         <div className="grid grid-cols-1 gap-8 md:gap-10 md:grid-cols-4">
           <div className="space-y-4">
             <h2 className="text-2xl font-bold text-zinc-500">{trivlloData.company_name}</h2>
@@ -113,9 +113,9 @@ export function Footer() {
         </div>
       </div>
 
-      <div className="relative z-10 w-full border-t border-zinc-150 dark:border-zinc-800 mt-10" />
+      <div className=" z-10 w-full border-t border-zinc-150 dark:border-zinc-800 mt-10" />
 
-      <div className="relative z-10 w-full px-6 py-6">
+      <div className=" z-10 w-full px-6 py-6">
         <div className="flex flex-col items-center justify-between gap-4 text-sm text-muted-foreground md:flex-row">
           <span>© 2026 {trivlloData.company_name}. All Rights Reserved</span>
           <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 md:justify-end">

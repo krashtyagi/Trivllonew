@@ -45,6 +45,7 @@ export interface RoomCardProps {
 import NProgress from "nprogress";
 import { RouterPush } from "@/components/RouterPush";
 import { userAccessToken } from "@/types/auth";
+import { formatLabel } from "@/components/side-bar-filter/pillGroup";
 export function HotelRoomCard({
   hotelId,
   id,
@@ -271,7 +272,7 @@ export function HotelRoomCard({
                     className="flex items-center gap-1 text-[10px] md:text-xs font-medium bg-muted/60 px-2.5 py-1 rounded-full border border-border whitespace-nowrap"
                   >
                     {Icon && <Icon className="h-3 w-3 shrink-0" />}
-                    <span>{amenity.name}</span>
+                    <span>{formatLabel(amenity.name)}</span>
                   </div>
                 );
               })}
@@ -300,7 +301,7 @@ export function HotelRoomCard({
                 )
               }
               <span className="text-[10px] md:text-xs text-muted-foreground font-medium uppercase">
-                / night
+                {totalPrice ? `for ${nights} ${nights === 1 ? 'night' : 'nights'}` : '/ night'}
               </span>
             </div>
           </div>

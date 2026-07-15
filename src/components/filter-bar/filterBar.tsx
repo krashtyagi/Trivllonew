@@ -92,7 +92,7 @@ export const PagesFilterBarButtons = ({
         {type === "home" && (
           <Button
             onClick={() => RouterPush(navigate, link || `/${category}/find`)}
-            className="z-40 h-10 w-10  rounded-full bg-primary text-text  shadow-xl hover:scale-105 transition-transform ml-2"
+            className="z-40 h-10 w-10  rounded-full bg-zinc-200 text-text  shadow-xl hover:scale-105 transition-transform ml-2"
           >
             <IconSearch size={24} stroke={3} />
           </Button>
