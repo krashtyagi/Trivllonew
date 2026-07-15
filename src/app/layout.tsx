@@ -32,26 +32,28 @@ export const metadata: Metadata = {
   metadataBase: new URL(trivlloData.contact.website),
 
   title: {
-    default: `${trivlloData.company_name} | Hotels, Cabs & Adventure Experiences`,
+    default: `${trivlloData.company_name} — Book Hotels & Tours in India | trivllo.com`,
     template: `%s | ${trivlloData.company_name}`,
   },
 
   description:
-    `Your ultimate travel companion. Book premium hotels, reliable cab services, and thrilling adventure activities all in one place with ${trivlloData.company_name}.`,
+    `${trivlloData.company_name} (trivllo.com) is India's trusted travel platform. Book premium hotels, resorts, homestays, and curated tour packages across India. Best prices, instant confirmation, and 24/7 support.`,
 
   keywords: [
-    trivlloData.company_name,
     "Trivllo",
-    "Trivllo.com",
+    "trivllo",
+    "trivllo.com",
     "Trivllo Hotels",
     "Trivllo Tours",
     "Trivllo Booking",
-    "Hotel Booking",
-    "Travel Packages India",
-    `${trivlloData.company_name} App`,
-    "Adventure Experiences",
-    "Travel Platform",
-    "Cab Booking",
+    "Trivllo India",
+    "Trivllo Hotel Booking",
+    "Trivllo Tour Packages",
+    "Hotel Booking India",
+    "Tour Packages India",
+    "Book Hotels Online",
+    "Best Hotels India",
+    "Travel Platform India",
     ...DEFAULT_KEYWORDS,
   ],
 
@@ -79,9 +81,9 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
-
+  // google-site-verification=
   verification: {
-    google: "IdaATQaw8qSY4vzBkTXx9oTe1cOObbEync0xz6iXUTQ",
+    google: "mAolt6T5n34w8waxM3GpXPl6IRDs28mD-f7y7WnID7w",
     other: {
       "facebook-domain-verification":
         "kthtqxpp6w141r75p1d6q8y6jgsymo",
@@ -101,17 +103,17 @@ export const metadata: Metadata = {
     siteName: trivlloData.company_name,
 
     title:
-      `${trivlloData.company_name} | Hotels, Cabs & Adventure Experiences`,
+      `${trivlloData.company_name} — Book Hotels & Tours in India | trivllo.com`,
 
     description:
-      `Discover luxury stays, seamless cab rides, and unforgettable adventures with ${trivlloData.company_name}.`,
+      `${trivlloData.company_name} is India's trusted platform for booking hotels, resorts, homestays, and curated tour packages. Best prices guaranteed.`,
 
     images: [
       {
-        url: `/logo.png`,
+        url: `/og-main-preview.png`,
         width: 1200,
         height: 630,
-        alt: `${trivlloData.company_name} Open Graph Preview`,
+        alt: `${trivlloData.company_name} — Book Hotels & Tours in India`,
       },
     ],
   },
@@ -120,13 +122,13 @@ export const metadata: Metadata = {
     card: "summary_large_image",
 
     title:
-      `${trivlloData.company_name} | Hotels, Cabs & Adventure Experiences`,
+      `${trivlloData.company_name} — Book Hotels & Tours in India`,
 
     description:
-      `Book hotels, cabs and adventures in one place.`,
+      `India's trusted platform for booking hotels and curated tour packages. Best prices, instant confirmation.`,
 
     images: [
-      `/logo.png`,
+      `/og-main-preview.png`,
     ],
   },
 };

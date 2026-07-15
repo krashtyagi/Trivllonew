@@ -6,10 +6,10 @@ import type { MetadataRoute } from "next";
  */
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Trivllo — Hotels, Tours & Adventures",
+    name: "Trivllo — Book Hotels & Tours in India",
     short_name: "Trivllo",
     description:
-      "Book premium hotels, guided tours, and adventure experiences across India with Trivllo.",
+      "India's trusted travel platform. Book premium hotels, resorts, homestays, and curated tour packages across India with Trivllo.",
     start_url: "/",
     display: "standalone",
     background_color: "#ffffff",

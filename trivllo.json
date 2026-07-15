@@ -6,12 +6,12 @@
         "state": "Madhya Pradesh",
         "country": "India"
     },
-    "industry": "LEHK Technology",
+    "industry": "Travel & Hospitality",
     "services": [
-        "Custom Software Engineering",
-        "Cloud Architecture",
-        "API Integration",
-        "Performance Optimization"
+        "Hotel Booking",
+        "Tour Packages",
+        "Homestay Booking",
+        "Holiday Packages"
     ],
     "employee_count": 10,
     "active_projects": true,

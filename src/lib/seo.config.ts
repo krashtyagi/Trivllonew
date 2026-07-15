@@ -1,6 +1,8 @@
 /**
  * Centralized SEO configuration for Trivllo
  * All SEO-related constants, helpers, and JSON-LD generators live here.
+ *
+ * FOCUS: Hotels & Tours ONLY (no cabs, adventures, bikes)
  */
 
 import trivlloData from "@/../trivllo.json";
@@ -10,105 +12,70 @@ import trivlloData from "@/../trivllo.json";
 export const SITE_URL = trivlloData.contact.website; // https://trivllo.com
 export const SITE_NAME = trivlloData.company_name; // Trivllo
 export const SITE_EMAIL = trivlloData.contact.email;
-export const OG_IMAGE = `/logo.png`;
+export const OG_IMAGE = `/og-main-preview.png`;
 export const LOGO_URL = `/trivllo-logo.svg`;
 export const LOCALE = "en_IN";
 
 export const DEFAULT_KEYWORDS = [
-  SITE_NAME,
-  `${SITE_NAME} Travel`,
-  `${SITE_NAME} Booking`,
-  `${SITE_NAME} Hotels`,
-  "Trivllo.com",
+  // ── Brand keywords (critical for brand search) ──
   "Trivllo",
-  "Hotel Booking",
-  "Travel Packages India",
-  `${SITE_NAME} App`,
-  "Adventure Experiences",
-  "Travel Platform",
-  "Cab Booking",
-  "Tour Packages",
-  "Online Hotel Booking",
-  "Best Hotels India",
-  "Holiday Packages India",
-  "Guided Tours India",
-  "Travel Deals",
-  "Book Hotels Online",
-  "Affordable Hotels",
-  "Premium Stays",
-  "Weekend Getaway",
-  "Vacation Rentals India",
-
-  // Airbnb-style + Homestays + Unique Stays
-  "Vacation Rentals",
-  "Homestays India",
-  "Airbnb Alternative India",
-  "Unique Stays India",
-  "Villa Booking India",
-  "Cottage Rentals",
-  "Beach House Rentals",
-  "Mountain Cabin Booking",
-  "Luxury Villas India",
-  "Pet Friendly Homestays",
-  "Rooftop Stays",
-  "Treehouse Stays India",
-  "Farm Stays India",
-  "Houseboat Booking Kerala",
-  "Serviced Apartments",
-  "Short Term Rentals",
-
-  // Trivllo + Hotel Focused
+  "trivllo",
+  "trivllo.com",
+  "Trivllo.com",
   "Trivllo Hotels",
   "Trivllo Tours",
-  "Trivllo Cab Booking",
-  "Trivllo Holiday Packages",
-  "Book Hotels Trivllo",
-  "Cheap Hotels India",
-  "Luxury Hotels Booking",
+  "Trivllo Booking",
+  "Trivllo India",
+  "Trivllo Hotel Booking",
+  "Trivllo Tour Packages",
+  "Trivllo Travel",
+  `${SITE_NAME} App`,
+
+  // ── Hotels & Stays ──
+  "Hotel Booking",
+  "Book Hotels Online",
+  "Best Hotels India",
+  "Online Hotel Booking",
+  "Affordable Hotels India",
+  "Premium Stays India",
+  "Luxury Hotels India",
   "Budget Hotels India",
   "5 Star Hotels India",
   "Boutique Hotels India",
   "Resorts Booking India",
-  "Heritage Hotels Rajasthan",
-  "Instant Hotel Booking",
-  "Pay at Hotel",
+  "Heritage Hotels India",
+  "Homestays India",
+  "Villa Booking India",
+  "Cottage Rentals India",
+  "Vacation Rentals India",
+  "Serviced Apartments India",
+  "Farm Stays India",
+  "Pet Friendly Hotels",
   "Free Cancellation Hotels",
+  "Pay at Hotel",
+  "Instant Hotel Booking",
 
-  // Tours & Experiences
+  // ── Tours & Packages ──
+  "Tour Packages India",
   "Guided Tours India",
-  "Adventure Tours India",
+  "Holiday Packages India",
+  "Travel Packages India",
   "Cultural Tours India",
   "Wildlife Safari Tours",
-  "Heritage Walks India",
-  "Backpacking Tours",
+  "Heritage Tours India",
   "Group Tours India",
-  "Solo Travel Tours",
-  "Honeymoon Tours India",
   "Family Tour Packages",
-  "Day Tours India",
-  "Multi City Tours",
+  "Honeymoon Packages India",
+  "Solo Travel Tours India",
   "Golden Triangle Tour",
-  "Kerala Backwaters Tour",
-  "Rajasthan Desert Safari",
-  "Himachal Adventure Tours",
-  "Goa Beach Tours",
+  "Kerala Tour Packages",
+  "Rajasthan Tour Packages",
+  "Himachal Tour Packages",
+  "Goa Holiday Packages",
+  "Custom Tour Packages",
+  "Weekend Getaway India",
 
-  // Booking & Deals
-  "Travel Deals India",
-  "Last Minute Deals",
-  "Early Bird Offers",
-  "Holiday Packages",
-  "Flight Hotel Combo",
-  "Hotel + Cab Package",
-  "Tour + Hotel Packages",
-  "Best Travel App India",
-  "Online Travel Agency India",
-  "Trivllo Offers",
-  "Trivllo Coupons",
-  "Trivllo Discount Code",
-  "Guaranteed Lowest Price",
-
-  // Popular Destinations & Services
+  // ── Popular Destinations ──
   "Hotels in Goa",
   "Hotels in Mumbai",
   "Hotels in Delhi",
@@ -117,22 +84,23 @@ export const DEFAULT_KEYWORDS = [
   "Hotels in Manali",
   "Hotels in Udaipur",
   "Hotels in Rishikesh",
+  "Hotels in Shimla",
+  "Hotels in Ooty",
   "Hotels in Andaman",
-  "Cab Booking Delhi",
-  "Cab Booking Mumbai",
-  "Airport Transfer Booking",
+  "Tours in Rajasthan",
+  "Tours in Kerala",
+  "Tours in Himachal",
 
-  // Others
-  "India Tourism Packages",
+  // ── Travel & Booking ──
+  "Travel Platform India",
+  "Online Travel Agency India",
+  "Best Travel App India",
   "Domestic Travel Booking",
+  "India Tourism",
+  "Travel Deals India",
+  "Hotel + Tour Packages",
   "24x7 Travel Support",
-  "Trivllo Login",
-  "Trivllo Sign Up",
-  "Trivllo Reviews",
-  "Best Places to Visit in India",
-  "Custom Tour Packages",
   "Eco Friendly Stays",
-  "Wedding Destination Booking",
 ];
 
 // ─── Per-page SEO Data ─────────────────────────────────────────────────────────
@@ -149,20 +117,21 @@ export type PageSEO = {
 export const PAGE_SEO: Record<string, PageSEO> = {
   // ── Home ──
   home: {
-    title: `${SITE_NAME} | Book Hotels, Tours & Adventure Experiences in India`,
-    description: `Your ultimate travel companion. Book premium hotels, guided tours, and thrilling adventure activities across India with ${SITE_NAME}. Best prices guaranteed.`,
+    title: `${SITE_NAME} — Book Hotels & Tours in India | trivllo.com`,
+    description: `${SITE_NAME} is India's trusted travel platform. Book premium hotels, resorts, homestays, and curated tour packages across India. Best prices, instant confirmation, 24/7 support.`,
     canonical: "/",
     keywords: [
       ...DEFAULT_KEYWORDS,
       "book hotels online India",
-      "best travel platform",
+      "best travel platform India",
       "cheap hotels near me",
+      "tour packages near me",
     ],
   },
 
   // ── Hotels ──
   hotels: {
-    title: `Book Hotels & Stays | ${SITE_NAME}`,
+    title: `Book Hotels & Stays Across India | ${SITE_NAME}`,
     description: `Find and book the best hotels, resorts, and homestays across India on ${SITE_NAME}. Compare prices, read reviews, and secure the lowest rates with instant confirmation.`,
     canonical: "/hotels",
     keywords: [
@@ -234,7 +203,7 @@ export const PAGE_SEO: Record<string, PageSEO> = {
 
   book: {
     title: `Complete Your Booking | ${SITE_NAME}`,
-    description: `Securely complete your hotel booking on ${SITE_NAME}. Review your stay details, apply coupons, and pay with confidence.`,
+    description: `Securely complete your hotel or tour booking on ${SITE_NAME}. Review your details, apply coupons, and pay with confidence.`,
     canonical: "/book",
     noIndex: true,
   },
@@ -248,8 +217,8 @@ export const PAGE_SEO: Record<string, PageSEO> = {
 
   // ── Policy / Details Pages ──
   aboutUs: {
-    title: `About Us | ${SITE_NAME} — India's Next-Gen Travel Platform`,
-    description: `Learn about ${SITE_NAME}, India's innovative travel platform founded in ${trivlloData.founded}. Our mission is to make premium travel accessible to everyone with cutting-edge technology.`,
+    title: `About Trivllo — India's Trusted Hotel & Tour Booking Platform`,
+    description: `Learn about ${SITE_NAME}, India's innovative travel platform founded in ${trivlloData.founded}. We make premium hotel stays and curated tour experiences accessible to everyone.`,
     canonical: "/about-us",
     ogType: "article",
     keywords: [
@@ -258,26 +227,27 @@ export const PAGE_SEO: Record<string, PageSEO> = {
       "travel startup India",
       "Gwalior startup",
       "travel technology company",
+      "hotel booking platform",
     ],
   },
 
   privacyPolicy: {
     title: `Privacy Policy | ${SITE_NAME}`,
-    description: `Read ${SITE_NAME}'s privacy policy. Learn how we collect, use, and protect your personal data when you use our travel booking platform.`,
+    description: `Read ${SITE_NAME}'s privacy policy. Learn how we collect, use, and protect your personal data when you use our hotel and tour booking platform.`,
     canonical: "/privacy-policy",
     ogType: "article",
   },
 
   termsOfServices: {
     title: `Terms of Service | ${SITE_NAME}`,
-    description: `Review ${SITE_NAME}'s terms and conditions for using our hotel, tour, and adventure booking services. Know your rights and responsibilities.`,
+    description: `Review ${SITE_NAME}'s terms and conditions for using our hotel and tour booking services. Know your rights and responsibilities.`,
     canonical: "/terms-of-services",
     ogType: "article",
   },
 
   partnerWithUs: {
-    title: `Partner With Us | List Your Property on ${SITE_NAME}`,
-    description: `Grow your business by partnering with ${SITE_NAME}. List your hotel, resort, or tour service and reach millions of travelers across India.`,
+    title: `Partner With Us | List Your Property or Tour on ${SITE_NAME}`,
+    description: `Grow your business by partnering with ${SITE_NAME}. List your hotel, resort, homestay, or tour service and reach millions of travelers across India.`,
     canonical: "/partner-with-us",
     keywords: [
       SITE_NAME,
@@ -331,13 +301,28 @@ export function generateOrganizationJsonLd() {
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
+    "@id": `${SITE_URL}/#organization`,
     name: SITE_NAME,
-    alternateName: ["Trivllo Travel", "Trivllo Hotels", "Trivllo India"],
+    alternateName: [
+      "Trivllo",
+      "trivllo",
+      "Trivllo.com",
+      "trivllo.com",
+      "Trivllo Hotels",
+      "Trivllo Tours",
+      "Trivllo India",
+      "Trivllo Travel",
+    ],
     url: SITE_URL,
-    logo: LOGO_URL,
-    image: [OG_IMAGE, LOGO_URL],
+    logo: {
+      "@type": "ImageObject",
+      url: `${SITE_URL}${LOGO_URL}`,
+      width: 512,
+      height: 512,
+    },
+    image: [`${SITE_URL}${OG_IMAGE}`, `${SITE_URL}${LOGO_URL}`],
     foundingDate: `${trivlloData.founded}`,
-    description: `${SITE_NAME} is India's next-generation travel platform for booking hotels, tours, and adventure experiences.`,
+    description: `${SITE_NAME} is India's trusted travel platform for booking hotels, resorts, homestays, and curated tour packages. Based in ${trivlloData.headquarters.city}, ${trivlloData.headquarters.state}.`,
     email: SITE_EMAIL,
     address: {
       "@type": "PostalAddress",
@@ -346,7 +331,12 @@ export function generateOrganizationJsonLd() {
       addressCountry: trivlloData.headquarters.country,
     },
     sameAs: [
-      // Add social profiles when available
+      // Add your social profiles here when available:
+      // "https://www.instagram.com/trivllo",
+      // "https://x.com/trivllo",
+      // "https://www.facebook.com/trivllo",
+      // "https://www.linkedin.com/company/trivllo",
+      // "https://www.youtube.com/@trivllo",
     ],
     contactPoint: {
       "@type": "ContactPoint",
@@ -354,6 +344,14 @@ export function generateOrganizationJsonLd() {
       contactType: "customer service",
       availableLanguage: ["English", "Hindi"],
     },
+    knowsAbout: [
+      "Hotel Booking",
+      "Tour Packages",
+      "Travel in India",
+      "Homestays",
+      "Resorts",
+      "Holiday Packages",
+    ],
   };
 }
 
@@ -362,27 +360,39 @@ export function generateWebSiteJsonLd() {
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
+    "@id": `${SITE_URL}/#website`,
     name: SITE_NAME,
-    alternateName: ["Trivllo Travel", "Trivllo.com"],
+    alternateName: [
+      "Trivllo",
+      "trivllo",
+      "Trivllo.com",
+      "trivllo.com",
+      "Trivllo Hotels",
+      "Trivllo Tours",
+    ],
     url: SITE_URL,
-    image: OG_IMAGE,
-    description: `Book hotels, tours, and adventure experiences across India with ${SITE_NAME}.`,
+    image: `${SITE_URL}${OG_IMAGE}`,
+    description: `${SITE_NAME} — India's trusted platform for booking hotels and curated tour packages. Best prices, instant confirmation, 24/7 support.`,
     publisher: {
       "@type": "Organization",
+      "@id": `${SITE_URL}/#organization`,
       name: SITE_NAME,
       logo: {
         "@type": "ImageObject",
-        url: LOGO_URL,
+        url: `${SITE_URL}${LOGO_URL}`,
       },
     },
-    potentialAction: {
-      "@type": "SearchAction",
-      target: {
-        "@type": "EntryPoint",
-        urlTemplate: `${SITE_URL}/hotels/find?city={search_term_string}`,
+    potentialAction: [
+      {
+        "@type": "SearchAction",
+        target: {
+          "@type": "EntryPoint",
+          urlTemplate: `${SITE_URL}/hotels/find?city={search_term_string}`,
+        },
+        "query-input": "required name=search_term_string",
       },
-      "query-input": "required name=search_term_string",
-    },
+    ],
+    inLanguage: "en-IN",
   };
 }
 
@@ -407,11 +417,16 @@ export function generateTravelAgencyJsonLd() {
   return {
     "@context": "https://schema.org",
     "@type": "TravelAgency",
+    "@id": `${SITE_URL}/#travelagency`,
     name: SITE_NAME,
+    alternateName: ["Trivllo", "trivllo.com", "Trivllo Hotels & Tours"],
     url: SITE_URL,
-    logo: LOGO_URL,
-    image: OG_IMAGE,
-    description: `${SITE_NAME} is India's premier travel booking platform offering hotels, guided tours, and adventure experiences.`,
+    logo: {
+      "@type": "ImageObject",
+      url: `${SITE_URL}${LOGO_URL}`,
+    },
+    image: `${SITE_URL}${OG_IMAGE}`,
+    description: `${SITE_NAME} is India's premier travel booking platform offering hotels, resorts, homestays, and curated tour packages across India.`,
     address: {
       "@type": "PostalAddress",
       addressLocality: trivlloData.headquarters.city,
@@ -421,7 +436,7 @@ export function generateTravelAgencyJsonLd() {
     geo: {
       "@type": "GeoCoordinates",
       latitude: "26.2659639",
-      longitude: " 78.2112098",
+      longitude: "78.2112098",
     },
     priceRange: "₹₹",
     openingHoursSpecification: {
@@ -442,6 +457,26 @@ export function generateTravelAgencyJsonLd() {
       "@type": "Country",
       name: "India",
     },
+    makesOffer: [
+      {
+        "@type": "Offer",
+        itemOffered: {
+          "@type": "Service",
+          name: "Hotel Booking",
+          description:
+            "Book premium hotels, resorts, homestays, and villas across India",
+        },
+      },
+      {
+        "@type": "Offer",
+        itemOffered: {
+          "@type": "Service",
+          name: "Tour Packages",
+          description:
+            "Curated guided tours and holiday packages across India with expert guides",
+        },
+      },
+    ],
   };
 }
 
