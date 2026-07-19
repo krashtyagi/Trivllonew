@@ -186,7 +186,7 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
 
       <main
         className={cn(
-          "flex-1 bg-card relative overflow-hidden",
+          "flex-1 bg-card relative",
           // shouldShowNavbar ? "pt-21" : "pt-29",
           isMobile ? "pt-2" : "",
         )}

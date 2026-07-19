@@ -4,15 +4,55 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-import React from "react";
-import { StarRating } from "@/app/(home)/(categories)/_componentsRoot_categories/star-rating";
-import { useRouter } from "next/navigation";
-import { LikeIcon } from "@/services/dailyfunctions";
-import { MapPin, Navigation, Building2, ZoomIn, Clock, Percent, Compass } from "lucide-react";
+import React, { useState, useCallback } from "react";
+import { Dialog, DialogPortal } from "@/components/ui/dialog";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
+import { MapPin, Navigation, Building2, ZoomIn, Clock, Percent, Compass, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Tour } from "@/context/TourContextProvider";
 import { ImagePreview } from "@/app/(personal)/profile/_components/image-preview";
 import { RouterPush } from "@/components/RouterPush";
+import { StarRating } from "@/app/(home)/(categories)/_componentsRoot_categories/star-rating";
+import { useRouter } from "next/navigation";
+import { LikeIcon } from "@/services/dailyfunctions";
+
+function ImageOverlay({ slides, initialIndex, onClose }: { slides: { url: string }[]; initialIndex: number; onClose: () => void }) {
+  const [idx, setIdx] = useState(initialIndex);
+  const prev = useCallback(() => setIdx((i) => (i === 0 ? slides.length - 1 : i - 1)), [slides.length]);
+  const next = useCallback(() => setIdx((i) => (i === slides.length - 1 ? 0 : i + 1)), [slides.length]);
+  React.useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+      if (e.key === "ArrowLeft") prev();
+      if (e.key === "ArrowRight") next();
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [onClose, prev, next]);
+  return (
+    <Dialog open={true} onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogPortal>
+        <DialogPrimitive.Overlay className="fixed inset-0 z-[100] bg-black/90 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+        <DialogPrimitive.Content
+          className="fixed inset-0 z-[100] flex items-center justify-center outline-none"
+          onClick={(e) => { e.stopPropagation(); onClose(); }}
+        >
+          <DialogPrimitive.Title className="sr-only">Image Gallery Overlay</DialogPrimitive.Title>
+          <DialogPrimitive.Description className="sr-only">View full-size images of the property</DialogPrimitive.Description>
+
+          <button className="absolute top-4 right-4 text-white/80 hover:text-white z-10" onClick={(e) => { e.stopPropagation(); onClose(); }}><X className="h-7 w-7" /></button>
+          <button className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur rounded-full p-2 z-10" onClick={(e) => { e.stopPropagation(); prev(); }}><ChevronLeft className="h-6 w-6 text-white" /></button>
+          <button className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur rounded-full p-2 z-10" onClick={(e) => { e.stopPropagation(); next(); }}><ChevronRight className="h-6 w-6 text-white" /></button>
+          <img src={slides[idx]?.url} alt="" className="max-h-[85vh] max-w-[90vw] object-contain rounded-lg shadow-2xl" onClick={(e) => e.stopPropagation()} />
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+            {slides.map((_, i) => <span key={i} onClick={(e) => { e.stopPropagation(); setIdx(i); }} className={cn("h-2 rounded-full cursor-pointer transition-all", i === idx ? "w-6 bg-white" : "w-2 bg-white/40 hover:bg-white/60")} />)}
+          </div>
+          <span className="absolute top-4 left-4 text-white/70 text-sm font-medium">{idx + 1} / {slides.length}</span>
+        </DialogPrimitive.Content>
+      </DialogPortal>
+    </Dialog>
+  );
+}
 
 type ToursCardProps = {
   tour: Tour;
@@ -47,8 +87,46 @@ export const ToursCard = ({ tour, wrap, favourite }: ToursCardProps) => {
     company,
   } = tour;
 
-  const image =
-    thumbnail?.url || "/tours/tour.png";
+  const [imgIdx, setImgIdx] = useState(0);
+  const [overlayOpen, setOverlayOpen] = useState(false);
+
+  const slides = tour.thumbnails && tour.thumbnails.length > 0
+    ? tour.thumbnails
+    : [{ url: thumbnail?.url || "/tours/tour.png" }];
+
+  const prevImg = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    setImgIdx((i) => (i === 0 ? slides.length - 1 : i - 1));
+  }, [slides.length]);
+
+  const nextImg = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    setImgIdx((i) => (i === slides.length - 1 ? 0 : i + 1));
+  }, [slides.length]);
+
+  // Instagram-style pagination dots (max 5 dots with edge scaling)
+  const maxDots = 5;
+  const getVisibleDots = () => {
+    if (slides.length <= maxDots) {
+      return slides.map((_, i) => ({
+        index: i,
+        isActive: i === imgIdx,
+        isSmall: false,
+      }));
+    }
+    const startIdx = Math.max(0, Math.min(imgIdx - 2, slides.length - maxDots));
+    return Array.from({ length: maxDots }).map((_, i) => {
+      const actualIdx = startIdx + i;
+      const isActive = actualIdx === imgIdx;
+      const isLeftEdge = i === 0 && startIdx > 0;
+      const isRightEdge = i === maxDots - 1 && (startIdx + maxDots) < slides.length;
+      return {
+        index: actualIdx,
+        isActive,
+        isSmall: isLeftEdge || isRightEdge,
+      };
+    });
+  };
 
   const mainDestination = destinations?.[0] || company?.city || "Unknown Location";
 
@@ -56,28 +134,56 @@ export const ToursCard = ({ tour, wrap, favourite }: ToursCardProps) => {
   if (isMobile) {
     return (
       <Card className="group overflow-hidden rounded-xl border bg-card w-full shadow-md pt-0" onClick={() => RouterPush(navigate, `/tours/services/${serviceId}`)}>
-        <ImagePreview src={image} alt={title}>
-          <div className="relative w-full h-[180px]">
-            <img
-              src={image}
-              alt={title}
-              className="h-full w-full object-cover rounded-t-xl"
-            />
-            {/* Duration badge */}
-            {duration && (
-              <div className="absolute left-2.5 top-2.5 bg-zinc-900/70 text-white backdrop-blur-md rounded-md px-2 py-1 text-[10px] font-medium flex items-center gap-1 shadow-sm border border-zinc-700/50">
-                <Clock className="w-3 h-3" />
-                {duration}
+        <div className="relative w-full h-[180px] group/slider">
+          <img
+            src={slides[imgIdx]?.url || "/tours/tour.png"}
+            alt={title}
+            onClick={(e) => {
+              e.stopPropagation();
+              setOverlayOpen(true);
+            }}
+            className="h-full w-full object-cover rounded-t-xl cursor-zoom-in"
+          />
+          {slides.length > 1 && (
+            <>
+              <button
+                onClick={prevImg}
+                className="absolute left-1.5 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm rounded-full p-1 shadow opacity-100 z-10"
+              >
+                <ChevronLeft className="h-4 w-4 text-foreground" />
+              </button>
+              <button
+                onClick={nextImg}
+                className="absolute right-1.5 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm rounded-full p-1 shadow opacity-100 z-10"
+              >
+                <ChevronRight className="h-4 w-4 text-foreground" />
+              </button>
+              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1 z-10">
+                {getVisibleDots().map((dot) => (
+                  <span
+                    key={dot.index}
+                    className={cn(
+                      "rounded-full transition-all duration-200",
+                      dot.isActive
+                        ? "w-4 h-1.5 bg-white"
+                        : dot.isSmall
+                          ? "w-1 h-1 bg-white/30"
+                          : "w-1.5 h-1.5 bg-white/50"
+                    )}
+                  />
+                ))}
               </div>
-            )}
-            {/* <LikeIcon
-              _id={serviceId}
-              isFavourite={favourite || false}
-              name="card"
-              className="absolute right-2.5 top-2.5 h-7 w-7 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center shadow-sm"
-            /> */}
-          </div>
-        </ImagePreview>
+            </>
+          )}
+          {/* Duration badge */}
+          {duration && (
+            <div className="absolute left-2.5 top-2.5 bg-zinc-900/70 text-white backdrop-blur-md rounded-md px-2 py-1 text-[10px] font-medium flex items-center gap-1 shadow-sm border border-zinc-700/50">
+              <Clock className="w-3 h-3" />
+              {duration}
+            </div>
+          )}
+        </div>
+        {overlayOpen && <ImageOverlay slides={slides} initialIndex={imgIdx} onClose={() => setOverlayOpen(false)} />}
 
         <CardContent className="p-3.5 flex flex-col gap-2">
           {/* Title */}
@@ -156,43 +262,68 @@ export const ToursCard = ({ tour, wrap, favourite }: ToursCardProps) => {
   return (
     <Card onClick={() => RouterPush(navigate, `/tours/services/${serviceId}`)}
       className={cn(
-        "group overflow-hidden rounded-2xl border bg-card transition-all duration-300 hover:shadow-lg",
+        "group overflow-hidden max-h-[180px]  rounded-2xl border bg-card transition-all duration-300 hover:shadow-lg",
         isHorizontal
           ? "flex flex-row w-full min-h-[240px]"
           : "flex flex-col w-full"
       )}
     >
-      {/* Image */}
-      <ImagePreview src={image} alt={title}>
-        <div
-          className={cn(
-            "relative cursor-zoom-in group",
-            isHorizontal ? "w-[250px] shrink-0" : "w-full h-[200px]"
-          )}
-        >
-          <img
-            src={image}
-            alt={title}
-            className="h-full w-full aspect-video rounded-md object-cover transition-transform duration-500 group-hover:scale-105"
-          />
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100 pointer-events-none">
-            <ZoomIn className="text-white drop-shadow-md" size={32} />
-          </div>
-          {/* Duration badge */}
-          {duration && (
-            <div className="absolute left-3 top-3 bg-zinc-900/70 text-white backdrop-blur-md rounded-lg px-2.5 py-1 text-[11px] font-medium flex items-center gap-1.5 shadow-md border border-zinc-700/50">
-              <Clock className="w-3.5 h-3.5" />
-              {duration}
+      {/* Image Slider */}
+      <div
+        className={cn(
+          "relative group/slider overflow-hidden",
+          isHorizontal ? "w-[250px] shrink-0" : "w-full h-[200px]"
+        )}
+      >
+        <img
+          src={slides[imgIdx]?.url || "/tours/tour.png"}
+          alt={title}
+          onClick={(e) => {
+            e.stopPropagation();
+            setOverlayOpen(true);
+          }}
+          className="h-full w-full object-cover transition-opacity duration-300 cursor-zoom-in"
+        />
+        {slides.length > 1 && (
+          <>
+            <button
+              onClick={prevImg}
+              className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm rounded-full p-1 shadow opacity-100 md:opacity-0 md:group-hover/slider:opacity-100 transition-opacity z-10"
+            >
+              <ChevronLeft className="h-4 w-4 text-foreground" />
+            </button>
+            <button
+              onClick={nextImg}
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm rounded-full p-1 shadow opacity-100 md:opacity-0 md:group-hover/slider:opacity-100 transition-opacity z-10"
+            >
+              <ChevronRight className="h-4 w-4 text-foreground" />
+            </button>
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1 z-10">
+              {getVisibleDots().map((dot) => (
+                <span
+                  key={dot.index}
+                  className={cn(
+                    "rounded-full transition-all duration-200",
+                    dot.isActive
+                      ? "w-4 h-1.5 bg-white"
+                      : dot.isSmall
+                        ? "w-1 h-1 bg-white/30"
+                        : "w-1.5 h-1.5 bg-white/50"
+                  )}
+                />
+              ))}
             </div>
-          )}
-          {/* <LikeIcon
-            _id={serviceId}
-            isFavourite={favourite || false}
-            name="card"
-            className="absolute right-3 top-3 h-9 w-9 rounded-full bg-transparent backdrop-blur-sm flex items-center justify-center hover:bg-white shadow-sm"
-          /> */}
-        </div>
-      </ImagePreview>
+          </>
+        )}
+        {/* Duration badge */}
+        {duration && (
+          <div className="absolute left-3 top-3 bg-zinc-900/70 text-white backdrop-blur-md rounded-lg px-2.5 py-1 text-[11px] font-medium flex items-center gap-1.5 shadow-md border border-zinc-700/50">
+            <Clock className="w-3.5 h-3.5" />
+            {duration}
+          </div>
+        )}
+      </div>
+      {overlayOpen && <ImageOverlay slides={slides} initialIndex={imgIdx} onClose={() => setOverlayOpen(false)} />}
 
       {/* Content */}
       <CardContent

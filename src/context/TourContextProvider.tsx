@@ -28,6 +28,7 @@ export type Tour = {
     totalPriceWithTax: number;
     taxPercentage: number;
     thumbnail: HotelImage;
+    thumbnails?: HotelImage[];
     company: Company;
 }
 

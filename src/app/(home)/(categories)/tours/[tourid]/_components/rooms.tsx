@@ -115,8 +115,8 @@ export const BikeDetailsCardItem = ({
       title={service.title}
       taxPercentage={service.taxPercentage}
       thumbnail={service.thumbnail}
+      thumbnails={service.thumbnails}
       totalPriceWithTax={service.totalPriceWithTax}
-
     />
   );
 };

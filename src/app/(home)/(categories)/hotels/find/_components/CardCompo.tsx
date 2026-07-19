@@ -112,6 +112,30 @@ export const HotelCard = ({
   // Desktop horizontal view logic
   const isHorizontal = !isMobile && !wrap;
 
+  // Instagram-style pagination dots (max 5 dots with edge scaling)
+  const maxDots = 5;
+  const getVisibleDots = () => {
+    if (slides.length <= maxDots) {
+      return slides.map((_, i) => ({
+        index: i,
+        isActive: i === imgIdx,
+        isSmall: false,
+      }));
+    }
+    const startIdx = Math.max(0, Math.min(imgIdx - 2, slides.length - maxDots));
+    return Array.from({ length: maxDots }).map((_, i) => {
+      const actualIdx = startIdx + i;
+      const isActive = actualIdx === imgIdx;
+      const isLeftEdge = i === 0 && startIdx > 0;
+      const isRightEdge = i === maxDots - 1 && (startIdx + maxDots) < slides.length;
+      return {
+        index: actualIdx,
+        isActive,
+        isSmall: isLeftEdge || isRightEdge,
+      };
+    });
+  };
+
   if (isMobile) {
     // --- Optimized Compact Mobile View ---
     return (
@@ -130,8 +154,20 @@ export const HotelCard = ({
             <>
               <button onClick={prevImg} className="absolute left-1.5 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm rounded-full p-1 shadow opacity-100 z-10"><ChevronLeft className="h-4 w-4" /></button>
               <button onClick={nextImg} className="absolute right-1.5 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm rounded-full p-1 shadow opacity-100 z-10"><ChevronRight className="h-4 w-4" /></button>
-              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 z-10">
-                {slides.map((_, i) => <span key={i} className={cn("h-1.5 rounded-full transition-all", i === imgIdx ? "w-4 bg-white" : "w-1.5 bg-white/50")} />)}
+              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1 z-10">
+                {getVisibleDots().map((dot) => (
+                  <span
+                    key={dot.index}
+                    className={cn(
+                      "rounded-full transition-all duration-200",
+                      dot.isActive
+                        ? "w-4 h-1.5 bg-white"
+                        : dot.isSmall
+                        ? "w-1 h-1 bg-white/30"
+                        : "w-1.5 h-1.5 bg-white/50"
+                    )}
+                  />
+                ))}
               </div>
             </>
           )}
@@ -264,8 +300,20 @@ export const HotelCard = ({
           <>
             <button onClick={prevImg} className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm rounded-full p-1 shadow opacity-100 md:opacity-0 md:group-hover/slider:opacity-100 transition-opacity z-10"><ChevronLeft className="h-4 w-4" /></button>
             <button onClick={nextImg} className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm rounded-full p-1 shadow opacity-100 md:opacity-0 md:group-hover/slider:opacity-100 transition-opacity z-10"><ChevronRight className="h-4 w-4" /></button>
-            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 z-10">
-              {slides.map((_, i) => <span key={i} className={cn("h-1.5 rounded-full transition-all", i === imgIdx ? "w-4 bg-white" : "w-1.5 bg-white/50")} />)}
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1 z-10">
+              {getVisibleDots().map((dot) => (
+                <span
+                  key={dot.index}
+                  className={cn(
+                    "rounded-full transition-all duration-200",
+                    dot.isActive
+                      ? "w-4 h-1.5 bg-white"
+                      : dot.isSmall
+                      ? "w-1 h-1 bg-white/30"
+                      : "w-1.5 h-1.5 bg-white/50"
+                  )}
+                />
+              ))}
             </div>
           </>
         )}
