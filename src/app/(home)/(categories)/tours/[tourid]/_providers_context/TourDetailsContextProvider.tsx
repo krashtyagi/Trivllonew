@@ -37,6 +37,7 @@ export interface TourService {
   totalPriceWithTax: number;
   taxPercentage: number;
   thumbnail: HotelImage;
+  thumbnails?: HotelImage[];
   features: string[];
 }
 const HotelContext = React.createContext<{

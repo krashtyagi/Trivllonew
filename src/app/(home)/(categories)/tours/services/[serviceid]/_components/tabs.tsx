@@ -3,7 +3,7 @@
 import React, { useRef, useState } from "react";
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";
-import { Calendar, User, ChevronRight, Loader2, Compass } from "lucide-react";
+import { Calendar, User, ChevronRight, Loader2, Compass, Clock, Shield, Check, Sparkles } from "lucide-react";
 
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -101,76 +101,116 @@ const TourBookingCard = ({ data }: { data?: TourServiceData }) => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+  const totalGuests = guests.adults + guests.children;
+  const basePrice = data?.service?.price || 0;
+  const totalPriceWithTax = data?.service?.totalPriceWithTax || 0;
+  const taxPercentage = data?.service?.taxPercentage || 0;
+  const taxAmount = totalPriceWithTax - basePrice;
+  const grandTotal = totalPriceWithTax * (totalGuests || 1);
+
   return (
-    <Card className="w-full lg:max-w-[400px] border-none shadow-2xl rounded-[32px] overflow-hidden bg-white/90 dark:bg-zinc-800/90 backdrop-blur-sm p-1 transition-colors duration-300">
-      <CardContent className="pt-5 px-5 space-y-5">
-        <div className="flex justify-between items-center">
-          <div className="space-y-0.5">
-            <h2 className="text-lg md:text-xl font-extrabold tracking-tight text-slate-900 dark:text-zinc-400">
+    <Card className="w-full lg:max-w-[400px] border border-slate-100 dark:border-zinc-800 shadow-[0_20px_50px_rgba(0,0,0,0.06)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.25)] rounded-[24px] overflow-hidden bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md transition-colors duration-300">
+      <CardContent className="pt-6 px-6 space-y-6">
+        {/* TOP BADGE & TITLE */}
+        <div className="space-y-3">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider">
+            <Sparkles className="w-3.5 h-3.5" />
+            Premium Guided Tour
+          </div>
+          <div className="space-y-1">
+            <h2 className="text-xl font-extrabold tracking-tight text-foreground leading-snug">
               {data?.service?.title || "Tour Package"}
             </h2>
-            <div className="flex items-center gap-1.5 text-xs md:text-sm font-semibold text-slate-500 dark:text-zinc-500">
-              <Compass className="w-4 h-4 text-orange-500" />
-              <span>
-                {/* {data?.service?.duration?.days || "0"} Days •{" "}
-                {data?.service?.duration?.nights || "0"} Nights */}
+            <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
+              <Compass className="w-4 h-4 text-primary" />
+              <span>{data?.company?.name} • {data?.company?.city}</span>
+              {data?.service?.duration && (
+                <>
+                  <span className="text-zinc-300 dark:text-zinc-700">•</span>
+                  <span className="flex items-center gap-1">
+                    <Clock className="w-3 h-3 text-primary" />
+                    {data.service.duration}
+                  </span>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* DETAILS GRID */}
+        <div className="grid grid-cols-2 gap-3 pt-1">
+          <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-800/40 border border-slate-100 dark:border-zinc-800/60">
+            <Calendar className="w-4 h-4 text-primary shrink-0" />
+            <div className="flex flex-col min-w-0">
+              <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">
+                Date Range
+              </span>
+              <span className="text-[11px] font-bold text-foreground truncate mt-0.5">
+                {date?.from ? format(date.from, "dd/MM/yyyy") : "Start"} -{" "}
+                {date?.to ? format(date.to, "dd/MM/yyyy") : "End"}
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-800/40 border border-slate-100 dark:border-zinc-800/60">
+            <User className="w-4 h-4 text-primary shrink-0" />
+            <div className="flex flex-col min-w-0">
+              <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">
+                Total Guests
+              </span>
+              <span className="text-[11px] font-bold text-foreground mt-0.5">
+                {totalGuests} {totalGuests === 1 ? "Guest" : "Guests"}
               </span>
             </div>
           </div>
         </div>
 
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-3 pt-2">
-            <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50/80 dark:bg-zinc-800/50 border border-slate-100 dark:border-slate-800">
-              <Calendar className="w-4 h-4 text-slate-400 dark:text-slate-500" />
-              <div className="flex flex-col">
-                <span className="text-[9px] font-bold text-slate-400 dark:text-zinc-500 uppercase">
-                  Period
-                </span>
-                <span className="text-[11px] font-bold text-slate-900 dark:text-zinc-200">
-                  {date?.from ? format(date.from, "dd/MM/yyyy") : "Start"} -{" "}
-                  {date?.to ? format(date.to, "dd/MM/yyyy") : "End"}
-                </span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50/80 dark:bg-zinc-800/50 border border-slate-100 dark:border-slate-800">
-              <User className="w-4 h-4 text-slate-400 dark:text-slate-500" />
-              <div className="flex flex-col">
-                <span className="text-[9px] font-bold text-slate-400 dark:text-zinc-500 uppercase">
-                  Guests
-                </span>
-                <span className="text-[11px] font-bold text-slate-900 dark:text-zinc-200">
-                  {guests.adults + guests.children} Guest(s)
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-
+        {/* PRICE SUMMARY */}
         {data?.service?.price && (
-          <div className="bg-gradient-to-r from-orange-50 to-amber-50 dark:from-slate-800 dark:to-slate-800/50 p-4 rounded-2xl border border-orange-100/50 dark:border-slate-700">
-            <div className="flex justify-between items-end">
-              <div>
-                <p className="text-[10px] font-bold text-orange-400 dark:text-orange-500 uppercase tracking-widest">
-                  Price
-                </p>
-                <p className="text-xl font-black text-slate-900 dark:text-zinc-400">
-                  ₹{data.service.totalPriceWithTax}{" "}
-                  <span className="text-sm font-bold text-slate-500 dark:text-zinc-500">
-                    /person
-                  </span>
-                </p>
+          <div className="space-y-4 pt-2">
+            <div className="text-sm font-bold text-foreground">
+              Pricing Details
+            </div>
+            <div className="space-y-2.5 text-xs text-muted-foreground">
+              <div className="flex justify-between items-center">
+                <span>Base Price (per person)</span>
+                <span className="font-semibold text-foreground">₹{basePrice.toLocaleString("en-IN")}</span>
               </div>
-              <p className="text-[10px] font-medium text-slate-400 dark:text-slate-500 pb-1">
-                + Taxes & Fees
-              </p>
+              {taxAmount > 0 && (
+                <div className="flex justify-between items-center">
+                  <span>Taxes & Fees ({taxPercentage}%)</span>
+                  <span className="font-semibold text-foreground">₹{taxAmount.toLocaleString("en-IN")}</span>
+                </div>
+              )}
+              <div className="flex justify-between items-center border-t border-slate-100 dark:border-zinc-800/60 pt-2.5">
+                <span>Subtotal (per person)</span>
+                <span className="font-bold text-foreground">₹{totalPriceWithTax.toLocaleString("en-IN")}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span>Guests count</span>
+                <span className="font-bold text-foreground">x {totalGuests}</span>
+              </div>
+            </div>
+
+            {/* GRAND TOTAL BOX */}
+            <div className="bg-gradient-to-br from-primary/5 to-amber-500/5 dark:from-primary/10 dark:to-transparent p-4.5 rounded-2xl border border-primary/10 space-y-1">
+              <div className="text-[10px] font-bold text-primary uppercase tracking-widest">
+                Total Amount
+              </div>
+              <div className="flex items-baseline justify-between">
+                <span className="text-2xl font-black text-foreground">
+                  ₹{grandTotal.toLocaleString("en-IN")}
+                </span>
+                <span className="text-[10px] text-muted-foreground font-semibold">
+                  All taxes included
+                </span>
+              </div>
             </div>
           </div>
         )}
       </CardContent>
 
-      <CardFooter className="p-5 pt-0">
+      <CardFooter className="p-6 pt-2 flex flex-col gap-3">
         <Button
           disabled={loading}
           onClick={() => {
@@ -186,11 +226,30 @@ const TourBookingCard = ({ data }: { data?: TourServiceData }) => {
               }
             );
           }}
-          className="w-full bg-primary text-white text-md font-bold h-14 rounded-2xl shadow-lg group active:scale-[0.98] transition-all"
+          className="w-full bg-primary hover:bg-primary/95 text-white text-sm font-extrabold h-13 rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all duration-300 active:scale-[0.98] flex items-center justify-center gap-2"
         >
-          {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Book Now"}
-          <ChevronRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          {loading ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <>
+              <span>Book Tour Package</span>
+              <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+            </>
+          )}
         </Button>
+
+        {/* SECURITY & TRUST BADGES */}
+        <div className="flex items-center justify-center gap-4 text-[10px] text-muted-foreground pt-1">
+          <span className="flex items-center gap-1">
+            <Shield className="w-3.5 h-3.5 text-green-500" />
+            Secure Payment
+          </span>
+          <span className="text-zinc-300 dark:text-zinc-800">•</span>
+          <span className="flex items-center gap-1">
+            <Check className="w-3.5 h-3.5 text-green-500" />
+            Instant Confirmation
+          </span>
+        </div>
       </CardFooter>
     </Card>
   );

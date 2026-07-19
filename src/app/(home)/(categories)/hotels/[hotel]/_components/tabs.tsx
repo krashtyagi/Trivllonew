@@ -136,7 +136,7 @@ export function TabsLine({
         </div>
       </div>
       <div className="flex flex-col lg:flex-row lg:gap-6 mb-5">
-        <main className="flex-1 space-y-5 border-b-1 mb-4">
+        <main className="flex-1 min-w-0 space-y-5">
           <section id="description" className=" py-2 gap-2">
             <h3 className="text-xl font-bold mb-2 dark:text-zinc-400 text-zinc-800">{t("hotel.description")}</h3>
             {content.description}
@@ -324,10 +324,18 @@ function BookingCard({
           className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold h-14 rounded-2xl text-lg shadow-lg transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
           onClick={async (e) => {
             e.preventDefault();
-            const el = document.getElementById("rooms");
-            if (el) el.scrollIntoView({ behavior: "smooth" });
-            // FetchRoomTypes();
             setFetch(true);
+            // Wait for DOM to settle after fetch triggers re-render
+            requestAnimationFrame(() => {
+              setTimeout(() => {
+                const el = document.getElementById("rooms");
+                if (el) {
+                  const offset = 96; // matches scroll-mt-24 (24 * 4 = 96px)
+                  const top = el.getBoundingClientRect().top + window.scrollY - offset;
+                  window.scrollTo({ top, behavior: "smooth" });
+                }
+              }, 100);
+            });
           }}
         >
           {t("hotel.showRooms")}

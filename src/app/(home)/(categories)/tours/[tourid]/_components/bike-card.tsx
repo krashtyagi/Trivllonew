@@ -7,20 +7,62 @@ import { useHotelStore } from "@/store/hotel.store";
 import { cn } from "@/lib/utils";
 import { useSliderIfNotChooseDate } from "../_providers_context/SliderIfNotChooseDate";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import React, { useState, useCallback } from "react";
+import { Dialog, DialogPortal } from "@/components/ui/dialog";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
 
 import {
   Clock,
   MapPin,
   ChevronRight,
   ShieldCheck,
-  CalendarDays
+  CalendarDays,
+  ChevronLeft,
+  X
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { validimage } from "@/services/dailyfunctions";
 import { RouterPush } from "@/components/RouterPush";
 import { TourService } from "../_providers_context/TourDetailsContextProvider";
 import { DetailsPageCardWrapperUI } from "../../../_componentsRoot_categories/CardWrapper";
+
+function ImageOverlay({ slides, initialIndex, onClose }: { slides: { url: string }[]; initialIndex: number; onClose: () => void }) {
+  const [idx, setIdx] = useState(initialIndex);
+  const prev = useCallback(() => setIdx((i) => (i === 0 ? slides.length - 1 : i - 1)), [slides.length]);
+  const next = useCallback(() => setIdx((i) => (i === slides.length - 1 ? 0 : i + 1)), [slides.length]);
+  React.useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+      if (e.key === "ArrowLeft") prev();
+      if (e.key === "ArrowRight") next();
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [onClose, prev, next]);
+  return (
+    <Dialog open={true} onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogPortal>
+        <DialogPrimitive.Overlay className="fixed inset-0 z-[100] bg-black/90 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+        <DialogPrimitive.Content 
+          className="fixed inset-0 z-[100] flex items-center justify-center outline-none"
+          onClick={(e) => { e.stopPropagation(); onClose(); }}
+        >
+          <DialogPrimitive.Title className="sr-only">Image Gallery Overlay</DialogPrimitive.Title>
+          <DialogPrimitive.Description className="sr-only">View full-size images of the property</DialogPrimitive.Description>
+          
+          <button className="absolute top-4 right-4 text-white/80 hover:text-white z-10" onClick={(e) => { e.stopPropagation(); onClose(); }}><X className="h-7 w-7" /></button>
+          <button className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur rounded-full p-2 z-10" onClick={(e) => { e.stopPropagation(); prev(); }}><ChevronLeft className="h-6 w-6 text-white" /></button>
+          <button className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur rounded-full p-2 z-10" onClick={(e) => { e.stopPropagation(); next(); }}><ChevronRight className="h-6 w-6 text-white" /></button>
+          <img src={slides[idx]?.url} alt="" className="max-h-[85vh] max-w-[90vw] object-contain rounded-lg shadow-2xl" onClick={(e) => e.stopPropagation()} />
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+            {slides.map((_, i) => <span key={i} onClick={(e) => { e.stopPropagation(); setIdx(i); }} className={cn("h-2 rounded-full cursor-pointer transition-all", i === idx ? "w-6 bg-white" : "w-2 bg-white/40 hover:bg-white/60")} />)}
+          </div>
+          <span className="absolute top-4 left-4 text-white/70 text-sm font-medium">{idx + 1} / {slides.length}</span>
+        </DialogPrimitive.Content>
+      </DialogPortal>
+    </Dialog>
+  );
+}
 
 export function TourDetailsCard({
   duration,
@@ -30,11 +72,53 @@ export function TourDetailsCard({
   title,
   taxPercentage,
   thumbnail: t,
+  thumbnails,
   totalPriceWithTax,
 }: TourService) {
   const [loading, setLoading] = useState(false);
   const { date } = useHotelStore();
   const { handleClick } = useSliderIfNotChooseDate();
+
+  const [imgIdx, setImgIdx] = useState(0);
+  const [overlayOpen, setOverlayOpen] = useState(false);
+
+  const slides = thumbnails && thumbnails.length > 0
+    ? thumbnails
+    : [{ url: t.url || "/tours/tour.png" }];
+
+  const prevImg = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    setImgIdx((i) => (i === 0 ? slides.length - 1 : i - 1));
+  }, [slides.length]);
+
+  const nextImg = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    setImgIdx((i) => (i === slides.length - 1 ? 0 : i + 1));
+  }, [slides.length]);
+
+  // Instagram-style pagination dots (max 5 dots with edge scaling)
+  const maxDots = 5;
+  const getVisibleDots = () => {
+    if (slides.length <= maxDots) {
+      return slides.map((_, i) => ({
+        index: i,
+        isActive: i === imgIdx,
+        isSmall: false,
+      }));
+    }
+    const startIdx = Math.max(0, Math.min(imgIdx - 2, slides.length - maxDots));
+    return Array.from({ length: maxDots }).map((_, i) => {
+      const actualIdx = startIdx + i;
+      const isActive = actualIdx === imgIdx;
+      const isLeftEdge = i === 0 && startIdx > 0;
+      const isRightEdge = i === maxDots - 1 && (startIdx + maxDots) < slides.length;
+      return {
+        index: actualIdx,
+        isActive,
+        isSmall: isLeftEdge || isRightEdge,
+      };
+    });
+  };
 
   // Logic helpers
   const bothDateSelected = !!date?.to && !!date?.from;
@@ -46,25 +130,56 @@ export function TourDetailsCard({
 
 
       {/* IMAGE SECTION */}
-      <div className="relative overflow-hidden  h-42 md:h-auto">
-        <motion.div
-          layoutId={`image-${serviceId}`}
-          className="w-full h-full relative"
-        >
-          <img
-            src={validimage(thumbnail, "/tours/tour.png")}
-            alt={title}
-            className="w-full h-full object-cover rounded-md md:rounded-md"
-          />
-          <div className="absolute top-2 left-2 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider">
-            Tour Package
-          </div>
-        </motion.div>
+      <div className="relative overflow-hidden h-42 md:h-auto group/slider min-h-[180px]">
+        <img
+          src={validimage(slides[imgIdx]?.url, "/tours/tour.png")}
+          alt={title}
+          onClick={(e) => {
+            e.stopPropagation();
+            setOverlayOpen(true);
+          }}
+          className="w-full h-full object-cover rounded-md cursor-zoom-in min-h-[180px]"
+        />
+        {slides.length > 1 && (
+          <>
+            <button
+              onClick={prevImg}
+              className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 dark:bg-black/60 backdrop-blur-sm rounded-full p-1.5 shadow-md opacity-100 md:opacity-0 md:group-hover/slider:opacity-100 transition-opacity z-10"
+            >
+              <ChevronLeft className="h-4 w-4 text-foreground" />
+            </button>
+            <button
+              onClick={nextImg}
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 dark:bg-black/60 backdrop-blur-sm rounded-full p-1.5 shadow-md opacity-100 md:opacity-0 md:group-hover/slider:opacity-100 transition-opacity z-10"
+            >
+              <ChevronRight className="h-4 w-4 text-foreground" />
+            </button>
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1 z-10">
+              {getVisibleDots().map((dot) => (
+                <span
+                  key={dot.index}
+                  className={cn(
+                    "rounded-full transition-all duration-200",
+                    dot.isActive
+                      ? "w-4 h-1.5 bg-white"
+                      : dot.isSmall
+                      ? "w-1 h-1 bg-white/30"
+                      : "w-1.5 h-1.5 bg-white/50"
+                  )}
+                />
+              ))}
+            </div>
+          </>
+        )}
+        <div className="absolute top-2 left-2 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider z-10">
+          Tour Package
+        </div>
 
-        <div className="absolute top-5 right-5 bg-primary text-primary-foreground text-[11px] font-bold px-3 py-1 rounded-full shadow-lg">
+        <div className="absolute top-5 right-5 bg-primary text-primary-foreground text-[11px] font-bold px-3 py-1 rounded-full shadow-lg z-10">
           {discountLabel}
         </div>
       </div>
+      {overlayOpen && <ImageOverlay slides={slides} initialIndex={imgIdx} onClose={() => setOverlayOpen(false)} />}
 
       {/* INFO SECTION */}
       <div className="p-4 md:p-5 flex flex-col border-b md:border-b-0 md:border-r border-border/50">

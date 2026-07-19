@@ -48,7 +48,7 @@ export function OTPForm({ onOTP, methods, setOnOTP, className, ...props }: OTPFo
   }, [onOTP, setValue]);
 
   return (
-    <Card {...props} className={cn("w-full w-70 sm:w-80 md:w-90 lg:w-100 xl:w-110    rounded-2xl shadow-sm", className)}>
+    <Card {...props} className={cn("w-full w-70 sm:w-80 md:w-90 lg:w-100 xl:w-110    rounded-2xl ", className)}>
       <CardHeader className="text-center space-y-2">
         <CardTitle className="text-xl font-semibold">
           Enter verification code

@@ -92,6 +92,30 @@ export function HotelRoomCard({
     setImgIdx((i) => (i === slides.length - 1 ? 0 : i + 1));
   }, [slides.length]);
 
+  // Instagram-style pagination dots (max 5 dots with edge scaling)
+  const maxDots = 5;
+  const getVisibleDots = () => {
+    if (slides.length <= maxDots) {
+      return slides.map((_, i) => ({
+        index: i,
+        isActive: i === imgIdx,
+        isSmall: false,
+      }));
+    }
+    const startIdx = Math.max(0, Math.min(imgIdx - 2, slides.length - maxDots));
+    return Array.from({ length: maxDots }).map((_, i) => {
+      const actualIdx = startIdx + i;
+      const isActive = actualIdx === imgIdx;
+      const isLeftEdge = i === 0 && startIdx > 0;
+      const isRightEdge = i === maxDots - 1 && (startIdx + maxDots) < slides.length;
+      return {
+        index: actualIdx,
+        isActive,
+        isSmall: isLeftEdge || isRightEdge,
+      };
+    });
+  };
+
   const handleReserve = () => {
     localStorage.removeItem("like");
     if (bothdate) {
@@ -187,16 +211,18 @@ export function HotelRoomCard({
               >
                 <ChevronRight className="h-4 w-4 text-foreground" />
               </button>
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
-                {slides.map((_, i) => (
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-10">
+                {getVisibleDots().map((dot) => (
                   <span
-                    key={i}
-                    onClick={(e) => { e.stopPropagation(); setImgIdx(i); }}
+                    key={dot.index}
+                    onClick={(e) => { e.stopPropagation(); setImgIdx(dot.index); }}
                     className={cn(
-                      "h-1.5 rounded-full cursor-pointer transition-all",
-                      i === imgIdx
-                        ? "w-4 bg-white shadow-sm"
-                        : "w-1.5 bg-white/50 hover:bg-white/70"
+                      "rounded-full cursor-pointer transition-all duration-200",
+                      dot.isActive
+                        ? "w-4 h-1.5 bg-white shadow-sm"
+                        : dot.isSmall
+                        ? "w-1 h-1 bg-white/30"
+                        : "w-1.5 h-1.5 bg-white/50 hover:bg-white/70"
                     )}
                   />
                 ))}
