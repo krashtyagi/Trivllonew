@@ -97,18 +97,28 @@ const Hotel: React.FC<HotelFramePageProps> = ({ className }) => {
                             {
                                 title: "Capture the Joy.",
                                 description: "450+ vacation rentals, 120 local guides, and endless memories.",
-                                link: "/search-box-videos/happy.mp4"
+                                link: "/search-box-videos/sardaar.mp4"
                             },
                             {
-                                title: "The Open Road.",
-                                description: "800+ car rentals, 50 scenic routes, and 24/7 roadside support.",
-                                link: "/search-box-videos/road.mp4"
+                                title: "Classic Rooms.",
+                                description: "Stay in comfort and style.",
+                                link: "/search-box-videos/room.mp4"
                             },
-                            {
-                                title: "Reach New Heights.",
-                                description: "15 balloon tours, 3 private flight paths, and breathtaking sunrise views.",
-                                link: "/search-box-videos/hot-air.mp4"
-                            }
+                            // {
+                            //     title: "Capture the Joy.",
+                            //     description: "450+ vacation rentals, 120 local guides, and endless memories.",
+                            //     link: "/search-box-videos/happy.mp4"
+                            // },
+                            // {
+                            //     title: "The Open Road.",
+                            //     description: "800+ car rentals, 50 scenic routes, and 24/7 roadside support.",
+                            //     link: "/search-box-videos/road.mp4"
+                            // },
+                            // {
+                            //     title: "Reach New Heights.",
+                            //     description: "15 balloon tours, 3 private flight paths, and breathtaking sunrise views.",
+                            //     link: "/search-box-videos/hot-air.mp4"
+                            // }
                         ]
                     }} type="home" link="/hotels"
                         directions={
