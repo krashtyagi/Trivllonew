@@ -57,40 +57,45 @@ export function TabsLine({
         {content.overview}
       </section>
 
-      <div className="flex flex-col lg:flex-row lg:gap-6 mb-5">
-        <main className="flex-1 space-y-5 border-b-1 mb-4">
+      <div className="flex flex-col lg:flex-row lg:gap-8 items-start mb-5">
+        <main className="flex-1 w-full min-w-0 space-y-8 mb-4">
           <section id="description" className="py-2 gap-2">
             <h3 className="text-xl font-bold mb-2 dark:text-zinc-400 text-zinc-800">
               Description
             </h3>
             {content.description}
           </section>
-          <section id="amenities" className="scroll-mt-16 border-t md:pt-3 pt-2">
+
+          <section id="amenities" className="scroll-mt-16 border-t md:pt-6 pt-4">
+            <h3 className="text-xl font-bold mb-2 dark:text-zinc-400 text-zinc-800">
+              Features
+            </h3>
             {content.amenities}
           </section>
+
+          <section
+            id="itenary"
+            className="scroll-mt-24 border-t md:pt-6 pt-4 w-full"
+          >
+            <div className="mb-6 text-left">
+              <h3 className="text-2xl font-bold">Itinerary</h3>
+            </div>
+            <ChangelogComponentPage releses={data.service.itinerary} />
+          </section>
+
+          <section id="reviews" className="py-5 border-t md:pt-6 pt-4">
+            {content.reviews}
+          </section>
+
+          <section id="policies" className="border-t md:pt-6 pt-4">
+            <HotelPolicies id={companyId} />
+          </section>
         </main>
-        <aside className="lg:w-[380px] flex-shrink-0">
-          <div className="lg:sticky lg:top-24 pt-3">
-            <TourBookingCard data={data} />
-          </div>
+
+        <aside className="w-full lg:w-[380px] xl:w-[400px] flex-shrink-0 lg:sticky lg:top-24 pt-3 pb-8">
+          <TourBookingCard data={data} />
         </aside>
       </div>
-
-      <section
-        id="itenary"
-        className="scroll-mt-24 border-t md:pt-16 pt-6 md:mb-16 mb-5 w-full"
-      >
-        <div className="mb-8 text-left">
-          <h3 className="text-2xl font-bold">Itinerary</h3>
-        </div>
-        <ChangelogComponentPage releses={data.service.itinerary} />
-      </section>
-
-      <section id="reviews" className="py-5 border-t md:pt-5 pt-6 md:mb- mb-5">
-        {content.reviews}
-      </section>
-
-      <HotelPolicies id={companyId} />
     </div>
   );
 }
