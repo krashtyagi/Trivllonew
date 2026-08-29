@@ -7,12 +7,14 @@ import { cn } from "@/lib/utils";
 import React, { useMemo } from "react";
 import { CarouselProps, PopularDestinationCarousel } from "../carousel/tabs-carousel";
 import { ImagesSliderDemo } from "../addimage/middle-ads-image";
-import { useGetNewHotels } from "@/services/hotel/querys";
 import type { Item } from "../carousel/onlyColursel";
-import { hoteldata, HotelFramePageProps } from "@/app/(home)/(categories)/hotels/page";
-import { MapPin } from "lucide-react";
+import { HotelFramePageProps } from "@/app/(home)/(categories)/hotels/page";
+import { MapPin, Compass } from "lucide-react";
 import FrameColursals from "./frame_coloursals";
-export const DummyDataList: CarouselProps[] = [
+import { useGetTourCompanies } from "@/services/tours/tours.queries";
+import { TourCompanyItem } from "@/services/tours/tours.service";
+
+export const DummyTourDataList: CarouselProps[] = [
     {
         type: "hotels",
         tagline: "Sponsored Results",
@@ -155,7 +157,7 @@ export const DummyDataList: CarouselProps[] = [
         isLoading: false,
     },
 ]
-// No tabs in this design → so we pass tabs={undefined}
+
 type SectionConfig = {
     tagline: string;
     city: string;
@@ -166,48 +168,142 @@ const POPULAR_SECTIONS: SectionConfig[] = [
     { tagline: "Sponsored Results", city: "" },
     { tagline: "Organic Ranks", city: "" },
     { tagline: "Top 10 companies in Rishikesh", city: "" },
-
 ];
 
+const PREDEFINED_CITIES = ["Rishikesh", "Goa", "Manali", "Jaipur", "Udaipur", "Shimla"];
+
 const MainFramePage = ({ className, type, popularTrends }: HotelFramePageProps) => {
+    const { data: tourCompaniesData, isLoading: isCompaniesLoading } = useGetTourCompanies();
 
+    const companies = useMemo(() => {
+        return (tourCompaniesData?.data || []) as TourCompanyItem[];
+    }, [tourCompaniesData]);
 
+    // Group companies by city
+    const companiesByCity = useMemo(() => {
+        if (!companies || companies.length === 0) return {};
+
+        return companies.reduce((acc: Record<string, TourCompanyItem[]>, comp) => {
+            const rawCity = comp.city || comp.location?.city || "Rishikesh";
+            const city = rawCity.trim();
+            if (!acc[city]) {
+                acc[city] = [];
+            }
+            acc[city].push(comp);
+            return acc;
+        }, {});
+    }, [companies]);
+
+    // Generate dynamic carousels for each available city or popular destination
+    const cityCarousels = useMemo(() => {
+        const availableCities = Object.keys(companiesByCity);
+        const citiesToRender = availableCities.length > 0 ? availableCities : PREDEFINED_CITIES.slice(0, 3);
+
+        return citiesToRender.map((city) => {
+            const cityCompanies = companiesByCity[city] || [];
+            const items: Item[] = cityCompanies.map((comp) => {
+                const logoImg =
+                    comp.logo ||
+                    (comp.images && comp.images[0]?.url) ||
+                    `https://api.dicebear.com/10.x/initials/svg?seed=${encodeURIComponent(comp.name)}`;
+
+                return {
+                    title: comp.name,
+                    location: `${city}, India • Starting ₹${comp.startingPrice || 999}/person`,
+                    image: logoImg,
+                    href: `/tours/${comp._id}`,
+                };
+            });
+
+            return {
+                city,
+                tagline: `Top Tour Companies in ${city}`,
+                items,
+                hasRealData: items.length > 0,
+            };
+        });
+    }, [companiesByCity]);
+
+    // Overall verified tour agencies carousel
+    const allTourAgenciesItems = useMemo((): Item[] => {
+        if (!companies || companies.length === 0) return [];
+        return companies.map((comp) => {
+            const logoImg =
+                comp.logo ||
+                (comp.images && comp.images[0]?.url) ||
+                `https://api.dicebear.com/10.x/initials/svg?seed=${encodeURIComponent(comp.name)}`;
+
+            return {
+                title: comp.name,
+                location: `${comp.city || comp.location?.city || "India"} • ${comp.totalTours || 0} Available Tours`,
+                image: logoImg,
+                href: `/tours/${comp._id}`,
+            };
+        });
+    }, [companies]);
 
     return (
         <FrameColursals className={cn(className, " ")}>
-            {POPULAR_SECTIONS.map((section, i) => {
-                // const items = sectionItems[i] || [];
+            {/* Dynamic verified tour companies carousel if data exists */}
+            {allTourAgenciesItems.length > 0 && (
+                <PopularDestinationCarousel
+                    tagline="Featured Tour Operators & Agencies"
+                    type="tours"
+                    items={allTourAgenciesItems}
+                    icon={<Compass className="h-3.5 w-3.5 shrink-0 text-primary" />}
+                    isLoading={isCompaniesLoading}
+                />
+            )}
 
+            {/* City/Location-based Tour Company Carousels with logos & links */}
+            {cityCarousels.map((citySection) => {
+                if (!citySection.hasRealData) return null;
+                return (
+                    <PopularDestinationCarousel
+                        key={citySection.tagline}
+                        tagline={citySection.tagline}
+                        type="tours"
+                        items={citySection.items}
+                        icon={<MapPin className="h-3.5 w-3.5 shrink-0 text-primary" />}
+                        isLoading={isCompaniesLoading}
+                    />
+                );
+            })}
+
+            {/* Dummy Tour Data List sections */}
+            {POPULAR_SECTIONS.map((section, i) => {
+                const dummy = DummyTourDataList[i];
+                if (!dummy) return null;
 
                 return (
                     <React.Fragment key={section.tagline}>
                         <PopularDestinationCarousel
-                            tagline={DummyDataList[i].tagline}
-                            // tabs={popularTrends?.[0]?.tabs || undefined}
-                            type={DummyDataList[i].type}
-                            items={DummyDataList[i].items}
+                            tagline={dummy.tagline}
+                            type={dummy.type}
+                            items={dummy.items}
                             icon={<MapPin className="h-3 w-3 shrink-0" />}
                             galleryCardHide={true}
-                        // isLoading={isLoading}
                         />
 
                         {i === 1 && (
                             <div className="px-2 md:px-0">
-                                <ImagesSliderDemo images={[
-                                    '/hotels/img5.png',
-                                    '/hotels/img6.png',
-                                    '/hotels/img7.png',
-                                    '/hotels/img8.png',
-                                ]} title="Discover Asia" subtitle="Book now" description="Book your next adventure now" link="/hotels/find" />
+                                <ImagesSliderDemo
+                                    images={[
+                                        '/hotels/img5.png',
+                                        '/hotels/img6.png',
+                                        '/hotels/img7.png',
+                                        '/hotels/img8.png',
+                                    ]}
+                                    title="Discover India & Beyond"
+                                    subtitle="Curated Tour Packages"
+                                    description="Book your next guided trip with top rated tour operators"
+                                    link="/tours/find"
+                                />
                             </div>
                         )}
                     </React.Fragment>
                 );
             })}
-
-            {/* {error && (
-                <p className="text-red-500 text-center">Failed to load hotels: {error.message}</p>
-            )} */}
         </FrameColursals>
     );
 };

@@ -5,8 +5,19 @@ import {
   getTourDetails,
   getTours,
   getTourServiceDetails,
+  getTourCompanies,
 } from "./tours.service";
 import { Filters } from "@/context/NuqsContentProvider";
+
+export const useGetTourCompanies = (params?: { city?: string; page?: number; limit?: number }) => {
+  return useQuery({
+    queryKey: ["getTourCompanies", params],
+    queryFn: () => getTourCompanies(params),
+    staleTime: 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+  });
+};
 
 export const useGetToursByFiltersDemo = (val: Filters, page: number = 1) => {
   return useQuery({

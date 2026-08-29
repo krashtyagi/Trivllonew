@@ -75,9 +75,7 @@ export const TourContextProvider = ({
     }
     const combinedFilters = React.useMemo(() => ({
         ...filters,
-        city: "Rishikesh",
-        // adults: guests.adults,
-        // children: guests.children,
+        city: city || (filters as any).city || (filters.location?.length > 0 ? filters.location[0] : ""),
         date: {
             checkIn: formatDate(date?.from),
             checkOut: formatDate(date?.to)
@@ -87,9 +85,8 @@ export const TourContextProvider = ({
     const debouncedPage = useDebounce(page, 1000)
 
     const { data, isLoading } = useGetToursByFiltersDemo(debouncedFilters as any, debouncedPage)
-    // const c = 
     const tours: Tour[] = data?.data ?? []
-    const total: number = 0
+    const total: number = data?.total ?? 0
     // console.log(, hotels);
 
 
