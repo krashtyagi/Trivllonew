@@ -244,8 +244,8 @@ const MainFramePage = ({ className, type, popularTrends }: HotelFramePageProps) 
 
     return (
         <FrameColursals className={cn(className, " ")}>
-            {/* Dynamic verified tour companies carousel if data exists */}
-            {allTourAgenciesItems.length > 0 && (
+            {/* Featured Tour Operators - show skeleton while loading, show data when loaded */}
+            {(isCompaniesLoading || allTourAgenciesItems.length > 0) && (
                 <PopularDestinationCarousel
                     tagline="Featured Tour Operators & Agencies"
                     type="tours"
@@ -256,8 +256,25 @@ const MainFramePage = ({ className, type, popularTrends }: HotelFramePageProps) 
                 />
             )}
 
+            {/* Loading skeleton carousels for city sections */}
+            {isCompaniesLoading && (
+                <>
+                    {PREDEFINED_CITIES.slice(0, 3).map((city) => (
+                        <PopularDestinationCarousel
+                            key={`loading-${city}`}
+                            tagline={`Top Tour Companies in ${city}`}
+                            type="tours"
+                            items={[]}
+                            icon={<MapPin className="h-3.5 w-3.5 shrink-0 text-primary" />}
+                            isLoading={true}
+                            galleryCardHide={true}
+                        />
+                    ))}
+                </>
+            )}
+
             {/* City/Location-based Tour Company Carousels with logos & links */}
-            {cityCarousels.map((citySection) => {
+            {!isCompaniesLoading && cityCarousels.map((citySection) => {
                 if (!citySection.hasRealData) return null;
                 return (
                     <PopularDestinationCarousel
@@ -266,7 +283,7 @@ const MainFramePage = ({ className, type, popularTrends }: HotelFramePageProps) 
                         type="tours"
                         items={citySection.items}
                         icon={<MapPin className="h-3.5 w-3.5 shrink-0 text-primary" />}
-                        isLoading={isCompaniesLoading}
+                        isLoading={false}
                         galleryCardHide={true}
                     />
                 );
@@ -287,7 +304,7 @@ const MainFramePage = ({ className, type, popularTrends }: HotelFramePageProps) 
                             galleryCardHide={true}
                         />
 
-                        {i === 1 && (
+                        {i === 0 && (
                             <div className="px-2 md:px-0">
                                 <ImagesSliderDemo
                                     images={[
