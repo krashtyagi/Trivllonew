@@ -50,9 +50,23 @@ export function SpecialRequestCard({ methods }: { methods: UseFormReturn<Payment
 }
 
 
-export function TripSummaryCard({ methods, serviceType }: { methods: UseFormReturn<PaymentProps>; serviceType?: string }) {
-    const checkin = methods.getValues("dates.checkin");
-    const checkout = methods.getValues("dates.checkout");
+export function TripSummaryCard({
+    methods,
+    serviceType,
+    maxPeople,
+    onGuestsChange,
+}: {
+    methods: UseFormReturn<PaymentProps>;
+    serviceType?: string;
+    maxPeople?: number;
+    onGuestsChange?: (newAdults: number, newChildren: number) => void;
+}) {
+    const checkin = methods.watch("dates.checkin");
+    const checkout = methods.watch("dates.checkout");
+    const adults = methods.watch("guests.adults") || 1;
+    const children = methods.watch("guests.children") || 0;
+    const totalGuests = adults + children;
+    const maxLimit = maxPeople || 20;
 
     // Category-aware labels
     const dateLabels: Record<string, string> = {
@@ -68,23 +82,58 @@ export function TripSummaryCard({ methods, serviceType }: { methods: UseFormRetu
             <CardHeader className="flex flex-row items-center justify-between space-y-0">
                 <div>
                     <CardTitle className="text-xl">Your Trip Summary</CardTitle>
-                    <p className="text-sm text-muted-foreground">Confirm your details</p>
+                    <p className="text-sm text-muted-foreground">Confirm your booking details</p>
                 </div>
-                {/* <DialogueEditDates methods={methods} trigger="Edit Trip" content={null} /> */}
             </CardHeader>
-            <CardContent className="grid grid-cols-2 gap-4">
+            <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="p-3 bg-muted/50 rounded-lg">
                     <p className="text-xs font-bold uppercase text-muted-foreground">{dateLabel}</p>
-                    <p className="text-sm font-medium">
-                        {checkin ? format(new Date(checkin), "MMM dd") : "—"}
-                        {checkout ? ` - ${format(new Date(checkout), "MMM dd")}` : ""}
+                    <p className="text-sm font-medium mt-1">
+                        {checkin ? format(new Date(checkin), "MMM dd, yyyy") : "—"}
+                        {checkout && checkout !== checkin ? ` - ${format(new Date(checkout), "MMM dd, yyyy")}` : ""}
                     </p>
                 </div>
-                <div className="p-3 bg-muted/50 rounded-lg">
-                    <p className="text-xs font-bold uppercase text-muted-foreground">Guests</p>
-                    <p className="text-sm font-medium">
-                        {methods.watch("guests.adults")} Adults, {methods.watch("guests.children")} Children
-                    </p>
+                <div className="p-3 bg-muted/50 rounded-lg flex items-center justify-between">
+                    <div>
+                        <p className="text-xs font-bold uppercase text-muted-foreground">Guests</p>
+                        <p className="text-sm font-medium mt-1">
+                            {adults} Adult{adults > 1 ? "s" : ""}{children > 0 ? `, ${children} Child${children > 1 ? "ren" : ""}` : ""}
+                        </p>
+                        {maxPeople && (
+                            <span className="text-[10px] text-muted-foreground">Max {maxPeople} people</span>
+                        )}
+                    </div>
+                    {onGuestsChange && (
+                        <div className="flex items-center gap-1.5 ml-2">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    if (adults > 1) {
+                                        onGuestsChange(adults - 1, children);
+                                    } else if (children > 0) {
+                                        onGuestsChange(adults, children - 1);
+                                    }
+                                }}
+                                disabled={totalGuests <= 1}
+                                className="w-7 h-7 rounded-full border border-border flex items-center justify-center text-sm font-bold hover:bg-accent disabled:opacity-30 disabled:cursor-not-allowed transition"
+                            >
+                                -
+                            </button>
+                            <span className="text-xs font-bold w-5 text-center">{totalGuests}</span>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    if (totalGuests < maxLimit) {
+                                        onGuestsChange(adults + 1, children);
+                                    }
+                                }}
+                                disabled={totalGuests >= maxLimit}
+                                className="w-7 h-7 rounded-full border border-border flex items-center justify-center text-sm font-bold hover:bg-accent disabled:opacity-30 disabled:cursor-not-allowed transition"
+                            >
+                                +
+                            </button>
+                        </div>
+                    )}
                 </div>
             </CardContent>
         </Card>

@@ -14,12 +14,12 @@ export const PaymentSchema = z.object({
       firstname: z
         .string()
         .min(1, "First name is required")
-        .regex(/^[A-Za-z]+$/, "Only letters are allowed"),
+        .regex(/^[A-Za-z\s.'-]+$/, "Only letters and spaces are allowed"),
 
       lastname: z
         .string()
         .min(1, "Last name is required")
-        .regex(/^[A-Za-z]+$/, "Only letters are allowed"),
+        .regex(/^[A-Za-z\s.'-]+$/, "Only letters and spaces are allowed"),
       email: z.string().email("Invalid email").or(z.literal("")),
       phone: z.string().optional().or(z.literal("")),
     }),

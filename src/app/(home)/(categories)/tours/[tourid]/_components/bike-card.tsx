@@ -251,9 +251,13 @@ export function TourDetailsCard({
             </span>
             <span className="text-xs md:text-sm font-medium text-muted-foreground">/person</span>
           </div>
-          {totalPriceWithTax > price && (
-            <p className="text-[10px] md:text-[11px] text-green-600 font-bold mt-1">
-              Final: ₹{totalPriceWithTax.toLocaleString()}
+          {totalPriceWithTax > price ? (
+            <p className="text-[10px] md:text-[11px] text-emerald-600 dark:text-emerald-400 font-bold mt-1">
+              ₹{totalPriceWithTax.toLocaleString()} incl. taxes ({taxPercentage}%)
+            </p>
+          ) : (
+            <p className="text-[10px] md:text-[11px] text-muted-foreground font-medium mt-1">
+              {taxPercentage > 0 ? `+ ${taxPercentage}% taxes & fees` : "All taxes included"}
             </p>
           )}
         </div>

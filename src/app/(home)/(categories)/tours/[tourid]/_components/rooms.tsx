@@ -30,7 +30,7 @@ export const TourServicesMain = ({
           ))}
         </div>
       ) : (
-        <Bikes
+        <Tours
           services={services}
           // services={services}
           isBookingMode={isBookingMode}
@@ -40,7 +40,7 @@ export const TourServicesMain = ({
   );
 };
 
-export function Bikes({
+export function Tours({
   services,
   isBookingMode,
 }: {
@@ -62,7 +62,7 @@ export function Bikes({
   return (
     <div className="flex flex-col gap-2 md:gap-4">
       {services?.map((service) => (
-        <BikeDetailsCardItem
+        <TourDetailsCardItem
           key={service.serviceId}
           service={service}
           isBookingMode={isBookingMode}
@@ -74,7 +74,7 @@ export function Bikes({
 
 
 
-export const BikeDetailsCardItem = ({
+export const TourDetailsCardItem = ({
   service,
   isBookingMode,
 }: {

@@ -76,6 +76,8 @@ export const TourContextProvider = ({
     const combinedFilters = React.useMemo(() => ({
         ...filters,
         city: city || (filters as any).city || (filters.location?.length > 0 ? filters.location[0] : ""),
+        adults: guests.adults,
+        children: guests.children,
         date: {
             checkIn: formatDate(date?.from),
             checkOut: formatDate(date?.to)
