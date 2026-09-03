@@ -5,7 +5,7 @@ export const DetailsPageCardWrapperUI = ({ children, classNameCard, classNameChi
     return (
         <Card
             className={cn(
-                "w-full overflow-hidden md:border border-border/60 bg-card shadow-none border-none",
+                "w-full overflow-hidden md:border border-border/60 bg-card",
                 " transition-all duration-300 rounded-2xl mb-4 last:mb-0",
                 "dark:hover:shadow-[0_8px_20px_rgba(255,255,255,0.06)]", classNameCard
             )}

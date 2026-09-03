@@ -26,9 +26,9 @@ const page = async ({
     const { slug } = await params;
     const { categories, date, guests } = await searchParams;
 
-    const hookname = (categories as keyof typeof hooksSupplier)
+    const hookname = (categories as keyof typeof hooksSupplier) || "tours";
 
-    const serviceType = serviceTypeMap[hookname]
+    const serviceType = serviceTypeMap[hookname] || "tour";
 
     return (
         <div className={cn("w-full", className)}>

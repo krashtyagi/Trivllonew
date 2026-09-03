@@ -45,6 +45,8 @@ export interface TourService {
   destinations: string[];
   duration: string;
   price: number;
+  totalPrice?: number;
+  totalTax?: number;
   totalPriceWithTax: number;
   taxPercentage: number;
   images: HotelImage[];

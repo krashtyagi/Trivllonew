@@ -154,9 +154,9 @@ export function TabsLine({
         className="scroll-mt-24 border-t md:pt-16 pt-6 md:mb-16 mb-5 w-full"
       >
         <div className="mb-8 text-left">
-          <h3 className="text-2xl font-bold">Available Rooms</h3>
+          <h3 className="text-2xl font-bold">Available Tours</h3>
           <p className="text-slate-500 text-sm">
-            Choose the best room that fits your needs
+            Choose the best tour
           </p>
         </div>
         <SliderIfNotChooseDate handleClick={handleClick}>

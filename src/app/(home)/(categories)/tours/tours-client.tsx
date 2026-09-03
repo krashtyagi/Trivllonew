@@ -9,10 +9,11 @@ import { CommonPagesStyles } from '@/styles/commonpages-styles'
 import React, { Suspense, useEffect } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 import SearchInput from '@/constants/search-box-components/search-input'
-import { Calendar, MapPin } from 'lucide-react'
+import { Calendar, MapPin, User } from 'lucide-react'
 import { useToursStore } from '@/store/tours.store'
 import HotelCalendern from '@/components/navbar/filter-nav-bar/calander05'
 import { CityTrends } from '@/types'
+import GuestSelector from '@/components/filter-bar/newui-selectedCounter'
 // import { HotelPopularCites } from '../buses/page'
 export const HotelPopularCites: CityTrends[] = [
   {
@@ -78,6 +79,12 @@ export default function ToursClientPage() {
                 icon: Calendar,
                 element: <HotelCalendern hookname='tours' />,
                 text: "Add dates",
+              },
+              {
+                label: "Guests",
+                icon: User,
+                element: <GuestSelector />,
+                text: "Add Guests",
               },
             ],
             videos: [

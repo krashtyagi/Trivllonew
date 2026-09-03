@@ -102,16 +102,20 @@ export function TabsLine({
 
 // ─── Tour Booking Sidebar Card ────────────────────────────────────────────────
 const TourBookingCard = ({ data }: { data?: TourServiceData }) => {
-  const { date, guests } = useToursStore();
+  const { date, guests, setGuests } = useToursStore();
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const totalGuests = guests.adults + guests.children;
+  const maxPeople = data?.service?.maxPeople || 20;
+  const totalGuests = Math.max(1, guests.adults + guests.children);
   const basePrice = data?.service?.price || 0;
-  const totalPriceWithTax = data?.service?.totalPriceWithTax || 0;
   const taxPercentage = data?.service?.taxPercentage || 0;
-  const taxAmount = totalPriceWithTax - basePrice;
-  const grandTotal = totalPriceWithTax * (totalGuests || 1);
+  const taxAmountPerPerson = Number(((basePrice * taxPercentage) / 100).toFixed(2));
+  const pricePerPersonWithTax = basePrice + taxAmountPerPerson;
+
+  const totalBasePrice = basePrice * totalGuests;
+  const totalTaxAmount = Number(((totalBasePrice * taxPercentage) / 100).toFixed(2));
+  const grandTotal = totalBasePrice + totalTaxAmount;
 
   return (
     <Card className="w-full lg:max-w-[400px] border border-slate-100 dark:border-zinc-800 shadow-[0_20px_50px_rgba(0,0,0,0.06)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.25)] rounded-[24px] overflow-hidden bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md transition-colors duration-300">
@@ -157,57 +161,85 @@ const TourBookingCard = ({ data }: { data?: TourServiceData }) => {
             </div>
           </div>
 
-          <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-800/40 border border-slate-100 dark:border-zinc-800/60">
-            <User className="w-4 h-4 text-primary shrink-0" />
-            <div className="flex flex-col min-w-0">
-              <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">
-                Total Guests
-              </span>
-              <span className="text-[11px] font-bold text-foreground mt-0.5">
-                {totalGuests} {totalGuests === 1 ? "Guest" : "Guests"}
-              </span>
+          <div className="flex items-center justify-between p-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-800/40 border border-slate-100 dark:border-zinc-800/60">
+            <div className="flex items-center gap-2 min-w-0">
+              <User className="w-4 h-4 text-primary shrink-0" />
+              <div className="flex flex-col min-w-0">
+                <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">
+                  Guests
+                </span>
+                <span className="text-[11px] font-bold text-foreground mt-0.5 truncate">
+                  {totalGuests} {totalGuests === 1 ? "Guest" : "Guests"}
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  if (guests.adults > 1) {
+                    setGuests({ ...guests, adults: guests.adults - 1 });
+                  } else if (guests.children > 0) {
+                    setGuests({ ...guests, children: guests.children - 1 });
+                  }
+                }}
+                disabled={totalGuests <= 1}
+                className="w-6 h-6 rounded-full border border-border flex items-center justify-center text-xs font-bold hover:bg-accent disabled:opacity-30 disabled:cursor-not-allowed transition"
+              >
+                -
+              </button>
+              <span className="text-xs font-bold w-4 text-center">{totalGuests}</span>
+              <button
+                type="button"
+                onClick={() => {
+                  if (totalGuests < maxPeople) {
+                    setGuests({ ...guests, adults: guests.adults + 1 });
+                  }
+                }}
+                disabled={totalGuests >= maxPeople}
+                className="w-6 h-6 rounded-full border border-border flex items-center justify-center text-xs font-bold hover:bg-accent disabled:opacity-30 disabled:cursor-not-allowed transition"
+              >
+                +
+              </button>
             </div>
           </div>
         </div>
 
+        {data?.service?.maxPeople && (
+          <p className="text-[11px] text-muted-foreground text-center font-medium -mt-2">
+            Max tour capacity: <span className="font-bold text-foreground">{data.service.maxPeople} people</span>
+          </p>
+        )}
+
         {/* PRICE SUMMARY */}
-        {data?.service?.price && (
+        {/* PRICE SUMMARY */}
+        {data?.service?.price !== undefined && (
           <div className="space-y-4 pt-2">
             <div className="text-sm font-bold text-foreground">
-              Pricing Details
+              Pricing Breakdown
             </div>
             <div className="space-y-2.5 text-xs text-muted-foreground">
               <div className="flex justify-between items-center">
-                <span>Base Price (per person)</span>
-                <span className="font-semibold text-foreground">₹{basePrice.toLocaleString("en-IN")}</span>
-              </div>
-              {taxAmount > 0 && (
-                <div className="flex justify-between items-center">
-                  <span>Taxes & Fees ({taxPercentage}%)</span>
-                  <span className="font-semibold text-foreground">₹{taxAmount.toLocaleString("en-IN")}</span>
-                </div>
-              )}
-              <div className="flex justify-between items-center border-t border-slate-100 dark:border-zinc-800/60 pt-2.5">
-                <span>Subtotal (per person)</span>
-                <span className="font-bold text-foreground">₹{totalPriceWithTax.toLocaleString("en-IN")}</span>
+                <span>Without Tax Price for {totalGuests} {totalGuests === 1 ? "person" : "persons"}</span>
+                <span className="font-semibold text-foreground">₹{totalBasePrice.toLocaleString("en-IN")}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span>Guests count</span>
-                <span className="font-bold text-foreground">x {totalGuests}</span>
+                <span>Tax ({taxPercentage}%)</span>
+                <span className="font-semibold text-foreground">₹{totalTaxAmount.toLocaleString("en-IN")}</span>
               </div>
             </div>
 
             {/* GRAND TOTAL BOX */}
             <div className="bg-gradient-to-br from-primary/5 to-amber-500/5 dark:from-primary/10 dark:to-transparent p-4.5 rounded-2xl border border-primary/10 space-y-1">
               <div className="text-[10px] font-bold text-primary uppercase tracking-widest">
-                Total Amount
+                Total Payable ({totalGuests} {totalGuests === 1 ? "Guest" : "Guests"})
               </div>
               <div className="flex items-baseline justify-between">
-                <span className="text-2xl font-black text-foreground">
+                <span className="text-2xl font-black text-primary">
                   ₹{grandTotal.toLocaleString("en-IN")}
                 </span>
                 <span className="text-[10px] text-muted-foreground font-semibold">
-                  All taxes included
+                  Tax ({taxPercentage}%) included
                 </span>
               </div>
             </div>
@@ -226,7 +258,7 @@ const TourBookingCard = ({ data }: { data?: TourServiceData }) => {
               `/booknow/${data.service.serviceId}/${data.company.companyId}`,
               {
                 date: `${date?.from ? format(date.from, "dd/MM/yyyy") : "Add date"}-${date?.to ? format(date.to, "dd/MM/yyyy") : "Add date"}`,
-                guests: `${guests.adults + guests.children} Guests`,
+                guests: `${totalGuests} Guests`,
                 categories: "tours",
               }
             );

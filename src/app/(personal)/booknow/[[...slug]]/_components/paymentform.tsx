@@ -41,6 +41,8 @@ import {
 } from "./Addoncards";
 import { PaymentSuccess } from "./PaymentSuccess";
 
+import { useTourServiceDetails } from "@/services/tours/tours.queries";
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 type ServiceType = "tour" | "bike" | "adventure" | "cab";
 
@@ -66,7 +68,15 @@ export const BookingForm = ({
   const queryClient = useQueryClient();
   const ismobile = useIsMobile();
 
-  const total = (guests?.adults || 0) + (guests?.children || 0);
+  // Fetch tour details if serviceType is tour
+  const { data: tourServiceData } = useTourServiceDetails(
+    serviceType === "tour" ? slug[0] : ""
+  );
+
+  const parsedGuests = parseInt(initialGuests || "") || 0;
+  const initialAdults = Math.max(1, guests?.adults || parsedGuests || 1);
+  const initialChildren = guests?.children || 0;
+  const initialTotal = initialAdults + initialChildren;
 
   const methods = useForm<PaymentProps>({
     resolver: zodResolver(PaymentSchema),
@@ -76,15 +86,15 @@ export const BookingForm = ({
         checkout: date?.to ? format(date.to, "yyyy-MM-dd") : "",
       },
       guests: {
-        adults: guests?.adults || 0,
-        children: guests?.children || 0,
+        adults: initialAdults,
+        children: initialChildren,
       },
-      guestInformation: Array(total || 1).fill({
+      guestInformation: Array(initialTotal).fill(null).map(() => ({
         firstname: "",
         lastname: "",
         email: "",
         phone: "",
-      }),
+      })),
       specialRequest: "",
       rooms: [],
     },
@@ -92,11 +102,33 @@ export const BookingForm = ({
   });
 
   React.useEffect(() => {
-    if (date?.from && date?.to) {
+    if (date?.from) {
       methods.setValue("dates.checkin", format(date.from, "yyyy-MM-dd"));
+    }
+    if (date?.to) {
       methods.setValue("dates.checkout", format(date.to, "yyyy-MM-dd"));
     }
   }, [date, methods]);
+
+  // Dynamically sync guest count and guestInformation form fields
+  const handleGuestsChange = (newAdults: number, newChildren: number) => {
+    const newTotal = Math.max(1, newAdults + newChildren);
+    methods.setValue("guests.adults", newAdults, { shouldValidate: true });
+    methods.setValue("guests.children", newChildren, { shouldValidate: true });
+
+    const currentGuests = methods.getValues("guestInformation") || [];
+    if (newTotal > currentGuests.length) {
+      const added = Array(newTotal - currentGuests.length).fill(null).map(() => ({
+        firstname: "",
+        lastname: "",
+        email: "",
+        phone: "",
+      }));
+      methods.setValue("guestInformation", [...currentGuests, ...added], { shouldValidate: true });
+    } else if (newTotal < currentGuests.length) {
+      methods.setValue("guestInformation", currentGuests.slice(0, newTotal), { shouldValidate: true });
+    }
+  };
 
   const buildPayload = (data: PaymentProps) => {
     const serviceId = slug[0];
@@ -108,8 +140,8 @@ export const BookingForm = ({
       phoneNumber: data.guestInformation[0]?.phone || "",
     };
 
-    const participants = data.guestInformation.map((g) => ({
-      name: `${g.firstname} ${g.lastname}`.trim(),
+    const participants = data.guestInformation.map((g, idx) => ({
+      name: `${g.firstname} ${g.lastname}`.trim() || `Guest ${idx + 1}`,
       age: 25,
       gender: "male" as const,
     }));
@@ -150,8 +182,8 @@ export const BookingForm = ({
       case "tour":
         meta = {
           ...meta,
-          startDate: data.dates.checkin,
-          mealPreference: "veg"
+          startDate: data.dates.checkin || format(new Date(), "yyyy-MM-dd"),
+          mealPreference: "veg",
         };
         break;
       case "adventure":
@@ -202,13 +234,13 @@ export const BookingForm = ({
                 setCurrentStep((val) => val + 1);
                 handleRefresh(queryClient, ["bookings"]);
                 setLoading(false);
-
               } else {
                 toast.error("Payment verification failed.");
               }
             } catch {
               toast.error("Payment verification failed.");
             } finally {
+              setLoading(false);
             }
           },
           prefill: {
@@ -217,22 +249,26 @@ export const BookingForm = ({
             contact: data.guestInformation[0].phone,
           },
           theme: { color: "#EA580C" },
+          modal: {
+            ondismiss: function () {
+              setLoading(false);
+            },
+          },
         };
 
         const rzp = new (window as any).Razorpay(options);
         rzp.open();
-
       } else {
         toast.error(result?.message || "Failed to create booking.");
         setLoading(false);
-
       }
     } catch (error: any) {
       toast.error(error.response?.data?.message || error.message || "An error occurred.");
       setLoading(false);
-
     }
   };
+
+  const tourMaxPeople = tourServiceData?.data?.service?.maxPeople;
 
   return (
     <Form {...methods}>
@@ -253,7 +289,12 @@ export const BookingForm = ({
             )}
           >
             <div className="lg:col-span-8">
-              <PaymentFormContent methods={methods} serviceType={serviceType} />
+              <PaymentFormContent
+                methods={methods}
+                serviceType={serviceType}
+                maxPeople={tourMaxPeople}
+                onGuestsChange={handleGuestsChange}
+              />
             </div>
             {currentstep === 2 && (
               <div className="lg:col-span-4">
@@ -264,6 +305,7 @@ export const BookingForm = ({
                         loading={loading}
                         hookname={hookname}
                         serviceType={serviceType}
+                        tourServiceData={tourServiceData?.data}
                       />
                     </div>
                   ) : (
@@ -271,6 +313,7 @@ export const BookingForm = ({
                       loading={loading}
                       hookname={hookname}
                       serviceType={serviceType}
+                      tourServiceData={tourServiceData?.data}
                     />
                   )}
                 </div>
@@ -294,18 +337,28 @@ export const BookingForm = ({
 export const PaymentFormContent = ({
   methods,
   serviceType,
+  maxPeople,
+  onGuestsChange,
 }: {
   methods: UseFormReturn<PaymentProps>;
   serviceType: string;
+  maxPeople?: number;
+  onGuestsChange?: (newAdults: number, newChildren: number) => void;
 }) => {
   const { currentstep } = usePaymentsContext();
   if (currentstep === 2)
-    return <BookingDetails methods={methods} serviceType={serviceType} />;
+    return (
+      <BookingDetails
+        methods={methods}
+        serviceType={serviceType}
+        maxPeople={maxPeople}
+        onGuestsChange={onGuestsChange}
+      />
+    );
   return <FinalStep />;
 };
 
 // ─── Final Step ───────────────────────────────────────────────────────────────
-// We call all store hooks individually (cannot call in a loop — rules of hooks)
 export const FinalStep = () => {
   const toursStore = hooksSupplier["tours"]();
   const adventureStore = hooksSupplier["adventures"]();
@@ -347,29 +400,35 @@ export const BookingCard = ({
   loading,
   hookname,
   serviceType,
+  tourServiceData,
 }: {
   loading: boolean;
   hookname: keyof typeof hooksSupplier;
   serviceType: string;
+  tourServiceData?: any;
 }) => {
-  const store = hooksSupplier[hookname]();
-  const { guests } = store;
   const methods = useFormContext<PaymentProps>();
-  const totalGuests = (guests?.adults || 0) + (guests?.children || 0);
+  const adults = methods.watch("guests.adults") || 1;
+  const children = methods.watch("guests.children") || 0;
+  const totalGuests = Math.max(1, adults + children);
   const checkin = methods.watch("dates.checkin");
-  const checkout = methods.watch("dates.checkout");
+
+  const service = tourServiceData?.service;
+  const basePricePerPerson = service?.price || 0;
+  const taxPercentage = service?.taxPercentage || 0;
+  const totalBasePrice = basePricePerPerson * totalGuests;
+  const totalTax = Number(((totalBasePrice * taxPercentage) / 100).toFixed(2));
+  const grandTotal = totalBasePrice + totalTax;
 
   return (
     <div className="flex items-center justify-between gap-4">
       <div className="flex flex-col">
-        <span className="text-lg font-bold tracking-tight capitalize">
-          {serviceType} Booking
-        </span>
-        <p className="text-[11px] font-semibold text-slate-500 flex items-center gap-1 mt-0.5">
-          {checkin && checkout
-            ? `${format(new Date(checkin), "dd MMM")} - ${format(new Date(checkout), "dd MMM")}`
-            : "Select dates"}{" "}
-          · {totalGuests} guests
+        <div className="flex items-baseline gap-1">
+          <span className="text-xl font-bold tracking-tight">₹{grandTotal.toLocaleString("en-IN")}</span>
+          <span className="text-xs text-muted-foreground font-medium">total to pay</span>
+        </div>
+        <p className="text-xs text-muted-foreground font-medium">
+          ₹{totalTax.toLocaleString("en-IN")} <span className="text-[11px] text-muted-foreground">tax ({taxPercentage}%)</span>
         </p>
         <div className="flex items-center gap-1 mt-1">
           <Check className="w-3 h-3 text-emerald-500 stroke-[3px]" />
@@ -394,17 +453,29 @@ export const BookingDetailsCard = ({
   loading,
   hookname,
   serviceType,
+  tourServiceData,
 }: {
   loading?: boolean;
   hookname: keyof typeof hooksSupplier;
   serviceType: string;
+  tourServiceData?: any;
 }) => {
   const store = hooksSupplier[hookname]();
-  const { date, guests } = store;
   const methods = useFormContext<PaymentProps>();
   const checkin = methods.watch("dates.checkin");
   const checkout = methods.watch("dates.checkout");
-  const totalGuests = (guests?.adults || 0) + (guests?.children || 0);
+  const adults = methods.watch("guests.adults") || 1;
+  const children = methods.watch("guests.children") || 0;
+  const totalGuests = Math.max(1, adults + children);
+
+  const service = tourServiceData?.service;
+  const company = tourServiceData?.company;
+
+  const basePricePerPerson = service?.price || 0;
+  const taxPercentage = service?.taxPercentage || 0;
+  const totalBasePrice = basePricePerPerson * totalGuests;
+  const totalTax = Number(((totalBasePrice * taxPercentage) / 100).toFixed(2));
+  const grandTotal = totalBasePrice + totalTax;
 
   const serviceLabel: Record<string, string> = {
     tour: "Tour Package",
@@ -413,27 +484,62 @@ export const BookingDetailsCard = ({
     cab: "Cab Ride",
   };
 
+  const image =
+    service?.images?.[0]?.url ||
+    company?.images?.[0]?.url ||
+    (typeof company?.images?.[0] === "string" ? company?.images?.[0] : null) ||
+    "/story/hero.png";
+
   return (
-    <Card className="shadow-lg border-primary/10 overflow-hidden">
-      <div className="bg-gradient-to-r from-primary/10 to-primary/5 p-6">
-        <h3 className="text-xl font-bold capitalize">
-          {serviceLabel[serviceType] || serviceType}
+    <Card className="shadow-lg border-primary/10 overflow-hidden rounded-2xl">
+      {image && (
+        <div className="relative h-44 w-full overflow-hidden bg-muted">
+          <img
+            src={image}
+            alt={service?.title || "Booking"}
+            className="w-full h-full object-cover"
+          />
+          {service?.duration && (
+            <div className="absolute top-3 left-3 bg-black/70 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
+              {service.duration}
+            </div>
+          )}
+        </div>
+      )}
+
+      <div className="p-5 pb-3">
+        <h3 className="text-lg font-bold line-clamp-1">
+          {service?.title || serviceLabel[serviceType] || serviceType}
         </h3>
-        <p className="text-sm text-muted-foreground mt-1">Booking Summary</p>
+        {company?.name && (
+          <p className="text-xs font-semibold text-muted-foreground mt-0.5">
+            {company.name} {company.city ? `• ${company.city}` : ""}
+          </p>
+        )}
       </div>
-      <CardContent className="p-6 space-y-6">
-        <div>
+
+      <CardContent className="p-5 pt-0 space-y-5">
+        <div className="bg-muted/40 p-3.5 rounded-xl space-y-2 text-xs">
           {checkin && (
-            <p className="text-sm text-muted-foreground flex items-center gap-2 mt-2">
-              <Calendar className="h-4 w-4" />
-              {checkin && checkout
-                ? `${format(new Date(checkin), "dd MMM")} - ${format(new Date(checkout), "dd MMM yyyy")}`
-                : format(new Date(checkin), "dd MMM yyyy")}
+            <p className="text-muted-foreground flex items-center gap-2">
+              <Calendar className="h-3.5 w-3.5 text-primary shrink-0" />
+              <span className="font-medium text-foreground">
+                {checkin && checkout && checkin !== checkout
+                  ? `${format(new Date(checkin), "dd MMM")} - ${format(new Date(checkout), "dd MMM yyyy")}`
+                  : format(new Date(checkin), "dd MMM yyyy")}
+              </span>
             </p>
           )}
-          <p className="text-sm text-muted-foreground flex items-center gap-2 mt-1">
-            <Users className="h-4 w-4" /> {totalGuests}{" "}
-            {totalGuests === 1 ? "Guest" : "Guests"}
+          <p className="text-muted-foreground flex items-center gap-2">
+            <Users className="h-3.5 w-3.5 text-primary shrink-0" />
+            <span className="font-medium text-foreground">
+              {totalGuests} {totalGuests === 1 ? "Guest" : "Guests"}
+            </span>
+            {service?.maxPeople && (
+              <span className="text-[10px] text-muted-foreground">
+                (Max: {service.maxPeople})
+              </span>
+            )}
           </p>
         </div>
 
@@ -441,21 +547,30 @@ export const BookingDetailsCard = ({
 
         <div className="space-y-3">
           <div className="flex justify-between text-sm">
-            <span>Service Type</span>
-            <span className="font-semibold capitalize">{serviceType}</span>
+            <span>
+              Without Tax Price for {totalGuests} {totalGuests === 1 ? "person" : "persons"}
+            </span>
+            <span className="font-semibold">₹{totalBasePrice.toLocaleString("en-IN")}</span>
           </div>
-          <div className="text-xs text-muted-foreground italic">
-            Final price will be calculated after booking confirmation.
+
+          <div className="flex justify-between text-sm">
+            <span>Tax ({taxPercentage}%)</span>
+            <span className="font-semibold">₹{totalTax.toLocaleString("en-IN")}</span>
+          </div>
+
+          <div className="flex justify-between text-lg font-black border-t pt-3 text-primary">
+            <span>Total Payable</span>
+            <span>₹{grandTotal.toLocaleString("en-IN")}</span>
           </div>
         </div>
 
         <Button
           type="submit"
           disabled={loading}
-          className="w-full h-12 text-lg font-bold"
+          className="w-full h-12 text-lg font-bold shadow-orange-200"
         >
           {loading ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
+            <Loader2 className="w-5 h-5 animate-spin" />
           ) : (
             <>
               <CreditCard className="mr-2 h-5 w-5" /> Proceed to Pay
@@ -471,13 +586,22 @@ export const BookingDetailsCard = ({
 export function BookingDetails({
   methods,
   serviceType,
+  maxPeople,
+  onGuestsChange,
 }: {
   methods: UseFormReturn<PaymentProps>;
   serviceType: string;
+  maxPeople?: number;
+  onGuestsChange?: (newAdults: number, newChildren: number) => void;
 }) {
   return (
     <div className="space-y-8 pb-20">
-      <TripSummaryCard methods={methods} serviceType={serviceType} />
+      <TripSummaryCard
+        methods={methods}
+        serviceType={serviceType}
+        maxPeople={maxPeople}
+        onGuestsChange={onGuestsChange}
+      />
       <GuestInfoCard methods={methods} />
       <SpecialRequestCard methods={methods} />
       <AddOnsCard />
