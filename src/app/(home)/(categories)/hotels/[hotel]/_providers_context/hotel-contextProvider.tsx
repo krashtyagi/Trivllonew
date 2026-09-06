@@ -13,6 +13,10 @@ type Props = {
 
 const HotelContext = React.createContext<{
   rooms: RoomType[];
+  allRooms?: RoomType[];
+  maxGuests?: number;
+  maxAdults?: number;
+  maxChildren?: number;
   availabilityResponse: Hotel | undefined;
   availabilityLoading: boolean;
   FetchRoomTypes: () => void;
@@ -91,6 +95,45 @@ const HotelContextProvider = ({ hotelId, children }: Props) => {
       ? availabilityRooms
       : hotelDetailsData?.roomTypes || [];
 
+  const allRooms = hotelDetailsData?.roomTypes || rooms || [];
+
+  // Calculate max limit of guests across all rooms (e.g. rooms with capacities 3, 6, 2, 4 -> maxGuests = 6)
+  const { maxGuests, maxAdults, maxChildren } = React.useMemo(() => {
+    const list = allRooms && allRooms.length > 0 ? allRooms : rooms;
+    if (!list || list.length === 0) {
+      return { maxGuests: undefined, maxAdults: undefined, maxChildren: undefined };
+    }
+
+    const totalCapacities = list
+      .map((r: any) => {
+        if (typeof r.capacity === "number") return r.capacity;
+        const adults = Number(r.capacity?.adults) || 0;
+        const children = Number(r.capacity?.children) || 0;
+        return adults + children || adults || 0;
+      })
+      .filter((c: number) => c > 0);
+
+    const adultCapacities = list
+      .map((r: any) => {
+        if (typeof r.capacity === "number") return r.capacity;
+        return Number(r.capacity?.adults) || 0;
+      })
+      .filter((c: number) => c > 0);
+
+    const childCapacities = list
+      .map((r: any) => {
+        if (typeof r.capacity === "number") return 0;
+        return Number(r.capacity?.children) || 0;
+      })
+      .filter((c: number) => c > 0);
+
+    const maxG = totalCapacities.length > 0 ? Math.max(...totalCapacities) : undefined;
+    const maxA = adultCapacities.length > 0 ? Math.max(...adultCapacities) : maxG;
+    const maxC = childCapacities.length > 0 ? Math.max(...childCapacities) : maxG;
+
+    return { maxGuests: maxG, maxAdults: maxA, maxChildren: maxC };
+  }, [allRooms, rooms]);
+
   const contextValue = React.useMemo(
     () => ({
       availabilityResponse,
@@ -98,9 +141,13 @@ const HotelContextProvider = ({ hotelId, children }: Props) => {
       FetchRoomTypes: refetchAvailability,
       refetchAvailability,
       rooms,
+      allRooms,
+      maxGuests,
+      maxAdults,
+      maxChildren,
       fetch,
       setFetch,
-      isStale
+      isStale,
     }),
     [
       fetch,
@@ -109,6 +156,10 @@ const HotelContextProvider = ({ hotelId, children }: Props) => {
       availabilityLoading,
       refetchAvailability,
       rooms,
+      allRooms,
+      maxGuests,
+      maxAdults,
+      maxChildren,
       isStale,
     ]
   );
@@ -121,6 +172,10 @@ const HotelContextProvider = ({ hotelId, children }: Props) => {
 };
 
 export default HotelContextProvider;
+
+export const useOptionalHotelContext = () => {
+  return React.useContext(HotelContext);
+};
 
 export const useHotelContext = () => {
   const context = React.useContext(HotelContext);
