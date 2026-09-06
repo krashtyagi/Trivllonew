@@ -17,6 +17,7 @@ type SectionConfig = {
 };
 
 const POPULAR_SECTIONS: SectionConfig[] = [
+  { tagline: "Popular Stays in Manali", city: "Manali" },
   { tagline: "Luxury in Indore", city: "Indore" },
   { tagline: "Popular Homes In South Goa", city: "Goa" },
   { tagline: "Best in Delhi", city: "Delhi" },
@@ -28,7 +29,7 @@ const POPULAR_SECTIONS: SectionConfig[] = [
   { tagline: "Villas & Resorts in Udaipur", city: "Udaipur" },
   { tagline: "Stays in Jaipur", city: "Jaipur" },
   { tagline: "Luxury Rentals in Lonavala", city: "Lonavala" },
-  { tagline: "Popular Stays in Manali", city: "Manali" },
+  
   { tagline: "Heritage Homes in Mysore", city: "Mysore" },
   { tagline: "Coastal Villas in Kochi", city: "Kochi" },
   { tagline: "Stays in Shimla", city: "Shimla" },

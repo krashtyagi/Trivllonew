@@ -22,7 +22,7 @@ import {
 import { CounterWithoutQuery } from "@/components/side-bar-filter/counter";
 import { PaymentProps } from "@/schema/payment.schema";
 import { UseFormReturn } from "react-hook-form";
-import { useHotelContext } from "../_providers_context/hotel-contextProvider";
+import { useHotelContext, useOptionalHotelContext } from "../_providers_context/hotel-contextProvider";
 import SliderIfNotChooseDate from "../_providers_context/SliderIfNotChooseDate";
 import GuestSelector from "@/components/filter-bar/newui-selectedCounter";
 import { CometCard } from "@/components/ui/comet-card";
@@ -221,7 +221,7 @@ function BookingCard({
   const { t } = useTranslation();
   const [showCalendar, setShowCalendar] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const { rooms, setFetch } = useHotelContext();
+  const { rooms, maxGuests, maxAdults, maxChildren, setFetch } = useHotelContext();
 
   useEffect(() => {
     if (showCalendar && !isInvalidDates) {
@@ -304,7 +304,12 @@ function BookingCard({
           )}
         </div>
         <div className="rounded-2xl border border-border p-1 bg-background w-full">
-          <VisitorsMembers showCalendar={false} />
+          <VisitorsMembers
+            showCalendar={false}
+            maxLimit={maxGuests}
+            maxAdults={maxAdults}
+            maxChildren={maxChildren}
+          />
         </div>
         <div className="py-2">
           <p className="text-xs text-muted-foreground font-bold uppercase mb-1">
@@ -351,11 +356,22 @@ function BookingCard({
 export function VisitorsMembers({
   showCalendar,
   methods,
+  maxLimit,
+  maxAdults,
+  maxChildren,
 }: {
   showCalendar: boolean;
   methods?: UseFormReturn<PaymentProps>;
+  maxLimit?: number;
+  maxAdults?: number;
+  maxChildren?: number;
 }) {
   const { t } = useTranslation();
+  const hotelCtx = useOptionalHotelContext();
+  const effectiveMaxLimit = maxLimit ?? hotelCtx?.maxGuests;
+  const effectiveMaxAdults = maxAdults ?? hotelCtx?.maxAdults;
+  const effectiveMaxChildren = maxChildren ?? hotelCtx?.maxChildren;
+
   return (
     <Accordion
       type="single"
@@ -366,11 +382,12 @@ export function VisitorsMembers({
       <AccordionItem value="rooms and guests">
         <AccordionTrigger>{t("hotel.roomsAndGuests")}</AccordionTrigger>
         <AccordionContent>
-          <GuestSelector />
-          {/* <HotelVisitorsCounters
-            values={["adults", "children"]}
+          <GuestSelector
+            maxLimit={effectiveMaxLimit}
+            maxAdults={effectiveMaxAdults}
+            maxChildren={effectiveMaxChildren}
             methods={methods}
-          /> */}
+          />
         </AccordionContent>
       </AccordionItem>
     </Accordion>
