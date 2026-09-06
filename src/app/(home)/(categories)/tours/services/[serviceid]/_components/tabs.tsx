@@ -18,6 +18,8 @@ import { RouterPush } from "@/components/RouterPush";
 import { useToursStore } from "@/store/tours.store";
 import { TourServiceData } from "./HotelItems";
 
+import { cn } from "@/lib/utils";
+
 type TabKey = "overview" | "description" | "amenities" | "reviews";
 
 export function TabsLine({
@@ -49,7 +51,51 @@ export function TabsLine({
     amenities: <AmenitiesValues amenities={data.service.features} title="" />,
   };
 
-  const sectionRef = useRef<HTMLDivElement | null>(null);
+  const tabItems = [
+    { key: "overview", label: "Overview", id: "overview" },
+    { key: "description", label: "Description", id: "description" },
+    { key: "amenities", label: "Features", id: "amenities" },
+    { key: "itenary", label: "Itinerary", id: "itenary" },
+    { key: "reviews", label: "Reviews", id: "reviews" },
+    { key: "policies", label: "Policies", id: "policies" },
+    { key: "payment", label: "Book Now", id: "payment-card", highlight: true },
+  ];
+
+  const handleTabClick = (e: React.MouseEvent, targetId: string) => {
+    e.preventDefault();
+    const target = document.getElementById(targetId);
+    if (!target) return;
+
+    const headerOffset = 80;
+    const elementPosition = target.getBoundingClientRect().top;
+    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+    const startPosition = window.pageYOffset;
+    const distance = offsetPosition - startPosition;
+    const duration = 600;
+    let start: number | null = null;
+
+    const easeInOutQuad = (t: number, b: number, c: number, d: number) => {
+      t /= d / 2;
+      if (t < 1) return (c / 2) * t * t + b;
+      t--;
+      return (-c / 2) * (t * (t - 2) - 1) + b;
+    };
+
+    const animation = (currentTime: number) => {
+      if (start === null) start = currentTime;
+      const timeElapsed = currentTime - start;
+      const run = easeInOutQuad(timeElapsed, startPosition, distance, duration);
+      window.scrollTo(0, run);
+      if (timeElapsed < duration) {
+        requestAnimationFrame(animation);
+      } else {
+        window.scrollTo(0, offsetPosition);
+      }
+    };
+
+    requestAnimationFrame(animation);
+  };
 
   return (
     <div className="mx-auto w-full max-w-screen-2xl px-4 md:px-6 lg:px-10">
@@ -57,16 +103,36 @@ export function TabsLine({
         {content.overview}
       </section>
 
+      <div className="z-30 sticky top-0 bg-white/70 dark:bg-background/70 backdrop-blur-md border-b border-t h-16 flex items-center -mx-4 px-4 md:px-6 mb-8">
+        <div className="flex gap-6 overflow-x-auto no-scrollbar items-center">
+          {tabItems.map((tab) => (
+            <a
+              key={tab.key}
+              href={`#${tab.id}`}
+              className={cn(
+                "capitalize whitespace-nowrap pb-2 text-sm font-semibold transition-all cursor-pointer",
+                tab.highlight
+                  ? "text-primary hover:text-primary/90 font-bold border-b-2 border-primary"
+                  : "border-b-2 border-transparent hover:border-orange-500 text-slate-600 hover:text-slate-900 dark:text-zinc-400 dark:hover:text-primary"
+              )}
+              onClick={(e) => handleTabClick(e, tab.id)}
+            >
+              {tab.label}
+            </a>
+          ))}
+        </div>
+      </div>
+
       <div className="flex flex-col lg:flex-row lg:gap-8 items-start mb-5">
         <main className="flex-1 w-full min-w-0 space-y-8 mb-4">
-          <section id="description" className="py-2 gap-2">
+          <section id="description" className="scroll-mt-24 py-2 gap-2">
             <h3 className="text-xl font-bold mb-2 dark:text-zinc-400 text-zinc-800">
               Description
             </h3>
             {content.description}
           </section>
 
-          <section id="amenities" className="scroll-mt-16 border-t md:pt-6 pt-4">
+          <section id="amenities" className="scroll-mt-24 border-t md:pt-6 pt-4">
             <h3 className="text-xl font-bold mb-2 dark:text-zinc-400 text-zinc-800">
               Features
             </h3>
@@ -83,16 +149,19 @@ export function TabsLine({
             <ChangelogComponentPage releses={data.service.itinerary} />
           </section>
 
-          <section id="reviews" className="py-5 border-t md:pt-6 pt-4">
+          <section id="reviews" className="scroll-mt-24 py-5 border-t md:pt-6 pt-4">
             {content.reviews}
           </section>
 
-          <section id="policies" className="border-t md:pt-6 pt-4">
+          <section id="policies" className="scroll-mt-24 border-t md:pt-6 pt-4">
             <HotelPolicies id={companyId} />
           </section>
         </main>
 
-        <aside className="w-full lg:w-[380px] xl:w-[400px] flex-shrink-0 lg:sticky lg:top-24 pt-3 pb-8">
+        <aside
+          id="payment-card"
+          className="w-full lg:w-[380px] xl:w-[400px] flex-shrink-0 lg:sticky lg:top-24 pt-3 pb-8 scroll-mt-24"
+        >
           <TourBookingCard data={data} />
         </aside>
       </div>

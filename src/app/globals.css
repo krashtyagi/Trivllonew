@@ -514,3 +514,19 @@ html {
   60% { opacity: 0.9; filter: blur(40px) brightness(1.1); }
 }
 
+/* ── Prevent Mobile View from Zooming In ── */
+html,
+body {
+  touch-action: manipulation;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Prevent iOS Safari from auto-zooming when tapping inputs */
+@media screen and (max-width: 768px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
