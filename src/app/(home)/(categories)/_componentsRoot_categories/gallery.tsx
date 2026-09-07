@@ -192,17 +192,30 @@ const InnerGallery = ({ sections }: { sections: GallerySection[] }) => {
     }
   }, [selectedIndex, allImages.length, resetZoom])
 
-  // Scroll-to-zoom
-  const handleWheel = useCallback((e: React.WheelEvent) => {
-    e.stopPropagation()
-    e.preventDefault()
-    const delta = e.deltaY > 0 ? -0.15 : 0.15
-    setZoom(prev => {
-      const next = Math.min(5, Math.max(1, prev + delta))
-      if (next <= 1) setPan({ x: 0, y: 0 })
-      return next
-    })
-  }, [])
+  const overlayRef = useRef<HTMLDivElement>(null)
+
+  // Non-passive wheel event listener: prevents background screen & drawer scrolling while zooming
+  useEffect(() => {
+    if (selectedIndex === null) return
+    const overlay = overlayRef.current
+    if (!overlay) return
+
+    const handleWheelNative = (e: WheelEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      const delta = e.deltaY > 0 ? -0.2 : 0.2
+      setZoom(prev => {
+        const next = Math.min(5, Math.max(1, +(prev + delta).toFixed(2)))
+        if (next <= 1) setPan({ x: 0, y: 0 })
+        return next
+      })
+    }
+
+    overlay.addEventListener('wheel', handleWheelNative, { passive: false })
+    return () => {
+      overlay.removeEventListener('wheel', handleWheelNative)
+    }
+  }, [selectedIndex])
 
   // Drag-to-pan when zoomed
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
@@ -292,7 +305,8 @@ const InnerGallery = ({ sections }: { sections: GallerySection[] }) => {
 
       {selectedIndex !== null && (
         <div
-          className="fixed inset-0 z-[100] bg-black/95 animate-in fade-in duration-200"
+          ref={overlayRef}
+          className="fixed inset-0 z-[100] bg-black/95 animate-in fade-in duration-200 select-none overscroll-contain touch-none"
           onClick={() => { if (zoom > 1) resetZoom(); else setSelectedIndex(null) }}
           style={{ touchAction: 'none' }}
         >
@@ -357,7 +371,6 @@ const InnerGallery = ({ sections }: { sections: GallerySection[] }) => {
           <div
             ref={imgContainerRef}
             className="absolute inset-0 flex items-center justify-center overflow-hidden pt-12 pb-4 px-10 md:px-20"
-            onWheel={handleWheel}
             onClick={(e) => e.stopPropagation()}
           >
             <img
