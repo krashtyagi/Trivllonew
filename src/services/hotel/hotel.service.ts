@@ -65,6 +65,34 @@ export const getNewHotels = async () => {
   }
 };
 
+export type RankedItem = {
+  _id: string;
+  name: string;
+  city: string;
+  image: string | null;
+  rating?: number;
+  numReviews?: number;
+};
+
+export type RankedResponse = {
+  success: boolean;
+  items: RankedItem[];
+  total: number;
+  page: number;
+  limit: number;
+  hasMore: boolean;
+};
+
+export const getRankedHotels = async (rank: string, page: number = 1, limit: number = 10): Promise<RankedResponse> => {
+  try {
+    const res = await axiosApi.get(`/hotels/ranked`, { params: { rank, page, limit } });
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching ranked hotels:", error);
+    return { success: false, items: [], total: 0, page, limit, hasMore: false };
+  }
+};
+
 import qs from "qs";
 import { Filters } from "@/context/NuqsContentProvider";
 

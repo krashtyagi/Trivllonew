@@ -1,6 +1,6 @@
 "use client";
 import { currentUser } from "../user.service";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import {
   getHotels,
   getHotelDetails,
@@ -9,6 +9,7 @@ import {
   getHotelPolicies,
   getHotelReviews,
   getNewHotels,
+  getRankedHotels,
   SearchCity,
   HotelsSearch,
 } from "./hotel.service";
@@ -39,6 +40,22 @@ export const useGetNewHotels = () => {
 
     refetchOnReconnect: true,
     retry: false,
+  });
+};
+
+export const useGetRankedHotels = (rank: string) => {
+  return useInfiniteQuery({
+    queryKey: ["ranked_hotels", rank],
+    queryFn: ({ pageParam = 1 }) => getRankedHotels(rank, pageParam, 10),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      if (lastPage?.hasMore) return lastPage.page + 1;
+      return undefined;
+    },
+    enabled: !!rank,
+    staleTime: 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
   });
 };
 
