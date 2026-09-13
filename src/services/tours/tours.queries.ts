@@ -1,11 +1,12 @@
 "use client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import {
   getAllTours,
   getTourDetails,
   getTours,
   getTourServiceDetails,
   getTourCompanies,
+  getRankedTourCompanies,
 } from "./tours.service";
 import { Filters } from "@/context/NuqsContentProvider";
 
@@ -13,6 +14,22 @@ export const useGetTourCompanies = (params?: { city?: string; page?: number; lim
   return useQuery({
     queryKey: ["getTourCompanies", params],
     queryFn: () => getTourCompanies(params),
+    staleTime: 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+  });
+};
+
+export const useGetRankedTourCompanies = (rank: string) => {
+  return useInfiniteQuery({
+    queryKey: ["ranked_tour_companies", rank],
+    queryFn: ({ pageParam = 1 }) => getRankedTourCompanies(rank, pageParam, 10),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      if (lastPage?.hasMore) return lastPage.page + 1;
+      return undefined;
+    },
+    enabled: !!rank,
     staleTime: 60 * 1000,
     refetchOnWindowFocus: false,
     refetchOnMount: false,

@@ -2,12 +2,12 @@
 import { cn } from "@/lib/utils";
 import React, { useMemo } from "react";
 import { PopularDestinationCarousel } from "../carousel/tabs-carousel";
-import { ImagesSliderDemo } from "../addimage/middle-ads-image";
 import { useGetNewHotels } from "@/services/hotel/querys";
 import type { Item } from "../carousel/onlyColursel";
 import { hoteldata, HotelFramePageProps } from "@/app/(home)/(categories)/hotels/page";
 import { MapPin } from "lucide-react";
 import FrameColursals from "./frame_coloursals";
+import RankedBanner from "../addimage/RankedBanner";
 
 
 type SectionConfig = {
@@ -38,10 +38,15 @@ const POPULAR_SECTIONS: SectionConfig[] = [
   { tagline: "Villas in Alibaug", city: "Alibaug" },
 ];
 
+// Banner positions: after index 2, 5, 8 (gap of ~3 carousels between banners)
+const BANNER_POSITIONS: Record<number, "A" | "B" | "C"> = {
+  2: "A",
+  5: "B",
+  8: "C",
+};
+
 const MainFramePage = ({ className, type, popularTrends }: HotelFramePageProps) => {
   const { data, isLoading, error } = useGetNewHotels();
-
-
 
   const groupedByCity = useMemo(() => {
     if (!data?.data) return {};
@@ -59,8 +64,6 @@ const MainFramePage = ({ className, type, popularTrends }: HotelFramePageProps) 
     return POPULAR_SECTIONS.map((section) => {
       const hotelsInCity = groupedByCity[section.city] || [];
 
-
-
       const sliced = section.limit ? hotelsInCity.slice(0, section.limit) : hotelsInCity;
 
       return sliced.map((hotel: hoteldata): Item => ({
@@ -76,7 +79,7 @@ const MainFramePage = ({ className, type, popularTrends }: HotelFramePageProps) 
     <FrameColursals className={cn(className, "w-full ")}>
       {POPULAR_SECTIONS.map((section, i) => {
         const items = sectionItems[i] || [];
-
+        const bannerRank = BANNER_POSITIONS[i];
 
         return (
           <React.Fragment key={section.tagline}>
@@ -89,15 +92,9 @@ const MainFramePage = ({ className, type, popularTrends }: HotelFramePageProps) 
               icon={<MapPin className="h-3 w-3 shrink-0" />}
             />
 
-            {i === 1 && (
-              <div className="px-2 md:px-0 w-full">
-                <ImagesSliderDemo images={[
-                  '/hotels/img5.png',
-                  '/hotels/img6.png',
-                  '/hotels/img7.png',
-                  '/hotels/img8.png',
-                ]} title="Discover Asia" subtitle="Book now" description="Book your next adventure now" link="/hotels/find" />
-              </div>
+            {/* Ranked Banner after specific carousel positions */}
+            {bannerRank && (
+              <RankedBanner rank={bannerRank} entityType="hotel" />
             )}
           </React.Fragment>
         );

@@ -39,6 +39,32 @@ export const getTourCompanies = async (params?: { city?: string; page?: number; 
   }
 };
 
+export type RankedTourItem = {
+  _id: string;
+  name: string;
+  city: string;
+  image: string | null;
+};
+
+export type RankedTourResponse = {
+  success: boolean;
+  items: RankedTourItem[];
+  total: number;
+  page: number;
+  limit: number;
+  hasMore: boolean;
+};
+
+export const getRankedTourCompanies = async (rank: string, page: number = 1, limit: number = 10): Promise<RankedTourResponse> => {
+  try {
+    const res = await axiosApi.get(`/tours/ranked`, { params: { rank, page, limit } });
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching ranked tour companies:", error);
+    return { success: false, items: [], total: 0, page, limit, hasMore: false };
+  }
+};
+
 export const getAllTours = async () => {
   try {
     const res = await axiosApi.get(`/tour-services`);
