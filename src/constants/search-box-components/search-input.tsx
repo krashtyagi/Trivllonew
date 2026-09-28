@@ -1,67 +1,227 @@
+// "use client";
+
+// import { useSearchCity } from "@/hooks/useSearch";
+// import { Input } from "@base-ui/react";
+// import { MapPin, Loader2, LucideIcon } from "lucide-react";
+// import { AnimatePresence, motion } from "framer-motion"; // Changed to framer-motion for compatibility
+// import React, { useEffect, useRef, useState } from "react";
+// import { cn } from "@/lib/utils";
+
+// const AddressSearch = ({
+//   label,
+//   placeholder,
+//   className,
+//   setCity,
+//   value,
+// }: {
+//   label: string;
+//   placeholder: string;
+//   className?: string;
+//   setCity: (city: string) => void;
+//   value?: string;
+// }) => {
+//   const [query, setQuery] = useState(value || "");
+//   const [isOpen, setIsOpen] = useState(false);
+//   const { results, loading } = useSearchCity(query);
+//   const searchRef = useRef<HTMLDivElement>(null);
+
+//   // Keep local query in sync with the parent-supplied value (handles hydration & navigation)
+//   useEffect(() => {
+//     if (value && value !== query) {
+//       setQuery(value);
+//     }
+//   }, [value]);
+
+//   return (
+//     <div className="w-full max-w-full relative" ref={searchRef}>
+//       {/* Backdrop to close list and prevent accidental clicks below */}
+//       <AnimatePresence>
+//         {isOpen && (
+//           <div
+//             className="fixed inset-0 z-40 bg-transparent"
+//             onClick={(e) => {
+//               e.stopPropagation();
+//               setIsOpen(false);
+//             }}
+//           />
+//         )}
+//       </AnimatePresence>
+
+//       <div className="relative z-10">
+//         <Input
+//           placeholder={placeholder}
+//           value={query}
+//           onChange={(e) => {
+//             setQuery(e.target.value);
+//             if (!isOpen) setIsOpen(true);
+//           }}
+//           onFocus={() => setIsOpen(true)}
+//           className="md:h-12 h-6 w-full rounded-xl border-none px-2 outline-none bg-transparent text-sm md:text-base"
+//         />
+//         {loading && (
+//           <div className="absolute right-3 top-1/2 -translate-y-1/2">
+//             <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+//           </div>
+//         )}
+//       </div>
+
+//       <AnimatePresence>
+//         {isOpen && results.length > 0 && (
+//           <motion.div
+//             initial={{ opacity: 0, y: 5 }}
+//             animate={{ opacity: 1, y: 0 }}
+//             exit={{ opacity: 0, y: 5 }}
+//             className="mt-2 space-y-1 bg-background p-2 rounded-2xl absolute z-[60] w-full shadow-2xl border border-border"
+//           >
+//             {results.map((place: any, i: number) => (
+//               <div
+//                 key={i}
+//                 className="p-3 hover:bg-secondary rounded-lg cursor-pointer transition-colors border-b border-border/10 last:border-none"
+//                 onClick={() => {
+//                   setQuery(place.properties.name);
+//                   setCity(place.properties.name);
+//                   setIsOpen(false);
+//                 }}
+//               >
+//                 <p className="font-bold text-sm text-foreground">
+//                   {place.properties.name}
+//                 </p>
+//                 <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+//                   {[
+//                     place.properties.city,
+//                     place.properties.state,
+//                     place.properties.country,
+//                   ]
+//                     .filter(Boolean)
+//                     .join(", ")}
+//                 </p>
+//               </div>
+//             ))}
+//           </motion.div>
+//         )}
+//       </AnimatePresence>
+//     </div>
+//   );
+// };
+
+// // Main Export
+// const SearchInput = ({
+//   label,
+//   placeholder,
+//   Icon,
+//   className,
+//   setCity,
+//   value,
+// }: {
+//   label: string;
+//   placeholder: string;
+//   Icon?: LucideIcon;
+//   setCity: (city: string) => void;
+//   className?: string;
+//   value?: string;
+// }) => {
+//   return (
+//     <div
+//       className={cn(
+//         "flex items-center  bg-primary/5 border border-primary/10 rounded-[10px] md:px-5 px-3 py-1 md:py-2",
+//         className,
+//       )}
+//     >
+//       {Icon ? (
+//         <Icon className="w-5 h-5 text-primary shrink-0" />
+//       ) : (
+//         <MapPin className="w-5 h-5 text-primary shrink-0" />
+//       )}
+//       <AddressSearch
+//         label={label}
+//         placeholder={placeholder}
+//         className=""
+//         setCity={setCity}
+//         value={value}
+//       />
+//     </div>
+//   );
+// };
+
+// export default SearchInput;
 "use client";
 
 import { useSearchCity } from "@/hooks/useSearch";
 import { Input } from "@base-ui/react";
-import { MapPin, Loader2, LucideIcon } from "lucide-react";
-import { AnimatePresence, motion } from "framer-motion"; // Changed to framer-motion for compatibility
+import { Loader2, LucideIcon, MapPin } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import React, { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
-const AddressSearch = (
-  {
-    label,
-    placeholder,
-    className,
-    setCity,
-    value,
-  }: {
-    label: string;
-    placeholder: string;
-    className?: string;
-    setCity: (city: string) => void;
-    value?: string;
-  }
-) => {
-  const [query, setQuery] = useState(value || "");
+const AddressSearch = ({
+  label,
+  placeholder,
+  className,
+  setCity,
+  value,
+}: {
+  label: string;
+  placeholder: string;
+  className?: string;
+  setCity: (city: string) => void;
+  value?: string;
+}) => {
+  const [query, setQuery] = useState(value ?? "");
   const [isOpen, setIsOpen] = useState(false);
+
   const { results, loading } = useSearchCity(query);
+
   const searchRef = useRef<HTMLDivElement>(null);
 
-  // Keep local query in sync with the parent-supplied value (handles hydration & navigation)
+  // Sync only when the parent value actually changes.
+  const previousValue = useRef(value);
+
   useEffect(() => {
-    if (value && value !== query) {
-      setQuery(value);
+    if (value !== previousValue.current) {
+      previousValue.current = value;
+      setQuery(value ?? "");
     }
   }, [value]);
 
   return (
-    <div className="w-full max-w-full relative" ref={searchRef}>
-      {/* Backdrop to close list and prevent accidental clicks below */}
+    <div
+      className={cn("w-full max-w-full relative", className)}
+      ref={searchRef}
+    >
+      {/* Backdrop */}
       <AnimatePresence>
         {isOpen && (
-          <div
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             className="fixed inset-0 z-40 bg-transparent"
-            onClick={(e) => {
-              e.stopPropagation();
+            onClick={(event) => {
+              event.stopPropagation();
               setIsOpen(false);
             }}
           />
         )}
       </AnimatePresence>
 
-      <div className="relative z-10">
+      <div className="relative z-50">
         <Input
           placeholder={placeholder}
           value={query}
-          onChange={(e) => {
-            setQuery(e.target.value);
-            if (!isOpen) setIsOpen(true);
+          onChange={(event) => {
+            const newValue = event.target.value;
+
+            setQuery(newValue);
+            setIsOpen(true);
           }}
-          onFocus={() => setIsOpen(true)}
+          onFocus={() => {
+            setIsOpen(true);
+          }}
           className="md:h-12 h-6 w-full rounded-xl border-none px-2 outline-none bg-transparent text-sm md:text-base"
         />
+
         {loading && (
-          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
             <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
           </div>
         )}
@@ -70,32 +230,36 @@ const AddressSearch = (
       <AnimatePresence>
         {isOpen && results.length > 0 && (
           <motion.div
-            initial={{ opacity: 0, y: 5 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 5 }}
+            initial={{
+              opacity: 0,
+              y: 5,
+            }}
+            animate={{
+              opacity: 1,
+              y: 0,
+            }}
+            exit={{
+              opacity: 0,
+              y: 5,
+            }}
             className="mt-2 space-y-1 bg-background p-2 rounded-2xl absolute z-[60] w-full shadow-2xl border border-border"
           >
-            {results.map((place: any, i: number) => (
+            {results.map((place) => (
               <div
-                key={i}
+                key={place.id}
                 className="p-3 hover:bg-secondary rounded-lg cursor-pointer transition-colors border-b border-border/10 last:border-none"
                 onClick={() => {
-                  setQuery(place.properties.name);
-                  setCity(place.properties.name);
+                  setQuery(place.name);
+                  setCity(place.name);
                   setIsOpen(false);
                 }}
               >
                 <p className="font-bold text-sm text-foreground">
-                  {place.properties.name}
+                  {place.name}
                 </p>
+
                 <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
-                  {[
-                    place.properties.city,
-                    place.properties.state,
-                    place.properties.country,
-                  ]
-                    .filter(Boolean)
-                    .join(", ")}
+                  {place.label}
                 </p>
               </div>
             ))}
@@ -106,7 +270,8 @@ const AddressSearch = (
   );
 };
 
-// Main Export
+// ---------- Main Export ----------
+
 const SearchInput = ({
   label,
   placeholder,
@@ -117,16 +282,30 @@ const SearchInput = ({
 }: {
   label: string;
   placeholder: string;
-  Icon?: LucideIcon
+  Icon?: LucideIcon;
   setCity: (city: string) => void;
   className?: string;
   value?: string;
 }) => {
   return (
-    <div className={cn("flex items-center  bg-primary/5 border border-primary/10 rounded-[10px] md:px-5 px-3 py-1 md:py-2", className)}>
-      {Icon ? <Icon className="w-5 h-5 text-primary shrink-0" /> : <MapPin className="w-5 h-5 text-primary shrink-0" />}
-      <AddressSearch label={label} placeholder={placeholder} className="" setCity={setCity} value={value} />
+    <div
+      className={cn(
+        "flex items-center bg-primary/5 border border-primary/10 rounded-[10px] md:px-5 px-3 py-1 md:py-2",
+        className,
+      )}
+    >
+      {Icon ? (
+        <Icon className="w-5 h-5 text-primary shrink-0" />
+      ) : (
+        <MapPin className="w-5 h-5 text-primary shrink-0" />
+      )}
 
+      <AddressSearch
+        label={label}
+        placeholder={placeholder}
+        setCity={setCity}
+        value={value}
+      />
     </div>
   );
 };
