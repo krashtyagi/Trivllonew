@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MessageModal } from "@/components/messagemodal";
 import { AnimatedModalDemo } from "./mapoverlay";
+import { formatAddress } from "@/lib/utils";
 
 export default function ReservationDetailsPage({
   setDetails,
@@ -117,7 +118,7 @@ export function PropertyHeaderCard({ booking }: { booking: BookingDetails }) {
             >
               {hotel.name}
             </h2>
-            <p className="text-xs md:text-sm text-muted-foreground line-clamp-1">{hotel.address}</p>
+            <p className="text-xs md:text-sm text-muted-foreground line-clamp-1">{formatAddress(hotel.address)}</p>
             <p className="hidden md:block text-sm text-muted-foreground">
               Coordinates: {hotel.coordinates[1]}, {hotel.coordinates[0]}
             </p>

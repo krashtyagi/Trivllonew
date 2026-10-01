@@ -266,6 +266,29 @@ export const getHotelAvailability = async ({
 //   }
 // };
 
+export type DestinationSuggestion = {
+  type: "city" | "town" | "district" | "landmark" | "hotel";
+  value: string;
+  label: string;
+  city?: string;
+  state?: string;
+  count?: number;
+  id?: string;
+};
+
+export const getDestinationSuggestions = async (
+  query: string,
+): Promise<DestinationSuggestion[]> => {
+  try {
+    const res = await axiosApi.get("/hotels/suggestions", {
+      params: { q: query },
+    });
+    return res.data?.data ?? [];
+  } catch {
+    return [];
+  }
+};
+
 export const SearchCity = async (query: string) => {
   const res = await fetch(
     `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=6`,
