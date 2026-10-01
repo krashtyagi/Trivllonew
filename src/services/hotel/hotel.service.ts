@@ -58,10 +58,10 @@ export const getHotelPolicies = async (id: string) => {
 export const getNewHotels = async () => {
   try {
     const res = await axiosApi.get(`/hotels/home`);
-    return res.data;
+    return res.data || { success: true, count: 0, data: [] };
   } catch (error) {
-    console.error(error);
-    toast.error("something went wrong");
+    console.error("Error fetching home hotels:", error);
+    return { success: false, count: 0, data: [] };
   }
 };
 
