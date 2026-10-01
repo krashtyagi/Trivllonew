@@ -122,9 +122,12 @@ export const Content = ({ className }: { className: string }) => {
           ? Math.min(...roomTypes.map((r: any) => r.discountPrice > 0 ? r.discountPrice : r.basePrice))
           : (hotel as any).startingPrice ?? 0
 
-        const firstImage = hotel.thumbnail.length > 50 ? hotel.thumbnail : "/hotels/hotel-temp.png"
-        // console.log( hotel);
-
+        const firstImage =
+          hotel.thumbnail && typeof hotel.thumbnail === "string" && hotel.thumbnail.length > 0
+            ? hotel.thumbnail
+            : (hotel as any).hotelImages?.[0]?.url ||
+              hotel.images?.[0]?.url ||
+              "/hotels/hotel-temp.png";
 
         return (
           <HotelCard
@@ -137,8 +140,11 @@ export const Content = ({ className }: { className: string }) => {
             location={hotel.city ?? city}
             rating={hotel.rating ?? 0}
             stars={Math.round(hotel.rating ?? 0)}
-            reviews={{ text: hotel.rating >= 4.5 ? "Excellent" : hotel.rating >= 3.5 ? "Very Good" : "Good", count: hotel.numReviews ?? 0 }}
-            roomInfo={hotel.description}
+            reviews={{
+              text: (hotel.rating ?? 0) >= 4.5 ? "Excellent" : (hotel.rating ?? 0) >= 3.5 ? "Very Good" : "Good",
+              count: hotel.numReviews ?? 0,
+            }}
+            roomInfo={hotel.description ?? ""}
             price={lowestPrice ? `₹${lowestPrice.toLocaleString()}` : "—"}
             discount={""}
             wrap={wrap || isMobile}

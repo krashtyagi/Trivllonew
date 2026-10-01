@@ -50,13 +50,35 @@ export interface RoomType {
   numReviews?: number;
 }
 
+export interface HotelAddress {
+  buildingName?: string;
+  doorNumber?: string;
+  streetAddress?: string;
+  areaName?: string;
+  city?: string;
+  district?: string;
+  state?: string;
+  postalCode?: string;
+  country?: string;
+  countryCode?: string;
+  landmark?: string;
+  directions?: string;
+  formattedAddress?: string;
+  location?: {
+    type: string;
+    coordinates: [number, number];
+  };
+  placeId?: string;
+  timeZone?: string;
+}
+
 export interface Hotel {
-  thumbnail: string;
+  thumbnail?: string;
   _id: string;
   vendorId?: string;
   name: string;
   description: string;
-  address: string;
+  address: string | HotelAddress;
   city: string;
   guests: {
     adults: number;

@@ -7,6 +7,7 @@ import { useHotelStore } from "@/store/hotel.store";
 
 import AmenitiesValues from "../../../_componentsRoot_categories/amanities";
 import MapLocation from "@/components/Location";
+import { formatAddress } from "@/lib/utils";
 import ReviewsMain from "../../../_componentsRoot_categories/reviews";
 import { HotelPolicies } from "./policies";
 import { RoomsMain } from "./rooms";
@@ -61,7 +62,7 @@ export function TabsLine({
     description: <Decription data={{ name: hotel.name, description: hotel.description }} />,
     location: (
       <MapLocation
-        address={hotel.address}
+        address={formatAddress(hotel.address) || hotel.city}
         cordinates={hotel.location.coordinates}
         map="/map.png"
       />

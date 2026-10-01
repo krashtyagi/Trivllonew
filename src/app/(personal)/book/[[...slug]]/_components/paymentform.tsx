@@ -34,6 +34,8 @@ import { VisitorsMembers } from "@/app/(home)/(categories)/hotels/[hotel]/_compo
 import { handleRefresh } from "@/services/dailyfunctions";
 
 import { useQueryClient } from "@tanstack/react-query";
+import { useAuthStore } from "@/store/auth.store";
+import { userAccessToken } from "@/types/auth";
 
 export const BookingForm = ({ slug }: { slug: string[] }) => {
   const { setPayments, payments, date, guests, selectedRoom } = useHotelStore();
@@ -73,6 +75,25 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
     }
   }, [selectedRoom, navigate, currentstep]);
 
+  const { currUser } = useAuthStore();
+
+  React.useEffect(() => {
+    if (currUser) {
+      if (!methods.getValues("guestInformation.0.firstname") && currUser.firstName) {
+        methods.setValue("guestInformation.0.firstname", currUser.firstName);
+      }
+      if (!methods.getValues("guestInformation.0.lastname") && currUser.lastName) {
+        methods.setValue("guestInformation.0.lastname", currUser.lastName);
+      }
+      if (!methods.getValues("guestInformation.0.email") && currUser.email) {
+        methods.setValue("guestInformation.0.email", currUser.email);
+      }
+      if (!methods.getValues("guestInformation.0.phone") && currUser.phoneNumber) {
+        methods.setValue("guestInformation.0.phone", currUser.phoneNumber);
+      }
+    }
+  }, [currUser, methods]);
+
   React.useEffect(() => {
     if (date?.from && date?.to) {
       methods.setValue("dates.checkin", format(date.from, "yyyy-MM-dd"));
@@ -81,8 +102,12 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
   }, [date, methods]);
 
   const onSubmit = async (data: PaymentProps) => {
-
-
+    const token = typeof window !== "undefined" ? localStorage.getItem(userAccessToken) : null;
+    if (!token || token === "null" || token === "undefined") {
+      toast.error("Please log in to proceed with payment.");
+      useAuthStore.getState().setLoginBoxOpen(true);
+      return;
+    }
 
     try {
       setLoading(true);
@@ -176,7 +201,13 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
         setLoading(false);
       }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "An error occurred.");
+      console.error("Booking submission error:", error.response?.data || error);
+      if (error?.response?.status === 401) {
+        toast.error("Session expired or not authorized. Please log in again.");
+        useAuthStore.getState().setLoginBoxOpen(true);
+      } else {
+        toast.error(error.response?.data?.message || "An error occurred.");
+      }
       setLoading(false);
     }
   };

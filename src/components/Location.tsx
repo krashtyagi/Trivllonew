@@ -7,8 +7,10 @@ const MapLeaf = dynamic(
   () => import("@/components/map/leaf-map"),
   { ssr: false },
 );
+import { formatAddress } from "@/lib/utils";
+
 export type LocationProps = {
-  address: string;
+  address: unknown;
   map: string;
   cordinates?: [number, number];
 };
@@ -22,7 +24,7 @@ const MapLocation = ({ address, cordinates }: LocationProps) => {
     <Card className="w-full bg-transparent border-none shadow-none p-0">
       <CardHeader className="px-0">
         <h3 className="text-xl font-bold dark:text-zinc-400 text-zinc-800">Location</h3>
-        <p className="text-xs sm:text-sm text-muted-foreground">{address}</p>
+        <p className="text-xs sm:text-sm text-muted-foreground">{formatAddress(address)}</p>
       </CardHeader>
       <CardContent className="p-0 -mx-2 sm:mx-0">
         {/* Ensure this container has a height! aspect-video handles this. */}

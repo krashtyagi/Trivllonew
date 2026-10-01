@@ -1,14 +1,26 @@
 "use client";
 
-import { useSearchCity } from "@/hooks/useSearch";
+import { useSearchCity, type PlaceResult } from "@/hooks/useSearch";
 import { Input } from "@base-ui/react";
-import { MapPin, Loader2, Building2, Palmtree, Mountain, Landmark, Ship, Tent } from "lucide-react";
+import {
+  MapPin,
+  Loader2,
+  Building2,
+  Palmtree,
+  Mountain,
+  Landmark,
+  Ship,
+  Tent,
+  Hotel,
+  Navigation,
+} from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import React, { useEffect, useState } from "react";
 import { useHotelStore } from "@/store/hotel.store";
 import { useToursStore } from "@/store/tours.store";
 import { useAdventureStore } from "@/store/adventure.store";
 import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 const SUGGESTED_CITIES = [
   { name: "Mumbai", subtitle: "Maharashtra, India", icon: Building2 },
@@ -18,6 +30,15 @@ const SUGGESTED_CITIES = [
   { name: "Jaipur", subtitle: "Rajasthan, India", icon: Tent },
   { name: "Udaipur", subtitle: "Rajasthan, India", icon: Mountain },
 ];
+
+const TYPE_ICON: Record<string, React.ComponentType<any>> = {
+  city: Building2,
+  town: Mountain,
+  village: Mountain,
+  district: Landmark,
+  landmark: Navigation,
+  hotel: Hotel,
+};
 
 export function NavSearchDestination() {
   const pathname = usePathname();
@@ -53,8 +74,16 @@ export function NavSearchDestination() {
   }, [activeCity]);
 
   const hasTyped = query.length > 0;
+
+  const dbResults = results.filter((r) => r.source === "db");
+  const geoResults = results.filter((r) => r.source === "geo");
   const showResults = hasTyped && results.length > 0;
   const showEmpty = hasTyped && results.length === 0 && !loading;
+
+  const handleSelect = (place: PlaceResult) => {
+    setQuery(place.name);
+    handleSetCity(place.name);
+  };
 
   return (
     <div className="w-full">
@@ -83,36 +112,81 @@ export function NavSearchDestination() {
             transition={{ duration: 0.2 }}
             className="mt-4 space-y-0.5 overflow-hidden"
           >
-            {results.map((place: any, i: number) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, x: -8 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.04 }}
-                className="flex items-center gap-4 p-3 hover:bg-secondary/60 rounded-xl cursor-pointer transition-colors"
-                onClick={() => {
-                  setQuery(place.properties.name);
-                  handleSetCity(place.properties.name);
-                }}
-              >
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">
-                  <MapPin className="text-primary" size={18} />
-                </div>
-                <div className="flex flex-col min-w-0">
-                  <p className="font-semibold text-sm text-foreground truncate">
-                    {place.properties.name}
-                  </p>
-                  <p className="text-[11px] text-muted-foreground truncate">
-                    {[
-                      place.properties.state,
-                      place.properties.country,
-                    ]
-                      .filter(Boolean)
-                      .join(", ")}
-                  </p>
-                </div>
-              </motion.div>
-            ))}
+            {/* DB results */}
+            {dbResults.length > 0 && (
+              <>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground px-1 mb-1">
+                  Properties & Locations
+                </p>
+                {dbResults.map((place, i) => {
+                  const Icon =
+                    TYPE_ICON[place.type] || MapPin;
+                  return (
+                    <motion.div
+                      key={place.id}
+                      initial={{ opacity: 0, x: -8 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.04 }}
+                      className="flex items-center gap-4 p-3 hover:bg-secondary/60 rounded-xl cursor-pointer transition-colors"
+                      onClick={() => handleSelect(place)}
+                    >
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">
+                        <Icon className="text-primary" size={18} />
+                      </div>
+                      <div className="flex flex-col min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <p className="font-semibold text-sm text-foreground truncate">
+                            {place.name}
+                          </p>
+                          {place.count && place.count > 0 && (
+                            <span className="text-[10px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded-md">
+                              {place.count} {place.count === 1 ? "stay" : "stays"}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-[11px] text-muted-foreground truncate">
+                          {place.label}
+                        </p>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </>
+            )}
+
+            {/* Geo results */}
+            {geoResults.length > 0 && (
+              <>
+                {dbResults.length > 0 && (
+                  <div className="border-t border-border/30 my-2" />
+                )}
+                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground px-1 mb-1">
+                  Explore Destinations
+                </p>
+                {geoResults.map((place, i) => (
+                  <motion.div
+                    key={place.id}
+                    initial={{ opacity: 0, x: -8 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: (dbResults.length + i) * 0.04 }}
+                    className="flex items-center gap-4 p-3 hover:bg-secondary/60 rounded-xl cursor-pointer transition-colors"
+                    onClick={() => handleSelect(place)}
+                  >
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">
+                      <MapPin className="text-primary" size={18} />
+                    </div>
+                    <div className="flex flex-col min-w-0">
+                      <p className="font-semibold text-sm text-foreground truncate">
+                        {place.name}
+                      </p>
+                      <p className="text-[11px] text-muted-foreground truncate">
+                        {place.label}
+                      </p>
+                    </div>
+                  </motion.div>
+                ))}
+              </>
+            )}
           </motion.div>
         ) : showEmpty ? (
           <motion.div
@@ -122,7 +196,9 @@ export function NavSearchDestination() {
             exit={{ opacity: 0 }}
             className="mt-4 py-6 text-center"
           >
-            <p className="text-sm text-muted-foreground">No destinations found</p>
+            <p className="text-sm text-muted-foreground">
+              No destinations found
+            </p>
           </motion.div>
         ) : !hasTyped ? (
           <motion.div
@@ -152,7 +228,10 @@ export function NavSearchDestination() {
                     }}
                   >
                     <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-secondary/80 border border-border/30 group-hover:bg-primary/10 group-hover:border-primary/20 transition-colors">
-                      <CityIcon className="text-muted-foreground group-hover:text-primary transition-colors" size={20} />
+                      <CityIcon
+                        className="text-muted-foreground group-hover:text-primary transition-colors"
+                        size={20}
+                      />
                     </div>
                     <div className="flex flex-col min-w-0">
                       <p className="font-semibold text-sm text-foreground">

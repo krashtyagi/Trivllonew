@@ -8,7 +8,7 @@ import { Hotel } from "@/types";
 import { handleCopy, LikeIcon } from "@/services/dailyfunctions";
 import { useHotelContext } from "../_providers_context/hotel-contextProvider";
 import { ShareModal } from "../../../_componentsRoot_categories/shareComponent";
-import { cn } from "@/lib/utils";
+import { cn, formatAddress } from "@/lib/utils";
 
 type HotelItemsProps = {
   hotel: Hotel;
@@ -61,7 +61,14 @@ const HotelItems = ({
         <div className="flex items-center gap-1 text-muted-foreground">
           <IconMapPin size={14} className="flex-shrink-0" />
           <p className="text-sm font-semibold underline underline-offset-2 decoration-muted/40">
-            {hotel.address}, {hotel.city}
+            {(() => {
+              const addressText = formatAddress(hotel.address);
+              return addressText
+                ? (hotel.city && !addressText.toLowerCase().includes(hotel.city.toLowerCase())
+                    ? `${addressText}, ${hotel.city}`
+                    : addressText)
+                : hotel.city;
+            })()}
           </p>
         </div>
       </div>
