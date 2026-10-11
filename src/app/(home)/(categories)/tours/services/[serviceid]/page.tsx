@@ -92,7 +92,7 @@ const BikeDetails = ({ className }: { className?: string }) => {
                 <Suspense fallback={<HotelPageSkeleton />}>
                     <ScrollToTop />
                     <TourServicesDetails
-                        data={tourDetailsData.data}
+                        data={tourDetailsData.data as any}
                         loading={isLoading || !tourDetailsData.data}
                         isBookingMode={isBookingMode}
                     />

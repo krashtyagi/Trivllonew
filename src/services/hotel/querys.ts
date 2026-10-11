@@ -3,13 +3,8 @@ import { currentUser } from "../user.service";
 import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import {
   getHotels,
-  getHotelDetails,
   getHotelAvailability,
   getHotelsForSearch,
-  getHotelPolicies,
-  getHotelReviews,
-  getNewHotels,
-  getRankedHotels,
   SearchCity,
   HotelsSearch,
 } from "./hotel.service";
@@ -17,6 +12,9 @@ import { getBookingById, getMyBookings } from "../booking/booking.service";
 import { Filters } from "@/context/NuqsContentProvider";
 import { CompanyType } from "@/app/(home)/(categories)/_componentsRoot_categories/reviews";
 import { userAccessToken } from "@/types/auth";
+import { orpc } from "@/lib/orpc";
+
+// ─── oRPC-powered hooks ─────────────────────────────────────────────
 
 export const useSearchCity = (query: string) => {
   return useQuery({
@@ -30,14 +28,14 @@ export const useSearchCity = (query: string) => {
     enabled: !!query,
   });
 };
+
 export const useGetNewHotels = () => {
   return useQuery({
     queryKey: ["gethotels_home"],
-    queryFn: () => getNewHotels(),
+    queryFn: () => orpc.hotel.getNewHotels(),
     staleTime: Infinity,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
-
     refetchOnReconnect: true,
     retry: false,
   });
@@ -46,7 +44,8 @@ export const useGetNewHotels = () => {
 export const useGetRankedHotels = (rank: string) => {
   return useInfiniteQuery({
     queryKey: ["ranked_hotels", rank],
-    queryFn: ({ pageParam = 1 }) => getRankedHotels(rank, pageParam, 10),
+    queryFn: ({ pageParam = 1 }) =>
+      orpc.hotel.getRanked({ rank, page: pageParam, limit: 10 }),
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {
       if (lastPage?.hasMore) return lastPage.page + 1;
@@ -65,12 +64,16 @@ export const useGetHotelReviews = (
 ) => {
   return useQuery({
     queryKey: ["hotel_reviews", companyId, CompanyType],
-    queryFn: () => getHotelReviews(companyId, CompanyType),
+    // Reviews don't have an RPC endpoint yet — keep using REST
+    queryFn: async () => {
+      const { getHotelReviews } = await import("./hotel.service");
+      return getHotelReviews(companyId, CompanyType);
+    },
     staleTime: Infinity,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: true,
-    retry: false, // optional
+    retry: false,
     enabled: !!companyId && !!CompanyType,
   });
 };
@@ -78,12 +81,16 @@ export const useGetHotelReviews = (
 export const useGetHotelPolicies = (id: string) => {
   return useQuery({
     queryKey: ["hotel_policies", id],
-    queryFn: () => getHotelPolicies(id),
+    // Policies don't have an RPC endpoint yet — keep using REST
+    queryFn: async () => {
+      const { getHotelPolicies } = await import("./hotel.service");
+      return getHotelPolicies(id);
+    },
     staleTime: Infinity,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: true,
-    retry: false, // optional
+    retry: false,
   });
 };
 
@@ -95,7 +102,7 @@ export const useBookingByIdQuery = ({ id }: { id: string }) => {
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: true,
-    retry: false, // optional
+    retry: false,
   });
 };
 export const useMyBookingsQuery = () => {
@@ -106,7 +113,7 @@ export const useMyBookingsQuery = () => {
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: true,
-    retry: false, // optional
+    retry: false,
   });
 };
 
@@ -121,7 +128,7 @@ export const useCurrentUser = () => {
     refetchOnMount: false,
     refetchOnReconnect: true,
     enabled: !!token,
-    retry: false, // optional
+    retry: false,
   });
 };
 export const useHotelSearch = ({
@@ -146,8 +153,16 @@ export const useHotelSearch = ({
       adults,
       children,
     ],
-    queryFn: () =>
-      HotelsSearch({ destination, checkIn, checkOut, adults, children }),
+    queryFn: async () => {
+      const res = await orpc.hotel.search({
+        destination,
+        checkIn: checkIn ? checkIn.toISOString() : undefined,
+        checkOut: checkOut ? checkOut.toISOString() : undefined,
+        adults,
+        children,
+      });
+      return res.data;
+    },
     staleTime: 20000,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
@@ -168,20 +183,6 @@ export const useGetHotelsByFiltersDemo = (val: Filters, page: number = 1) => {
     refetchOnReconnect: false,
   });
 };
-
-// export const useGetHotelsByFilters = ({_id,address,amenities,city,description,images,isFavorite,isFeatured,location,name,
-//   numReviews,rating,roomTypes,createdAt,distanceFromCenter,isActive,updatedAt,vendorId
-// }:Hotel) =>{
-//   return useQuery({
-//     queryKey: ["hotels_by_params"],
-//     queryFn: getHotels,
-//     staleTime: 3 * 1000,
-//     gcTime: 5 * 60 * 1000,
-//     refetchOnWindowFocus: false,
-//     refetchOnMount: false,
-//     refetchOnReconnect: true,
-//   })
-// }
 
 export const useHotelsQuery = () => {
   return useQuery({
@@ -215,11 +216,13 @@ export const useHotelsQuery = () => {
 export const useHotelDetailsQuery = (hotelId: string) => {
   return useQuery({
     queryKey: ["hotel_details", hotelId],
-    queryFn: () => getHotelDetails(hotelId),
+    queryFn: async () => {
+      const result = await orpc.hotel.getDetails({ id: hotelId });
+      return result.data;
+    },
     enabled: !!hotelId,
     refetchOnMount: true,
     refetchOnWindowFocus: false,
-
     refetchOnReconnect: true,
     staleTime: 60 * 1000,
   });
@@ -258,40 +261,3 @@ export const useHotelAvailabilityQuery = (
     staleTime: 0,
   });
 };
-
-// export const useHotelAvailabilityQuery = ({
-//   hotelId,
-//   checkIn,
-//   checkOut,
-//   adults,
-//   children,
-// }: {
-//   hotelId: string;
-//   checkIn?: Date | null;
-//   checkOut?: Date | null;
-//   adults: number;
-//   children: number;
-// }) => {
-//   const isBookingMode = !!checkIn && !!checkOut;
-
-//   return useQuery({
-//     queryKey: [
-//       "hotel_availability",
-//       // hotelId,
-//       // checkIn?.toISOString(),
-//       // checkOut?.toISOString(),
-//       // adults,
-//       // children,
-//     ],
-//     queryFn: () =>
-//       getHotelAvailability(
-//         hotelId,
-//         checkIn!.toISOString(),
-//         checkOut!.toISOString(),
-//         adults,
-//         children,
-//       ),
-//     enabled: !!hotelId && isBookingMode && !!checkIn && !!checkOut,
-//     staleTime: Infinity,
-//   });
-// };

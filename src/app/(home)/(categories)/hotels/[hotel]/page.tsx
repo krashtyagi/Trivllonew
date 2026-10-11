@@ -60,7 +60,7 @@ const HotelDetails = ({ className }: { className?: string }) => {
           <ScrollToTop />
           <HotelContextProvider hotelId={hotelId}>
             <HotelItems
-              hotel={hotelDetailsData}
+              hotel={hotelDetailsData as any}
               loading={!hotelDetailsData || !hotelDetailsData.name}
               isBookingMode={isBookingMode}
             />

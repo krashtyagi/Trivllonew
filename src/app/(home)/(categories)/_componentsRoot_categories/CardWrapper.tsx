@@ -12,9 +12,9 @@ export const DetailsPageCardWrapperUI = ({ children, classNameCard, classNameChi
         >
             <div
                 className={cn(
-                    "grid grid-cols-1 md:grid-cols-[minmax(0,240px)_1fr_minmax(0,200px)]",
-                    "lg:grid-cols-[minmax(0,280px)_1fr_minmax(0,220px)]",
-                    "md:h-[200px] lg:h-[220px]", classNameChild
+                    "grid grid-cols-1 md:grid-cols-[240px_minmax(0,1fr)_200px]",
+                    "lg:grid-cols-[280px_minmax(0,1fr)_220px]",
+                    "md:min-h-[200px] lg:min-h-[220px]", classNameChild
                 )}
             >{children}</div></Card>
     )

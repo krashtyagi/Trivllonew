@@ -34,8 +34,9 @@ const MainFramePage = ({ className, type, popularTrends }: HotelFramePageProps) 
         return data.data.reduce((acc: Record<string, hoteldata[]>, hotel: hoteldata) => {
             const city = hotel.city?.trim();
             if (!city) return acc;
-            acc[city] = acc[city] || [];
-            acc[city].push(hotel);
+            const key = city.toLowerCase();
+            acc[key] = acc[key] || [];
+            acc[key].push(hotel);
             return acc;
         }, {} as Record<string, hoteldata[]>);
     }, [data?.data]);
@@ -43,7 +44,7 @@ const MainFramePage = ({ className, type, popularTrends }: HotelFramePageProps) 
     // 2. Prepare carousel items for each section
     const sectionItems = useMemo(() => {
         return POPULAR_SECTIONS.map((section) => {
-            const hotelsInCity = groupedByCity[section.city] || [];
+            const hotelsInCity = groupedByCity[section.city.toLowerCase()] || [];
 
             // Optional: sort by some criteria (e.g. newest first if _id is chronological)
             // hotelsInCity.sort((a, b) => b._id.localeCompare(a._id)); 
