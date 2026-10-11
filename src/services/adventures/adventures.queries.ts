@@ -20,7 +20,7 @@ export const useGetAdventuresSearch = (val: Filters, page: number = 1) => {
     refetchOnReconnect: false,
   });
 };
-export const usegetAvailableAdventures = (data: {
+export const useGetAvailableAdventures = (data: {
   city?: string;
   category?: string;
   date?: {
@@ -40,7 +40,9 @@ export const usegetAvailableAdventures = (data: {
     retry: false, // optional
   });
 };
-export const usegetAdventureServiceDetails = (id: string) => {
+export const usegetAvailableAdventures = useGetAvailableAdventures;
+
+export const useGetAdventureServiceDetails = (id: string) => {
   return useQuery({
     queryKey: ["getAdventureServiceDetails", id],
     queryFn: () => getAdventureServiceDetails(id),
@@ -51,7 +53,9 @@ export const usegetAdventureServiceDetails = (id: string) => {
     retry: false, // optional
   });
 };
-export const usegetAdventureCompanyDetails = (id: string) => {
+export const usegetAdventureServiceDetails = useGetAdventureServiceDetails;
+
+export const useGetAdventureCompanyDetails = (id: string) => {
   return useQuery({
     queryKey: ["getAdventureCompanyDetails", id],
     queryFn: () => getAdventureCompanyDetails(id),
@@ -62,3 +66,5 @@ export const usegetAdventureCompanyDetails = (id: string) => {
     retry: false, // optional
   });
 };
+export const usegetAdventureCompanyDetails = useGetAdventureCompanyDetails;
+

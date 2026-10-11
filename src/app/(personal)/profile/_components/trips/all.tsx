@@ -161,6 +161,7 @@ export function ReservationCard({
   onCheckDetails,
 }: ReservationCardProps) {
   const router = useRouter();
+  const { t } = useTranslation();
   const isConfirmed = status === "confirmed";
 
   return (
@@ -192,7 +193,7 @@ export function ReservationCard({
 
               <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs md:text-sm text-muted-foreground">
                 <p>
-                  <span className="font-medium text-foreground">{useTranslation().t("trips.checkIn")}</span>{" "}
+                  <span className="font-medium text-foreground">{t("trips.checkIn")}</span>{" "}
                   {new Date(checkIn).toLocaleDateString("en-IN", {
                     day: "numeric",
                     month: "short",
@@ -201,7 +202,7 @@ export function ReservationCard({
                 </p>
                 <span className="text-border hidden sm:inline">•</span>
                 <p>
-                  <span className="font-medium text-foreground">{useTranslation().t("trips.checkOut")}</span>{" "}
+                  <span className="font-medium text-foreground">{t("trips.checkOut")}</span>{" "}
                   {new Date(checkOut).toLocaleDateString("en-IN", {
                     day: "numeric",
                     month: "short",
@@ -210,9 +211,9 @@ export function ReservationCard({
                 </p>
                 <span className="text-border hidden sm:inline">•</span>
                 <p>
-                  <span className="font-medium text-foreground">{useTranslation().t("trips.guests")}</span>{" "}
+                  <span className="font-medium text-foreground">{t("trips.guests")}</span>{" "}
                   {guests.adults + guests.children}
-                  {guests.adults + guests.children === 1 ? ` ${useTranslation().t("trips.person")}` : ` ${useTranslation().t("trips.people")}`}
+                  {guests.adults + guests.children === 1 ? ` ${t("trips.person")}` : ` ${t("trips.people")}`}
                 </p>
               </div>
             </div>
@@ -230,7 +231,7 @@ export function ReservationCard({
                     : "border-amber-500/30 bg-amber-50/50 text-amber-700 dark:bg-amber-950/20 dark:text-amber-400"
                 )}
               >
-                {isConfirmed ? useTranslation().t("trips.confirmed") : status.charAt(0).toUpperCase() + status.slice(1)}
+                {isConfirmed ? t("trips.confirmed") : status.charAt(0).toUpperCase() + status.slice(1)}
               </Badge>
 
               <span className="text-xs text-muted-foreground font-mono bg-muted/40 px-2 py-0.5 rounded border border-border/30">
@@ -244,7 +245,7 @@ export function ReservationCard({
               className="px-5 py-2 w-full sm:w-fit text-xs md:text-sm font-medium border-border/60 hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-300 rounded-lg shadow-sm"
               onClick={onCheckDetails}
             >
-              {useTranslation().t("trips.details")}
+              {t("trips.details")}
             </Button>
           </div>
         </div>
