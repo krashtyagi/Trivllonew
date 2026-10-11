@@ -54,7 +54,8 @@ export function TabsLine({
   const { t } = useTranslation();
 
 
-  const hotelId = hotel._id;
+  const sectionRef = useRef<HTMLDivElement | null>(null);
+  const hotelId = hotel?._id;
   if (!hotel) return null;
 
   const content: Record<TabKey, React.ReactNode> = {
@@ -78,7 +79,6 @@ export function TabsLine({
     ),
   };
 
-  const sectionRef = useRef<HTMLDivElement | null>(null);
   const handleClick = () =>
     sectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
 

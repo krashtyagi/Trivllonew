@@ -33,7 +33,7 @@ export const useBilesCompanyDetailsQuery = (companyId: string) => {
   });
 };
 
-export const usegetBikeServiceDetails = (id: string) => {
+export const useGetBikeServiceDetails = (id: string) => {
   return useQuery({
     queryKey: ["getBikeServiceDetails-12s", id],
     queryFn: () => getBikeServiceDetails(id),
@@ -44,3 +44,5 @@ export const usegetBikeServiceDetails = (id: string) => {
     retry: false, // optional
   });
 };
+export const usegetBikeServiceDetails = useGetBikeServiceDetails;
+

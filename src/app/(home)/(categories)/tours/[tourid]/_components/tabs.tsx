@@ -33,9 +33,9 @@ export function TabsLine({
 }) {
 
 
-  const companyId = data.company.companyId;
-  // const serviceId = data.service.serviceId;
+  const sectionRef = useRef<HTMLDivElement | null>(null);
   if (!data) return null;
+  const companyId = data.company?.companyId;
 
   const content: Record<TabKey, React.ReactNode> = {
     overview: <LayoutGridDemo images={data.company.images} />,
@@ -59,7 +59,6 @@ export function TabsLine({
     ),
   };
 
-  const sectionRef = useRef<HTMLDivElement | null>(null);
   const handleClick = () =>
     sectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
 

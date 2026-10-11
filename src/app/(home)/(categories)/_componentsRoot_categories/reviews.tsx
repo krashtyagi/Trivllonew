@@ -22,9 +22,8 @@ interface ReviewsMainProps {
 }
 
 const ReviewsMain = ({ companyId, CompanyType }: ReviewsMainProps) => {
+    const { data: response, isLoading } = useGetHotelReviews(companyId || "", CompanyType);
     if (!companyId) return null;
-
-    const { data: response, isLoading } = useGetHotelReviews(companyId, CompanyType);
 
     if (isLoading) {
         return (

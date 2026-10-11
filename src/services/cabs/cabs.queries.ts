@@ -30,7 +30,7 @@ export const useGetAllCabsQuery = () => {
     retry: false, // optional
   });
 };
-export const usegetCabServiceDetails = (id: string) => {
+export const useGetCabServiceDetails = (id: string) => {
   return useQuery({
     queryKey: ["getCabServiceDetails", id],
     queryFn: () => getCabServiceDetails(id),
@@ -41,7 +41,9 @@ export const usegetCabServiceDetails = (id: string) => {
     retry: false, // optional
   });
 };
-export const usegetCabCompanyDetails = (id: string) => {
+export const usegetCabServiceDetails = useGetCabServiceDetails;
+
+export const useGetCabCompanyDetails = (id: string) => {
   return useQuery({
     queryKey: ["getCabCompanyDetails", id],
     queryFn: () => getCabCompanyDetails(id),
@@ -52,3 +54,4 @@ export const usegetCabCompanyDetails = (id: string) => {
     retry: false, // optional
   });
 };
+export const usegetCabCompanyDetails = useGetCabCompanyDetails;
