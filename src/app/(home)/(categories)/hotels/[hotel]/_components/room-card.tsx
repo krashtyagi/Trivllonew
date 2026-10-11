@@ -178,13 +178,13 @@ export function HotelRoomCard({
     >
       <div
         className={cn(
-          "grid grid-cols-1 md:grid-cols-[minmax(0,280px)_1fr_minmax(0,220px)]",
-          "lg:grid-cols-[minmax(0,320px)_1fr_minmax(0,240px)]",
+          "grid grid-cols-1 md:grid-cols-[280px_minmax(0,1fr)_220px]",
+          "lg:grid-cols-[320px_minmax(0,1fr)_240px]",
           "min-h-[220px] md:min-h-[260px]",
         )}
       >
         {/* IMAGE SECTION with slider */}
-        <div className="relative w-full aspect-[4/3] md:aspect-auto md:h-68 overflow-hidden flex-shrink-0 px-2 pt-2 md:pt-0 md:px-3 group/slider">
+        <div className="relative w-full aspect-[4/3] md:aspect-auto md:h-full overflow-hidden flex-shrink-0 p-2 md:p-3 group/slider">
           <motion.div
             layoutId={`image-${id}`}
             className="w-full h-full"
@@ -201,17 +201,17 @@ export function HotelRoomCard({
             <>
               <button
                 onClick={prevImg}
-                className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 dark:bg-black/60 backdrop-blur-sm rounded-full p-1.5 shadow-md opacity-100 md:opacity-0 md:group-hover/slider:opacity-100 transition-opacity z-10"
+                className="absolute left-4 md:left-5 top-1/2 -translate-y-1/2 bg-white/80 dark:bg-black/60 backdrop-blur-sm rounded-full p-1.5 shadow-md opacity-100 md:opacity-0 md:group-hover/slider:opacity-100 transition-opacity z-10"
               >
                 <ChevronLeft className="h-4 w-4 text-foreground" />
               </button>
               <button
                 onClick={nextImg}
-                className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 dark:bg-black/60 backdrop-blur-sm rounded-full p-1.5 shadow-md opacity-100 md:opacity-0 md:group-hover/slider:opacity-100 transition-opacity z-10"
+                className="absolute right-4 md:right-5 top-1/2 -translate-y-1/2 bg-white/80 dark:bg-black/60 backdrop-blur-sm rounded-full p-1.5 shadow-md opacity-100 md:opacity-0 md:group-hover/slider:opacity-100 transition-opacity z-10"
               >
                 <ChevronRight className="h-4 w-4 text-foreground" />
               </button>
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-10">
+              <div className="absolute bottom-4 md:bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-10">
                 {getVisibleDots().map((dot) => (
                   <span
                     key={dot.index}
@@ -231,18 +231,21 @@ export function HotelRoomCard({
           )}
 
           {discountPercent > 0 && (
-            <div className="absolute top-3 right-3 bg-primary text-primary-foreground text-[10px] md:text-[11px] font-bold px-2.5 py-1 rounded-full shadow-md z-10">
+            <div className="absolute top-4 right-4 md:top-5 md:right-5 bg-primary text-primary-foreground text-[10px] md:text-[11px] font-bold px-2.5 py-1 rounded-full shadow-md z-10">
               {discountPercent}% OFF
             </div>
           )}
         </div>
 
         {/* CONTENT SECTION – reduced vertical spacing */}
-        <div className="p-4 md:p-5 lg:p-6 flex flex-col justify-between border-b md:border-b-0 md:border-r border-border">
-          <div className="space-y-3 md:space-y-4">
+        <div className="p-4 md:p-5 lg:p-6 min-w-0 flex flex-col justify-between border-b md:border-b-0 md:border-r border-border">
+          <div className="space-y-3 md:space-y-4 min-w-0">
             <div className="flex items-start justify-between gap-2 md:gap-3">
               <div className="flex-1 min-w-0">
-                <h3 className="text-base md:text-lg lg:text-xl font-bold leading-tight truncate">
+                <h3
+                  className="text-base md:text-lg lg:text-xl font-bold leading-tight line-clamp-2 md:line-clamp-1"
+                  title={title}
+                >
                   {title}
                 </h3>
                 {isBookingMode && roomsLeft > 0 && (
@@ -402,13 +405,13 @@ export function HotelRoomCardSkeleton() {
     >
       <div
         className={cn(
-          "grid grid-cols-1 md:grid-cols-[minmax(0,280px)_1fr_minmax(0,220px)]",
-          "lg:grid-cols-[minmax(0,320px)_1fr_minmax(0,240px)]",
+          "grid grid-cols-1 md:grid-cols-[280px_minmax(0,1fr)_220px]",
+          "lg:grid-cols-[320px_minmax(0,1fr)_240px]",
           "min-h-[220px] md:min-h-[260px]",
         )}
       >
         {/* IMAGE SECTION */}
-        <div className="relative w-full aspect-[4/3] md:aspect-auto md:h-full overflow-hidden flex-shrink-0 px-2 pt-2 md:pt-0 md:px-3">
+        <div className="relative w-full aspect-[4/3] md:aspect-auto md:h-full overflow-hidden flex-shrink-0 p-2 md:p-3">
           <Skeleton className="w-full h-full rounded-xl md:rounded-2xl" />
         </div>
 

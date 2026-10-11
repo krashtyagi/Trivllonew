@@ -55,10 +55,12 @@ export const getHotelPolicies = async (id: string) => {
   }
 };
 
+import { orpc } from "@/lib/orpc";
+
 export const getNewHotels = async () => {
   try {
-    const res = await axiosApi.get(`/hotels/home`);
-    return res.data || { success: true, count: 0, data: [] };
+    const res = await orpc.hotel.getNewHotels();
+    return res || { success: true, count: 0, data: [] };
   } catch (error) {
     console.error("Error fetching home hotels:", error);
     return { success: false, count: 0, data: [] };
@@ -85,8 +87,8 @@ export type RankedResponse = {
 
 export const getRankedHotels = async (rank: string, page: number = 1, limit: number = 10): Promise<RankedResponse> => {
   try {
-    const res = await axiosApi.get(`/hotels/ranked`, { params: { rank, page, limit } });
-    return res.data;
+    const res = await orpc.hotel.getRanked({ rank, page, limit });
+    return res as unknown as RankedResponse;
   } catch (error) {
     console.error("Error fetching ranked hotels:", error);
     return { success: false, items: [], total: 0, page, limit, hasMore: false };
@@ -163,15 +165,28 @@ export const getHotels = async (
     params.typeOfPlace = filters.typeOfPlace;
   }
 
-  const response = await axiosApi.get("/hotels", {
-    params,
-    paramsSerializer: (p) => qs.stringify(p, { arrayFormat: "repeat" }),
+  const res = await orpc.hotel.getAll({
+    city: params.city as string | undefined,
+    minPrice: params.minPrice as number | undefined,
+    maxPrice: params.maxPrice as number | undefined,
+    minRating: params.minRating as number | undefined,
+    amenities: params.amenities as string[] | undefined,
+    maxSize: params.maxSize as number | undefined,
+    adults: params.adults as number | undefined,
+    children: params.children as number | undefined,
+    beds: params.beds as number | undefined,
+    bathrooms: params.bathrooms as number | undefined,
+    checkIn: params.checkIn as string | undefined,
+    checkOut: params.checkOut as string | undefined,
+    typeOfPlace: params.typeOfPlace as string[] | undefined,
+    page,
+    limit,
   });
 
   return {
-    data: response.data.data ?? [],
-    total: response.data.total ?? 0,
-    count: response.data.count ?? 0,
+    data: (res.data ?? []) as Hotel[],
+    total: res.total ?? 0,
+    count: res.count ?? 0,
   };
 };
 
@@ -183,9 +198,10 @@ export const getHotelsForSearch = async (val: Filters) => {
 };
 
 export const getHotelDetails = async (id: string) => {
-  const response = await axiosApi.get(`/hotels/${id}`);
-  return response.data.data;
+  const response = await orpc.hotel.getDetails({ id });
+  return response.data;
 };
+
 export const getHotelAvailability = async ({
   hotelId,
   checkIn,
@@ -214,57 +230,16 @@ export const getHotelAvailability = async ({
   const formattedCheckIn = formatDate(checkIn);
   const formattedCheckOut = formatDate(checkOut);
 
-  const response = await axiosApi.get(`/hotels/${hotelId}/availability`, {
-    params: {
-      checkIn: formattedCheckIn,
-      checkOut: formattedCheckOut,
-      adults,
-      children,
-    },
+  const response = await orpc.hotel.getAvailability({
+    hotelId,
+    checkIn: formattedCheckIn,
+    checkOut: formattedCheckOut,
+    adults,
+    children,
   });
 
-  return response.data.data;
+  return response.data as unknown as Hotel;
 };
-
-// export const getHotelAvailability = async ({
-//   hotelId,
-//   checkIn,
-//   checkOut,
-//   adults,
-//   children,
-// }: {
-//   hotelId: string;
-//   checkIn?: Date;
-//   checkOut?: Date;
-//   adults: number;
-//   children: number;
-// }): Promise<Hotel> => {
-//   if (!checkIn || !checkOut || checkIn > checkOut || checkIn === checkOut) {
-//     throw new Error("Check-in and Check-out dates are required");
-//   }
-//   console.log("checkIn", checkIn.toISOString());
-//   console.log("checkOut", checkOut.toISOString());
-
-//   const response = await axiosApi.get(`/hotels/${hotelId}/availability`, {
-//     params: {
-//       checkIn: checkIn.toISOString(),
-//       checkOut: checkOut.toISOString(),
-//       adults,
-//       children,
-//     },
-//   });
-
-//   return response.data.data;
-// };
-// type AllProps = {};
-// export const getHotelByPagination = async (data: AllProps) => {
-//   try {
-//     const res = await axiosApi.post(`/hotels/pagination`, data);
-//     return res.data;
-//   } catch (error) {
-//     console.error(error);
-//   }
-// };
 
 export type DestinationSuggestion = {
   type: "city" | "town" | "district" | "landmark" | "hotel";
@@ -280,10 +255,8 @@ export const getDestinationSuggestions = async (
   query: string,
 ): Promise<DestinationSuggestion[]> => {
   try {
-    const res = await axiosApi.get("/hotels/suggestions", {
-      params: { q: query },
-    });
-    return res.data?.data ?? [];
+    const res = await orpc.hotel.getSuggestions({ q: query });
+    return (res.data ?? []) as DestinationSuggestion[];
   } catch {
     return [];
   }

@@ -15,6 +15,7 @@ export type Item = {
   location?: string;
   image: string | StaticImageData;
   href: string;
+  price?: number | null;
 };
 
 type Props = {
@@ -172,12 +173,17 @@ const Card = React.memo(({ item, onClick, icon }: { item: Item, icon: React.Reac
           className="h-full w-full object-cover transition-transform duration-300 group-hover/card:scale-105"
         />
       </div>
-      <div className="mt-2.5 md:mt-3 space-y-1 px-1">
+      <div className="mt-2.5 md:mt-3 space-y-0.5 px-1">
         <h3 className="text-sm font-semibold line-clamp-1 text-card-foreground">{item.title}</h3>
         <div className="flex items-center gap-1 text-xs text-muted-foreground">
           {item.location && <MapPin className="h-3 w-3 shrink-0" />}
           <span className="line-clamp-1 ">{item.location}</span>
         </div>
+        {item.price != null && item.price > 0 && (
+          <p className="text-xs font-semibold text-foreground">
+            ₹{item.price.toLocaleString("en-IN")}<span className="text-[10px] font-normal text-muted-foreground"> / night</span>
+          </p>
+        )}
       </div>
     </div>
   );

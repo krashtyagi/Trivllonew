@@ -29,10 +29,12 @@ export type TourCompanyItem = {
   isFeatured?: boolean;
 };
 
+import { orpc } from "@/lib/orpc";
+
 export const getTourCompanies = async (params?: { city?: string; page?: number; limit?: number }) => {
   try {
-    const res = await axiosApi.get(`/tours/companies`, { params });
-    return res.data;
+    const res = await orpc.tour.getCompanies(params);
+    return res;
   } catch (error) {
     console.error("Error fetching tour companies:", error);
     return { success: false, data: [] };
@@ -57,8 +59,8 @@ export type RankedTourResponse = {
 
 export const getRankedTourCompanies = async (rank: string, page: number = 1, limit: number = 10): Promise<RankedTourResponse> => {
   try {
-    const res = await axiosApi.get(`/tours/ranked`, { params: { rank, page, limit } });
-    return res.data;
+    const res = await orpc.tour.getRanked({ rank, page, limit });
+    return res as unknown as RankedTourResponse;
   } catch (error) {
     console.error("Error fetching ranked tour companies:", error);
     return { success: false, items: [], total: 0, page, limit, hasMore: false };
@@ -67,25 +69,27 @@ export const getRankedTourCompanies = async (rank: string, page: number = 1, lim
 
 export const getAllTours = async () => {
   try {
-    const res = await axiosApi.get(`/tour-services`);
+    const res = await orpc.tour.getTours({});
     return res.data;
   } catch (error) {
     console.error(error);
     toast.error("something went wrong");
   }
 };
+
 export const getTourServiceDetails = async (id: string) => {
   try {
-    const res = await axiosApi.get(`/tour-services/${id}`);
+    const res = await orpc.tour.getServiceDetails({ id });
     return res.data;
   } catch (error) {
     console.error(error);
     toast.error("something went wrong");
   }
 };
+
 export const getTourDetails = async (id: string) => {
   try {
-    const res = await axiosApi.get(`/tour-services/company/${id}`);
+    const res = await orpc.tour.getCompanyDetails({ id });
     return res.data;
   } catch (error) {
     console.error(error);
@@ -139,13 +143,26 @@ export const getTours = async (
   if ((filters as any).date?.checkOut)
     params.checkOut = (filters as any).date.checkOut;
 
-  const response = await axiosApi.get("/tour-services", {
-    params,
-    paramsSerializer: (p) => qs.stringify(p, { arrayFormat: "repeat" }),
+  const res = await orpc.tour.getTours({
+    city: params.city as string | undefined,
+    minPrice: params.minPrice as number | undefined,
+    maxPrice: params.maxPrice as number | undefined,
+    minRating: params.minRating as number | undefined,
+    features: params.features as string[] | undefined,
+    amenities: params.amenities as string[] | undefined,
+    tourType: params.tourType as string[] | undefined,
+    adults: params.adults as number | undefined,
+    children: params.children as number | undefined,
+    checkIn: params.checkIn as string | undefined,
+    checkOut: params.checkOut as string | undefined,
+    page,
+    limit,
   });
 
+  const tourData = res.data as any;
+
   return {
-    data: response.data?.data?.tours ?? [],
-    total: response.data?.data?.pagination?.total ?? response.data?.data?.pagination?.count ?? 0,
+    data: tourData?.tours ?? [],
+    total: tourData?.pagination?.total ?? tourData?.pagination?.count ?? 0,
   };
 };

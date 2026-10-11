@@ -54,15 +54,16 @@ const MainFramePage = ({ className, type, popularTrends }: HotelFramePageProps) 
     return data.data.reduce((acc: Record<string, hoteldata[]>, hotel: hoteldata) => {
       const city = hotel.city?.trim();
       if (!city) return acc;
-      acc[city] = acc[city] || [];
-      acc[city].push(hotel);
+      const key = city.toLowerCase();
+      acc[key] = acc[key] || [];
+      acc[key].push(hotel);
       return acc;
     }, {} as Record<string, hoteldata[]>);
   }, [data?.data]);
 
   const sectionItems = useMemo(() => {
     return POPULAR_SECTIONS.map((section) => {
-      const hotelsInCity = groupedByCity[section.city] || [];
+      const hotelsInCity = groupedByCity[section.city.toLowerCase()] || [];
 
       const sliced = section.limit ? hotelsInCity.slice(0, section.limit) : hotelsInCity;
 
@@ -71,6 +72,7 @@ const MainFramePage = ({ className, type, popularTrends }: HotelFramePageProps) 
         location: `${hotel.city}, India`,
         image: hotel.image,
         href: `/hotels/${hotel._id}`,
+        price: hotel.startingPrice ?? null,
       }));
     });
   }, [groupedByCity]);

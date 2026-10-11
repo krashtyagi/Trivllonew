@@ -31,6 +31,7 @@ export type hoteldata = {
   name: string;
   city: string;
   image: string;
+  startingPrice?: number | null;
 };
 
 export default function HotelsClientPage({ className }: HotelFramePageProps) {
