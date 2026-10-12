@@ -71,7 +71,7 @@ export function Footer() {
   }
 
   return (
-    <footer className="relative isolate overflow-hidden bg-[#031c15] text-white">
+    <footer className=" isolate overflow-hidden bg-[#031c15] text-white ">
       {/* Google fonts for handwriting and serif accents */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Playfair+Display:ital,wght@1,600;1,700&display=swap');
@@ -159,7 +159,7 @@ export function Footer() {
         {/* =========================================================================
             LAYERED MOUNTAIN HORIZON / WAVE SILHOUETTE TRANSITION
             ========================================================================= */}
-        <div className="relative -mt-6 sm:-mt-10 lg:-mt-14 w-full overflow-hidden leading-none z-20">
+        <div className="relative -mt-22 sm:-mt-10 lg:-mt-25 w-full overflow-hidden leading-none z-20">
           <svg
             viewBox="0 0 1440 120"
             preserveAspectRatio="none"
@@ -295,7 +295,7 @@ export function Footer() {
             </div>
 
             {/* Travel Stats Counter Row */}
-            <div className="mt-6 flex flex-wrap items-center gap-3 sm:gap-5 border-t border-emerald-900/40 pt-4">
+            <div className="mt-6 flex justify-center w-full items-center gap-3 sm:gap-5 border-t border-emerald-900/40 pt-4">
               <div>
                 <div className="text-base sm:text-lg font-black text-white">
                   1M+
@@ -611,8 +611,7 @@ export function Footer() {
             </div>
 
             {/* Official App Store Download Badges */}
-            <div className="flex items-center gap-2">
-              {/* Apple App Store */}
+            {/* <div className="flex items-center gap-2">
               <a
                 href="#"
                 aria-label="Download on the App Store"
@@ -634,7 +633,6 @@ export function Footer() {
                 </div>
               </a>
 
-              {/* Google Play */}
               <a
                 href="#"
                 aria-label="Get it on Google Play"
@@ -667,10 +665,11 @@ export function Footer() {
                   </div>
                 </div>
               </a>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
+      {/* <div className="absolute bottom-0 left-0 right-0 h-[20px] bg-gradient-to-t from-white to-[#031c15] pointer-events-none" /> */}
     </footer>
   );
 }
@@ -830,6 +829,76 @@ function TrustBenefit({
           {description}
         </p>
       </div>
+    </div>
+  );
+}
+
+function TravelPhotoStack() {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const photos = [
+    {
+      src: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=300&q=80",
+      alt: "Snowy mountain peaks",
+      rotation: "-rotate-8",
+    },
+    {
+      src: "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=300&q=80",
+      alt: "Historic Indian temple",
+      rotation: "-rotate-2",
+    },
+    {
+      src: "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=300&q=80",
+      alt: "Serene backwaters boat",
+      rotation: "rotate-8",
+    },
+  ];
+
+  return (
+    <div
+      onClick={() => setIsExpanded((prev) => !prev)}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          setIsExpanded((prev) => !prev);
+        }
+      }}
+      role="button"
+      tabIndex={0}
+      aria-label={
+        isExpanded ? "Collapse travel photos" : "Expand travel photos"
+      }
+      aria-expanded={isExpanded}
+      className={`group mt-2.5 flex w-fit max-w-full items-center justify-center lg:justify-start
+        ${isExpanded ? "is-expanded" : ""}
+        cursor-pointer`}
+    >
+      {photos.map((photo, index) => (
+        <div
+          key={photo.alt}
+          className={`relative h-16 w-16 shrink-0 rounded-xl bg-white p-1
+            shadow-[0_10px_24px_rgba(0,0,0,0.35)]
+            transition-all duration-500 ease-out
+            sm:h-20 sm:w-20
+            ${photo.rotation}
+            ${index === 1 ? "z-20" : "z-10"}
+            group-hover:mx-1.5 group-hover:rotate-0 group-hover:scale-105
+            group-hover:z-30
+            group-[.is-expanded]:mx-1.5
+            group-[.is-expanded]:rotate-0
+            group-[.is-expanded]:z-30
+            group-[.is-expanded]:scale-105
+            ${index === 0 ? "-ml-0" : "-ml-2.5 sm:-ml-3"}
+          `}
+        >
+          <img
+            src={photo.src}
+            alt={photo.alt}
+            loading="lazy"
+            className="h-full w-full rounded-lg object-cover"
+          />
+        </div>
+      ))}
     </div>
   );
 }
