@@ -23,7 +23,6 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
   const [showAdPopup, setShowAdPopup] = useState(false);
   const [hasDismissed, setHasDismissed] = useState(false);
 
-
   const segments = location.split("/").filter(Boolean);
 
   const shouldShowNavbar = !(
@@ -32,7 +31,10 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
   );
   const mobileHeight = isMobile ? "h-20" : "h-40";
   useEffect(() => {
-    const token = typeof window !== "undefined" ? localStorage.getItem(userAccessToken) : null;
+    const token =
+      typeof window !== "undefined"
+        ? localStorage.getItem(userAccessToken)
+        : null;
 
     if (token) {
       setShowAdPopup(false);
@@ -48,10 +50,7 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
     }
   }, [location, hasDismissed]);
 
-
   // useEffect(() => {
-
-
 
   //   const timer = setTimeout(() => {
   //     toast.custom((t) => (
@@ -123,13 +122,13 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
   const ismobile = useIsMobile();
 
   return (
-    <div className=" flex flex-col pb-20 md:pb-0   ">
+    <div className=" flex flex-col pb-13 md:pb-0   ">
       <div
         className={cn(
           "relative top-0 left-0 z-40 w-full bg-card flex flex-col justify-center bg-gradient-to-br from-zinc-100 to-transparent dark:bg-gradient-to-bl dark:from-zinc-700 border-b border-gray-300 dark:border-gray-700",
           "h-auto",
           "bg-background overflow-visible",
-          isMobile ? "bg-transparent border-none shadow-sm static" : ""
+          isMobile ? "bg-transparent border-none shadow-sm static" : "",
         )}
       >
         {/* <WaveShader
@@ -146,25 +145,21 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
           position="full"
         /> */}
         <div className="flex flex-col  justify-center md:py-3 md:px-5  sm:pr-3 px-2 h-full">
-
           <div className="flex  justify-between py-3     h-full">
             <LOGO />
-            {(
+            {
               <div className="hidden md:flex flex-col items-center gap-[5px] h-full md:block w-full">
                 {shouldShowNavbar ? (
                   <div className="md:w-[485px] lg:w-[585px] ">
-
                     <FindTabsNav mobile={false} tabs={FilterOfPages} />
                   </div>
                 ) : (
                   <TabsNav mobile={false} tabs={pages} />
-
                 )}
               </div>
-            )}
+            }
             <TopRight isMobile={isMobile} />
           </div>
-
 
           {/* {(
             <div className="hidden md:flex flex-col items-center gap-[5px] h-full md:block -my-1">
@@ -173,15 +168,12 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
               )}
             </div>
           )} */}
-
-
         </div>
         {/* {!isMobile && !shouldShowNavbar && <PersistentHeader>
           <div className="flex h-14 items-center justify-around px-20 ">
             <TabsNav mobile={false} tabs={pages} containerClassName="shadow-none border-none bg-transparent" />
           </div>
         </PersistentHeader>} */}
-
       </div>
 
       <main
@@ -191,9 +183,10 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
           isMobile ? "pt-2" : "",
         )}
       >
-
         <div className="relative z-10">
-          {!shouldShowNavbar && ismobile && <TabsNav mobile={false} tabs={pages} />}
+          {!shouldShowNavbar && ismobile && (
+            <TabsNav mobile={false} tabs={pages} />
+          )}
           {/* {!shouldShowNavbar && (
             <div className="mb-3 ">
               <FilterBarLayout pages={pages} />
@@ -207,18 +200,21 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
       <Footer />
       {/* CUSTOM LOGIN AD POPUP */}
       {showAdPopup && !hasDismissed && (
-        <PopLogin setHasDismissed={setHasDismissed} setShowAdPopup={setShowAdPopup} />
+        <PopLogin
+          setHasDismissed={setHasDismissed}
+          setShowAdPopup={setShowAdPopup}
+        />
       )}
-      <MobileNavWrapper content={<div className="flex h-14 items-center justify-around">
-        <BottomNav />
-      </div>} isMobile={isMobile} />
+      <MobileNavWrapper
+        content={
+          <div className="flex h-14 items-center justify-around">
+            <BottomNav />
+          </div>
+        }
+        isMobile={isMobile}
+      />
     </div>
   );
 };
 
-
 export default NavWrapper;
-
-
-
-

@@ -5,13 +5,7 @@ import { useForm, useFormContext, UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import {
-  Check,
-  CreditCard,
-  Calendar,
-  Users,
-  Loader2,
-} from "lucide-react";
+import { Check, CreditCard, Calendar, Users, Loader2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 import { Card, CardContent } from "@/components/ui/card";
@@ -70,7 +64,7 @@ export const BookingForm = ({
 
   // Fetch tour details if serviceType is tour
   const { data: tourServiceData } = useTourServiceDetails(
-    serviceType === "tour" ? slug[0] : ""
+    serviceType === "tour" ? slug[0] : "",
   );
 
   const parsedGuests = parseInt(initialGuests || "") || 0;
@@ -89,12 +83,14 @@ export const BookingForm = ({
         adults: initialAdults,
         children: initialChildren,
       },
-      guestInformation: Array(initialTotal).fill(null).map(() => ({
-        firstname: "",
-        lastname: "",
-        email: "",
-        phone: "",
-      })),
+      guestInformation: Array(initialTotal)
+        .fill(null)
+        .map(() => ({
+          firstname: "",
+          lastname: "",
+          email: "",
+          phone: "",
+        })),
       specialRequest: "",
       rooms: [],
     },
@@ -118,15 +114,21 @@ export const BookingForm = ({
 
     const currentGuests = methods.getValues("guestInformation") || [];
     if (newTotal > currentGuests.length) {
-      const added = Array(newTotal - currentGuests.length).fill(null).map(() => ({
-        firstname: "",
-        lastname: "",
-        email: "",
-        phone: "",
-      }));
-      methods.setValue("guestInformation", [...currentGuests, ...added], { shouldValidate: true });
+      const added = Array(newTotal - currentGuests.length)
+        .fill(null)
+        .map(() => ({
+          firstname: "",
+          lastname: "",
+          email: "",
+          phone: "",
+        }));
+      methods.setValue("guestInformation", [...currentGuests, ...added], {
+        shouldValidate: true,
+      });
     } else if (newTotal < currentGuests.length) {
-      methods.setValue("guestInformation", currentGuests.slice(0, newTotal), { shouldValidate: true });
+      methods.setValue("guestInformation", currentGuests.slice(0, newTotal), {
+        shouldValidate: true,
+      });
     }
   };
 
@@ -191,7 +193,15 @@ export const BookingForm = ({
         break;
     }
 
-    return { serviceType, serviceId, bookingDate, primaryCustomer, participants, meta, ...extra };
+    return {
+      serviceType,
+      serviceId,
+      bookingDate,
+      primaryCustomer,
+      participants,
+      meta,
+      ...extra,
+    };
   };
 
   const onSubmit = async (data: PaymentProps) => {
@@ -263,7 +273,9 @@ export const BookingForm = ({
         setLoading(false);
       }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || error.message || "An error occurred.");
+      toast.error(
+        error.response?.data?.message || error.message || "An error occurred.",
+      );
       setLoading(false);
     }
   };
@@ -285,7 +297,7 @@ export const BookingForm = ({
           <div
             className={cn(
               "grid grid-cols-1 lg:grid-cols-12 gap-8 mt-8 w-full",
-              currentstep === 3 && "grid-cols-1 lg:grid-cols-1"
+              currentstep === 3 && "grid-cols-1 lg:grid-cols-1",
             )}
           >
             <div className="lg:col-span-8">
@@ -300,7 +312,7 @@ export const BookingForm = ({
               <div className="lg:col-span-4">
                 <div className="sticky top-24">
                   {ismobile ? (
-                    <div className="fixed bottom-0 left-0 right-0 z-50 w-full border-t bg-background/95 backdrop-blur-sm p-4 animate-in slide-in-from-bottom duration-300">
+                    <div className="fixed bottom-0 left-0 right-0 z-100 w-full border-t bg-background/95 backdrop-blur-sm p-4 animate-in slide-in-from-bottom duration-300">
                       <BookingCard
                         loading={loading}
                         hookname={hookname}
@@ -421,14 +433,21 @@ export const BookingCard = ({
   const grandTotal = totalBasePrice + totalTax;
 
   return (
-    <div className="flex items-center justify-between gap-4">
+    <div className="flex items-center justify-between gap-4 ">
       <div className="flex flex-col">
         <div className="flex items-baseline gap-1">
-          <span className="text-xl font-bold tracking-tight">₹{grandTotal.toLocaleString("en-IN")}</span>
-          <span className="text-xs text-muted-foreground font-medium">total to pay</span>
+          <span className="text-xl font-bold tracking-tight">
+            ₹{grandTotal.toLocaleString("en-IN")}
+          </span>
+          <span className="text-xs text-muted-foreground font-medium">
+            total to pay
+          </span>
         </div>
         <p className="text-xs text-muted-foreground font-medium">
-          ₹{totalTax.toLocaleString("en-IN")} <span className="text-[11px] text-muted-foreground">tax ({taxPercentage}%)</span>
+          ₹{totalTax.toLocaleString("en-IN")}{" "}
+          <span className="text-[11px] text-muted-foreground">
+            tax ({taxPercentage}%)
+          </span>
         </p>
         <div className="flex items-center gap-1 mt-1">
           <Check className="w-3 h-3 text-emerald-500 stroke-[3px]" />
@@ -548,14 +567,19 @@ export const BookingDetailsCard = ({
         <div className="space-y-3">
           <div className="flex justify-between text-sm">
             <span>
-              Without Tax Price for {totalGuests} {totalGuests === 1 ? "person" : "persons"}
+              Without Tax Price for {totalGuests}{" "}
+              {totalGuests === 1 ? "person" : "persons"}
             </span>
-            <span className="font-semibold">₹{totalBasePrice.toLocaleString("en-IN")}</span>
+            <span className="font-semibold">
+              ₹{totalBasePrice.toLocaleString("en-IN")}
+            </span>
           </div>
 
           <div className="flex justify-between text-sm">
             <span>Tax ({taxPercentage}%)</span>
-            <span className="font-semibold">₹{totalTax.toLocaleString("en-IN")}</span>
+            <span className="font-semibold">
+              ₹{totalTax.toLocaleString("en-IN")}
+            </span>
           </div>
 
           <div className="flex justify-between text-lg font-black border-t pt-3 text-primary">
