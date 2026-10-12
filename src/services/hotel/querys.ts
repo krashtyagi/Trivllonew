@@ -7,14 +7,14 @@ import {
   getHotelsForSearch,
   SearchCity,
   HotelsSearch,
+  getNewHotels,
+  getRankedHotels,
+  getHotelDetails,
 } from "./hotel.service";
 import { getBookingById, getMyBookings } from "../booking/booking.service";
 import { Filters } from "@/context/NuqsContentProvider";
 import { CompanyType } from "@/app/(home)/(categories)/_componentsRoot_categories/reviews";
 import { userAccessToken } from "@/types/auth";
-import { orpc } from "@/lib/orpc";
-
-// ─── oRPC-powered hooks ─────────────────────────────────────────────
 
 export const useSearchCity = (query: string) => {
   return useQuery({
@@ -32,7 +32,7 @@ export const useSearchCity = (query: string) => {
 export const useGetNewHotels = () => {
   return useQuery({
     queryKey: ["gethotels_home"],
-    queryFn: () => orpc.hotel.getNewHotels(),
+    queryFn: () => getNewHotels(),
     staleTime: Infinity,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
@@ -45,7 +45,7 @@ export const useGetRankedHotels = (rank: string) => {
   return useInfiniteQuery({
     queryKey: ["ranked_hotels", rank],
     queryFn: ({ pageParam = 1 }) =>
-      orpc.hotel.getRanked({ rank, page: pageParam, limit: 10 }),
+      getRankedHotels(rank, pageParam as number, 10),
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {
       if (lastPage?.hasMore) return lastPage.page + 1;
@@ -64,7 +64,6 @@ export const useGetHotelReviews = (
 ) => {
   return useQuery({
     queryKey: ["hotel_reviews", companyId, CompanyType],
-    // Reviews don't have an RPC endpoint yet — keep using REST
     queryFn: async () => {
       const { getHotelReviews } = await import("./hotel.service");
       return getHotelReviews(companyId, CompanyType);
@@ -81,7 +80,6 @@ export const useGetHotelReviews = (
 export const useGetHotelPolicies = (id: string) => {
   return useQuery({
     queryKey: ["hotel_policies", id],
-    // Policies don't have an RPC endpoint yet — keep using REST
     queryFn: async () => {
       const { getHotelPolicies } = await import("./hotel.service");
       return getHotelPolicies(id);
@@ -131,6 +129,7 @@ export const useCurrentUser = () => {
     retry: false,
   });
 };
+
 export const useHotelSearch = ({
   destination,
   checkIn,
@@ -154,14 +153,14 @@ export const useHotelSearch = ({
       children,
     ],
     queryFn: async () => {
-      const res = await orpc.hotel.search({
+      const res = await HotelsSearch({
         destination,
-        checkIn: checkIn ? checkIn.toISOString() : undefined,
-        checkOut: checkOut ? checkOut.toISOString() : undefined,
+        checkIn,
+        checkOut,
         adults,
         children,
       });
-      return res.data;
+      return res?.data ?? res;
     },
     staleTime: 20000,
     refetchOnWindowFocus: false,
@@ -171,12 +170,11 @@ export const useHotelSearch = ({
     enabled: !!destination && !!checkIn && !!checkOut,
   });
 };
+
 export const useGetHotelsByFiltersDemo = (val: Filters, page: number = 1) => {
   return useQuery({
     queryKey: ["hotels_by_params", val, page],
-
     queryFn: () => getHotels(val, page),
-
     staleTime: 3 * 1000, // 3 seconds
     refetchOnWindowFocus: false,
     refetchOnMount: false,
@@ -216,10 +214,7 @@ export const useHotelsQuery = () => {
 export const useHotelDetailsQuery = (hotelId: string) => {
   return useQuery({
     queryKey: ["hotel_details", hotelId],
-    queryFn: async () => {
-      const result = await orpc.hotel.getDetails({ id: hotelId });
-      return result.data;
-    },
+    queryFn: () => getHotelDetails(hotelId),
     enabled: !!hotelId,
     refetchOnMount: true,
     refetchOnWindowFocus: false,
@@ -227,6 +222,7 @@ export const useHotelDetailsQuery = (hotelId: string) => {
     staleTime: 60 * 1000,
   });
 };
+
 type AvailabilityParams = {
   hotelId: string;
   checkIn?: Date;

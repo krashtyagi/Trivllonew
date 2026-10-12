@@ -1,13 +1,17 @@
 "use client";
 import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
-import { getTours } from "./tours.service";
+import {
+  getTours,
+  getTourCompanies,
+  getRankedTourCompanies,
+} from "./tours.service";
 import { Filters } from "@/context/NuqsContentProvider";
-import { orpc } from "@/lib/orpc";
+import { axiosApi } from "@/lib/axios";
 
 export const useGetTourCompanies = (params?: { city?: string; page?: number; limit?: number }) => {
   return useQuery({
     queryKey: ["getTourCompanies", params],
-    queryFn: () => orpc.tour.getCompanies(params),
+    queryFn: () => getTourCompanies(params),
     staleTime: 60 * 1000,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
@@ -18,7 +22,7 @@ export const useGetRankedTourCompanies = (rank: string) => {
   return useInfiniteQuery({
     queryKey: ["ranked_tour_companies", rank],
     queryFn: ({ pageParam = 1 }) =>
-      orpc.tour.getRanked({ rank, page: pageParam, limit: 10 }),
+      getRankedTourCompanies(rank, pageParam as number, 10),
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {
       if (lastPage?.hasMore) return lastPage.page + 1;
@@ -46,27 +50,30 @@ export const useTourServiceDetails = (id: string) => {
   return useQuery({
     queryKey: ["getTourServiceDetails", id],
     queryFn: async () => {
-      const result = await orpc.tour.getServiceDetails({ id });
-      return result;
+      const res = await axiosApi.get(`/tour-services/${id}`);
+      return res.data;
     },
     staleTime: Infinity,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: true,
     retry: false,
+    enabled: !!id,
   });
 };
+
 export const useTourDetailsQuery = (id: string) => {
   return useQuery({
     queryKey: ["getTourDetails", id],
     queryFn: async () => {
-      const result = await orpc.tour.getCompanyDetails({ id });
-      return result;
+      const res = await axiosApi.get(`/tour-services/company/${id}`);
+      return res.data;
     },
     staleTime: Infinity,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: true,
     retry: false,
+    enabled: !!id,
   });
 };
