@@ -52,6 +52,7 @@
     "nextjs-toploader": "^3.9.17",
     "nprogress": "^0.2.0",
     "nuqs": "^2.8.8",
+    "posthog-js": "^1.438.9",
     "qs": "^6.15.0",
     "radix-ui": "^1.4.3",
     "react": "^19.0.0-rc.1",

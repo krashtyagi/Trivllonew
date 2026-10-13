@@ -3,7 +3,17 @@
 import React, { useRef, useState } from "react";
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";
-import { Calendar, User, ChevronRight, Loader2, Compass, Clock, Shield, Check, Sparkles } from "lucide-react";
+import {
+  Calendar,
+  User,
+  ChevronRight,
+  Loader2,
+  Compass,
+  Clock,
+  Shield,
+  Check,
+  Sparkles,
+} from "lucide-react";
 
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -37,14 +47,13 @@ export function TabsLine({
   if (!data) return null;
 
   const content: Record<TabKey, React.ReactNode> = {
-    overview: (
-      <LayoutGridDemo
-        images={data?.company?.images}
-      />
-    ),
+    overview: <LayoutGridDemo images={data?.service?.images} />,
     description: (
       <Decription
-        data={{ name: data.company.name, description: data.company.description }}
+        data={{
+          name: data.company.name,
+          description: data.company.description,
+        }}
       />
     ),
     reviews: <ReviewsMain companyId={companyId} CompanyType="tour" />,
@@ -113,7 +122,7 @@ export function TabsLine({
                 "capitalize whitespace-nowrap pb-2 text-sm font-semibold transition-all cursor-pointer",
                 tab.highlight
                   ? "text-primary hover:text-primary/90 font-bold border-b-2 border-primary"
-                  : "border-b-2 border-transparent hover:border-orange-500 text-slate-600 hover:text-slate-900 dark:text-zinc-400 dark:hover:text-primary"
+                  : "border-b-2 border-transparent hover:border-orange-500 text-slate-600 hover:text-slate-900 dark:text-zinc-400 dark:hover:text-primary",
               )}
               onClick={(e) => handleTabClick(e, tab.id)}
             >
@@ -132,7 +141,10 @@ export function TabsLine({
             {content.description}
           </section>
 
-          <section id="amenities" className="scroll-mt-24 border-t md:pt-6 pt-4">
+          <section
+            id="amenities"
+            className="scroll-mt-24 border-t md:pt-6 pt-4"
+          >
             <h3 className="text-xl font-bold mb-2 dark:text-zinc-400 text-zinc-800">
               Features
             </h3>
@@ -146,10 +158,13 @@ export function TabsLine({
             <div className="mb-6 text-left">
               <h3 className="text-2xl font-bold">Itinerary</h3>
             </div>
-            <ChangelogComponentPage releses={data.service.itinerary} />
+            <ChangelogComponentPage releses={data.service.itinerary ?? []} />
           </section>
 
-          <section id="reviews" className="scroll-mt-24 py-5 border-t md:pt-6 pt-4">
+          <section
+            id="reviews"
+            className="scroll-mt-24 py-5 border-t md:pt-6 pt-4"
+          >
             {content.reviews}
           </section>
 
@@ -179,11 +194,15 @@ const TourBookingCard = ({ data }: { data?: TourServiceData }) => {
   const totalGuests = Math.max(1, guests.adults + guests.children);
   const basePrice = data?.service?.price || 0;
   const taxPercentage = data?.service?.taxPercentage || 0;
-  const taxAmountPerPerson = Number(((basePrice * taxPercentage) / 100).toFixed(2));
+  const taxAmountPerPerson = Number(
+    ((basePrice * taxPercentage) / 100).toFixed(2),
+  );
   const pricePerPersonWithTax = basePrice + taxAmountPerPerson;
 
   const totalBasePrice = basePrice * totalGuests;
-  const totalTaxAmount = Number(((totalBasePrice * taxPercentage) / 100).toFixed(2));
+  const totalTaxAmount = Number(
+    ((totalBasePrice * taxPercentage) / 100).toFixed(2),
+  );
   const grandTotal = totalBasePrice + totalTaxAmount;
 
   return (
@@ -201,7 +220,9 @@ const TourBookingCard = ({ data }: { data?: TourServiceData }) => {
             </h2>
             <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
               <Compass className="w-4 h-4 text-primary" />
-              <span>{data?.company?.name} • {data?.company?.city}</span>
+              <span>
+                {data?.company?.name} • {data?.company?.city}
+              </span>
               {data?.service?.duration && (
                 <>
                   <span className="text-zinc-300 dark:text-zinc-700">•</span>
@@ -257,7 +278,9 @@ const TourBookingCard = ({ data }: { data?: TourServiceData }) => {
               >
                 -
               </button>
-              <span className="text-xs font-bold w-4 text-center">{totalGuests}</span>
+              <span className="text-xs font-bold w-4 text-center">
+                {totalGuests}
+              </span>
               <button
                 type="button"
                 onClick={() => {
@@ -276,7 +299,10 @@ const TourBookingCard = ({ data }: { data?: TourServiceData }) => {
 
         {data?.service?.maxPeople && (
           <p className="text-[11px] text-muted-foreground text-center font-medium -mt-2">
-            Max tour capacity: <span className="font-bold text-foreground">{data.service.maxPeople} people</span>
+            Max tour capacity:{" "}
+            <span className="font-bold text-foreground">
+              {data.service.maxPeople} people
+            </span>
           </p>
         )}
 
@@ -289,19 +315,27 @@ const TourBookingCard = ({ data }: { data?: TourServiceData }) => {
             </div>
             <div className="space-y-2.5 text-xs text-muted-foreground">
               <div className="flex justify-between items-center">
-                <span>Without Tax Price for {totalGuests} {totalGuests === 1 ? "person" : "persons"}</span>
-                <span className="font-semibold text-foreground">₹{totalBasePrice.toLocaleString("en-IN")}</span>
+                <span>
+                  Without Tax Price for {totalGuests}{" "}
+                  {totalGuests === 1 ? "person" : "persons"}
+                </span>
+                <span className="font-semibold text-foreground">
+                  ₹{totalBasePrice.toLocaleString("en-IN")}
+                </span>
               </div>
               <div className="flex justify-between items-center">
                 <span>Tax ({taxPercentage}%)</span>
-                <span className="font-semibold text-foreground">₹{totalTaxAmount.toLocaleString("en-IN")}</span>
+                <span className="font-semibold text-foreground">
+                  ₹{totalTaxAmount.toLocaleString("en-IN")}
+                </span>
               </div>
             </div>
 
             {/* GRAND TOTAL BOX */}
             <div className="bg-gradient-to-br from-primary/5 to-amber-500/5 dark:from-primary/10 dark:to-transparent p-4.5 rounded-2xl border border-primary/10 space-y-1">
               <div className="text-[10px] font-bold text-primary uppercase tracking-widest">
-                Total Payable ({totalGuests} {totalGuests === 1 ? "Guest" : "Guests"})
+                Total Payable ({totalGuests}{" "}
+                {totalGuests === 1 ? "Guest" : "Guests"})
               </div>
               <div className="flex items-baseline justify-between">
                 <span className="text-2xl font-black text-primary">
@@ -329,7 +363,7 @@ const TourBookingCard = ({ data }: { data?: TourServiceData }) => {
                 date: `${date?.from ? format(date.from, "dd/MM/yyyy") : "Add date"}-${date?.to ? format(date.to, "dd/MM/yyyy") : "Add date"}`,
                 guests: `${totalGuests} Guests`,
                 categories: "tours",
-              }
+              },
             );
           }}
           className="w-full bg-primary hover:bg-primary/95 text-white text-sm font-extrabold h-13 rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all duration-300 active:scale-[0.98] flex items-center justify-center gap-2"
