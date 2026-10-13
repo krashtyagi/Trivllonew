@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { useEffect } from "react";
 import {
   QueryClient,
@@ -8,9 +8,10 @@ import { ThemeProvider } from "./theme-provider";
 import MobileValueProvider from "@/context/mobile-value";
 import { NuqsAdapter } from "nuqs/adapters/react";
 import { Payment, useHotelStore } from "@/store/hotel.store";
+import { PostHogProvider } from "./posthogProvider";
 const MainProvider = ({ children }: { children: React.ReactNode }) => {
   const [queryClient] = React.useState(() => new QueryClient());
-  
+
   React.useEffect(() => {
     if (typeof window !== "undefined") {
       (window as any).__hasLoadedApp = true;
@@ -18,21 +19,20 @@ const MainProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   return (
-
-    <NuqsAdapter>
-      <QueryClientProviderLib client={queryClient}>
-        {/* <ThemeProvider
+    <PostHogProvider>
+      <NuqsAdapter>
+        <QueryClientProviderLib client={queryClient}>
+          {/* <ThemeProvider
 
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange> */}
-        <MobileValueProvider>
-          {children}
-        </MobileValueProvider>
-        {/* </ThemeProvider> */}
-      </QueryClientProviderLib>
-    </NuqsAdapter>
+          <MobileValueProvider>{children}</MobileValueProvider>
+          {/* </ThemeProvider> */}
+        </QueryClientProviderLib>
+      </NuqsAdapter>
+    </PostHogProvider>
   );
 };
 

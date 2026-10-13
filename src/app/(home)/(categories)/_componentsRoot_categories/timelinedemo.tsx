@@ -5,7 +5,7 @@ import { ItineraryDay } from '../tours/services/[serviceid]/_components/HotelIte
 
 
 
-const ChangelogComponentPage = ({ releses }: { releses: ItineraryDay[] }) => {
+const ChangelogComponentPage = ({ releses = [] }: { releses?: ItineraryDay[] }) => {
     return (
         <ChangelogContent releases={releses} />
     )

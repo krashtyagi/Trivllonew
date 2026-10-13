@@ -7,35 +7,35 @@ import { TabsLine } from "./tabs";
 import { cn } from "@/lib/utils";
 import { ShareModal } from "@/app/(home)/(categories)/_componentsRoot_categories/shareComponent";
 
-type HotelItemsProps = {
-  data: TourServiceData;
-  isBookingMode: boolean;
-  loading: boolean;
-};
-export interface ApiResponse {
-  success: boolean;
-  data: TourServiceData;
+export interface TourImage {
+  url: string;
+  public_id: string;
+  resource_type?: string;
+  _id?: string;
 }
 
-export interface TourServiceData {
-  company: Company;
-  service: TourService;
-}
-
-export interface Company {
+export interface TourCompany {
   companyId: string;
   name: string;
   city: string;
   rating: number;
-  images: HotelImage[];
+  images: TourImage[];
   description: string;
+  serviceType?: string;
+  isFavorite?: boolean;
 }
 
-export interface HotelImage {
-  url: string;
-  public_id: string;
-  resource_type: string;
-  _id: string;
+export interface TourMeta {
+  hotelType?: string;
+  transport?: string;
+  mealPlan?: "MAP" | "CP" | "AP" | "EP" | string;
+}
+
+export interface ItineraryDay {
+  day: number;
+  title: string;
+  description: string;
+  highlights: string[];
 }
 
 export interface TourService {
@@ -49,30 +49,42 @@ export interface TourService {
   totalTax?: number;
   totalPriceWithTax: number;
   taxPercentage: number;
-  images: HotelImage[];
+  images: TourImage[];
   features: string[];
-  maxPeople: number;
-  meta: TourMeta;
-  itinerary: ItineraryDay[];
+  maxPeople?: number;
+  meta?: TourMeta;
+  itinerary?: ItineraryDay[];
+  tourType?: string[];
+  amenities?: string[];
 }
 
-export interface TourMeta {
-  hotelType: string;
-  transport: string;
-  mealPlan: "MAP" | "CP" | "AP" | "EP" | string; // Using union for common meal plans
+export interface TourServiceData {
+  company: TourCompany;
+  service: TourService;
+  isFavorite?: boolean;
 }
 
-export interface ItineraryDay {
-  day: number;
-  title: string;
-  description: string;
-  highlights: string[];
+export interface TourServiceResponse {
+  success: boolean;
+  data: TourServiceData;
 }
+
+// Backward-compatibility aliases
+export type HotelImage = TourImage;
+export type Company = TourCompany;
+export type ApiResponse = TourServiceResponse;
+
+export type TourServicesDetailsProps = {
+  data: TourServiceData;
+  isBookingMode: boolean;
+  loading: boolean;
+};
+
 const TourServicesDetails = ({
   data,
   isBookingMode,
-  loading
-}: HotelItemsProps) => {
+  loading,
+}: TourServicesDetailsProps) => {
   // const { availabilityLoading } = useBikeDetailsContext();
   return (
     <div className="flex flex-col gap-6 w-full md:py-8 px-4 md:px-0">

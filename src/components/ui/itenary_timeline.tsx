@@ -6,7 +6,7 @@ import { MapPin } from 'lucide-react';
 import { cn } from "@/lib/utils";
 
 interface ChangelogContentProps {
-    releases: ItineraryDay[];
+    releases?: ItineraryDay[];
 }
 
 const parseDescriptionItems = (text: string): { isList: boolean; items: string[] } => {
@@ -30,7 +30,15 @@ const parseDescriptionItems = (text: string): { isList: boolean; items: string[]
     return { isList: false, items: [text.trim()] };
 };
 
-const ChangelogContent = ({ releases }: ChangelogContentProps) => {
+const ChangelogContent = ({ releases = [] }: ChangelogContentProps) => {
+    if (!releases || releases.length === 0) {
+        return (
+            <div className="mx-auto py-8 text-center text-muted-foreground border border-dashed rounded-xl">
+                <p className="text-sm">No detailed itinerary available for this tour package.</p>
+            </div>
+        );
+    }
+
     return (
         <div className="mx-auto py-3 md:py-4 rounded-xl border border-border bg-card/30 px-3 sm:px-3">
             {releases.map((release, index) => (

@@ -23,6 +23,7 @@ import {
   Star,
   User,
 } from "lucide-react";
+import { posthog } from "posthog-js";
 
 const partnerUrl =
   process.env.NEXT_PUBLIC_PARTNER_URL || "https://partner.trivllo.com/login";
@@ -816,8 +817,20 @@ function TrustBenefit({
   title: string;
   description: string;
 }) {
+  const handleClick = () => {
+    // Trigger a custom event with properties
+    posthog.capture("TrustBenefit_button_clicked", {
+      content_type: "article",
+      content_id: "posthog-nextjs-guide",
+    });
+  };
   return (
-    <div className="flex items-center gap-2.5 sm:gap-3 rounded-2xl  p-2.5 sm:p-3 shadow-[0_4px_16px_rgba(0,0,0,0.1)] transition hover:bg-white/[0.05] hover:border-emerald-500/20">
+    <div
+      onClick={() => {
+        handleClick();
+      }}
+      className="flex items-center gap-2.5 sm:gap-3 rounded-2xl  p-2.5 sm:p-3 shadow-[0_4px_16px_rgba(0,0,0,0.1)] transition hover:bg-white/[0.05] hover:border-emerald-500/20"
+    >
       <div className="flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
         {icon}
       </div>
