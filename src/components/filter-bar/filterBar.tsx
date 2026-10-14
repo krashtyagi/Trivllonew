@@ -50,7 +50,7 @@ export const PagesFilterBarButtons = ({
         )}
       </AnimatePresence>
 
-      <div className="relative z-30 flex justify-between items-center bg-transparent rounded-full">
+      <div className="relative z-30 flex items-center bg-transparent rounded-full gap-0.5 sm:gap-1">
         {PagesFilterBarValues.map((hv, i) => {
           const isActive = selectedId === i;
           return (
@@ -65,19 +65,19 @@ export const PagesFilterBarButtons = ({
             >
               <Item
                 className={cn(
-                  "relative z-40 cursor-pointer rounded-full px-3 py-2 transition-all duration-300",
-                  isActive ? "text-primary" : "text-gray-500 "
+                  "relative z-40 cursor-pointer rounded-full px-2.5 sm:px-3.5 py-1 sm:py-1.5 transition-all duration-300",
+                  isActive ? "text-emerald-800 dark:text-emerald-400 font-bold" : "text-gray-600 dark:text-zinc-400 hover:text-black dark:hover:text-white"
                 )}
               >
                 {isActive && (
                   <motion.div
                     layoutId="active-highlight"
-                    className="absolute inset-0 z-10 rounded-full bg-gray-150 shadow-inner dark:shadow-zinc-800"
+                    className="absolute inset-0 z-10 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-600/20"
                     transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                   />
                 )}
                 <ItemContent className="relative z-20 items-center gap-0 md:text-left">
-                  <ItemTitle className="text-sm font-bold uppercase tracking-wide justify-start">
+                  <ItemTitle className="text-xs sm:text-xs md:text-sm font-bold uppercase tracking-wider justify-start">
                     {hv.value}
                   </ItemTitle>
                   <div className="flex justify-center  w-full ">
@@ -92,9 +92,9 @@ export const PagesFilterBarButtons = ({
         {type === "home" && (
           <Button
             onClick={() => RouterPush(navigate, link || `/${category}/find`)}
-            className="z-40 h-10 w-10  rounded-full bg-zinc-200 text-text  shadow-xl hover:scale-105 transition-transform ml-2"
+            className="z-40 h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-[#0c3926] hover:bg-[#072619] text-white shadow-md hover:scale-105 transition-transform ml-1 sm:ml-2 flex items-center justify-center shrink-0 cursor-pointer p-0"
           >
-            <IconSearch size={24} stroke={3} />
+            <IconSearch size={18} stroke={2.5} />
           </Button>
         )}
       </div>
@@ -115,8 +115,8 @@ export const PagesFilterBarButtons = ({
             }}
             style={{ originX: 0.5 }}
             className={cn(
-              "absolute left-1/2 -translate-x-1/2 z-40 md:w-[95vw] w-[90vw] min-h-[100px] max-w-xl md:rounded-[3rem] rounded-[1rem] border border-border-100 bg-background md:p-2 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.25)]",
-              "bottom-full mb-4 md:bottom-auto md:top-full md:mt-3"
+              "absolute left-1/2 -translate-x-1/2 z-50 md:w-[95vw] w-[90vw] min-h-[100px] max-w-xl md:rounded-2xl rounded-xl border border-border bg-background md:p-2 shadow-2xl",
+              "top-full mt-3"
             )}
           >
             <motion.div layout className="p-7">

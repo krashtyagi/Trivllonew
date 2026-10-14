@@ -14,26 +14,8 @@ const Search_bar_filter = ({
   return (
     <div
       className={cn(
-        type === "home"
-          ? [
-              "w-full",
-              "bg-white/95 dark:bg-zinc-900/95 ",
-              "backdrop-blur-sm",
-              "rounded-full ",
-              "shadow-[0_4px_20px_rgba(0,0,0,0.08)]",
-              "border border-black/5 dark:border-white/10 md:pr-5 bg-gradient-to-br from-zinc-100 to-zinc-100/50  dark:bg-gradient-to-br dark:from-zinc-700 dark:to-transparent" ,
-              mobile ? "mt-4 p-1" : "p-1",
-            ]
-          : [
-              "w-full ",
-              "bg-white/95 dark:bg-zinc-900/95",
-              "backdrop-blur-sm ",
-              "md:rounded-2xl  ",
-              "shadow-[0_4px_20px_rgba(0,0,0,0.08)]",
-              // "border border-black/10 dark:border-white/20 bg-gradient-to-br from-zinc-100 to-zinc-100/50  dark:bg-gradient-to-br dark:from-zinc-700 dark:to-transparent",
-              mobile ? "mt-4 p-1" : "p-1",
-            ],
-
+        "w-fit mx-auto bg-white dark:bg-zinc-900 backdrop-blur-md rounded-full shadow-sm border border-gray-200/80 dark:border-zinc-800 p-0.5 sm:p-1 inline-flex items-center",
+        mobile ? "mt-2" : "",
         containerClassName,
       )}
     >

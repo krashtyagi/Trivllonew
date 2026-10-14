@@ -6,11 +6,11 @@ import { cn } from "@/lib/utils";
 import type { Pages } from "@/constants/constants";
 import { usePathname, useRouter } from "next/navigation";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { RouterPush } from "../RouterPush";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Building2, Palmtree } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 
 export const TabsNav = ({
@@ -33,8 +33,11 @@ export const TabsNav = ({
   const { t } = useTranslation();
 
   const [isVisible, setIsVisible] = useState(true);
-  const imgsize = ismobile ? 28 : 34;
-  const active = propTabs.find((tab) => location.endsWith(tab.link));
+  const active = propTabs.find(
+    (tab) =>
+      location.endsWith(tab.link) ||
+      (tab.link === "/hotels" && (location === "/" || location === ""))
+  );
 
   // Scroll arrow state
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -66,121 +69,137 @@ export const TabsNav = ({
     el.scrollBy({ left: direction === "left" ? -670 : 670, behavior: "smooth" });
   };
 
+  if (ismobile) {
+    return (
+      <div className="w-full flex items-center justify-center gap-8 sm:gap-10 py-1 px-4 bg-transparent">
+        {propTabs.map((tab) => {
+          const isTabActive =
+            active?.title === tab.title ||
+            location.endsWith(tab.link) ||
+            (tab.link === "/hotels" && (location === "/" || location === ""));
+          const isHotel = tab.title.toLowerCase().includes("hotel");
+          const iconSrc = isHotel
+            ? "/nav-icons/hotel-logo.png"
+            : "/nav-icons/tours-logo.png";
+
+          return (
+            <Link
+              key={tab.title}
+              href={tab.link}
+              className={cn(
+                "flex items-center gap-2 px-2.5 py-1 transition-all select-none cursor-pointer",
+                isTabActive
+                  ? "text-[#0c3926] dark:text-emerald-400 font-bold"
+                  : "text-gray-600 dark:text-zinc-400 font-medium hover:text-foreground"
+              )}
+            >
+              <div className="w-8 h-8 relative shrink-0">
+                <Image
+                  src={iconSrc}
+                  alt={tab.title}
+                  width={32}
+                  height={32}
+                  className="object-contain"
+                />
+              </div>
+              <span className="text-sm font-bold">{tab.title}</span>
+            </Link>
+          );
+        })}
+      </div>
+    );
+  }
+
   return (
     <motion.div
       initial={false}
       animate={{ y: isVisible ? 0 : -100 }}
       className={cn(
         "z-10 w-full flex justify-center",
-        ismobile ? "z-50 pb-0 -mt-2" : "",
         className
       )}
     >
       {/* Wrapper for arrows + scrollable container */}
-      <div className={cn("relative w-full flex items-center  ",
-        "md:px-20 lg:px-30 xl:px-40"
-      )}>
-        {/* Left arrow + fade — mobile only */}
-        <AnimatePresence>
-          {ismobile && canScrollLeft && (
-            <motion.div
-              key="scroll-left-zone"
-              initial={{ x: -40, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: -40, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 300, damping: 25 }}
-              className="absolute left-0 z-30 flex items-center h-full"
-              style={{ pointerEvents: "none" }}
-            >
-              {/* Gradient fade mask */}
-              <div className="absolute left-0 top-0 h-full w-12 bg-gradient-to-r from-background via-background/60 to-transparent pointer-events-auto"
-                onClick={(e) => { e.stopPropagation(); e.preventDefault(); }}
-              />
-              <button
-                onClick={(e) => { e.stopPropagation(); e.preventDefault(); scroll("left"); }}
-                className="relative z-10 flex items-center justify-center w-8 h-14 rounded-tr-xl rounded-br-xl bg-background/90 dark:bg-zinc-800/90 backdrop-blur-md border border-border/50 shadow-lg active:scale-90 transition-transform"
-                style={{ pointerEvents: "auto" }}
-                aria-label="Scroll left"
-              >
-                <ChevronLeft className="w-4 h-4 text-foreground/80" />
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
+      <div className={cn("relative flex items-center justify-center")}>
         <div
           ref={scrollRef}
           className={cn(
-            "flex items-center w-full mx-auto",
-            "bg-white/50 dark:bg-zinc-900/50 backdrop-blur-md rounded-[14px] p-1.5",
-            " dark:border-white/10 shadow-sm   overflow-x-auto",
-            // "lg:min-w-[710px] xl:min-w-[910px] md:min-w-[410px]",
+            "flex items-center gap-1 sm:gap-2",
+            "bg-white/60 dark:bg-zinc-900/60 backdrop-blur-md rounded-full px-3 py-1.5",
+            "border border-black/5 dark:border-white/10 shadow-sm",
             containerClassName,
-            ismobile ? "border-none shadow-none scrollbar-hide" : ""
           )}
         >
-          {propTabs.map((tab, index) => (
-            <div key={tab.title} className={cn("flex flex-1 items-center min-w-19 ", ismobile && "min-h-14")}>
-              <Link
-                href={tab.link}
-                className={cn(
-                  "relative flex-1 flex items-center justify-center px-2 sm:px-4 py-2 rounded-[12px]",
-                  "md:text-base text-sm font-medium transition-all whitespace-nowrap",
-                  "hover:bg-zinc-100 dark:hover:bg-zinc-800 border-none",
-                  tabClassName
-                )}
-              >
-                {active?.title === tab.title && (
-                  <motion.div
-                    layoutId="active-nav-tab"
-                    transition={{ type: "spring", bounce: 0.3, duration: 0.6 }}
-                    className={cn(
-                      "absolute inset-0 rounded-[12px] bg-zinc-200 dark:bg-zinc-800",
-                      activeTabClassName
-                    )}
-                  />
-                )}
+          {propTabs.map((tab, index) => {
+            const isTabActive =
+              active?.title === tab.title ||
+              location.endsWith(tab.link) ||
+              (tab.link === "/hotels" && (location === "/" || location === ""));
+            const isHotel = tab.title.toLowerCase().includes("hotel");
+            const isTour = tab.title.toLowerCase().includes("tour");
 
-                <span className="relative z-20 flex gap-2 md:gap-3 items-center">
-                  {tab.iconUrl && (
-                    <div className="shrink-0">
-                      <Image
-                        className={cn(
-                          "rounded-full object-cover transition-transform duration-300 scale-145",
-                          tab.iconUrl === active?.iconUrl && "scale-100"
-                        )}
-                        src={tab.iconUrl}
-                        alt={(() => {
-                          const cleanKey = tab.title.replace(/\s+/g, "");
-                          const finalKey = `nav.${cleanKey.charAt(0).toLowerCase()}${cleanKey.slice(1)}`;
-                          const trans = t(finalKey);
-                          return trans !== finalKey ? trans : tab.title;
-                        })()}
-                        width={imgsize}
-                        height={imgsize}
-                        priority
-                      />
-                    </div>
+            return (
+              <React.Fragment key={tab.title}>
+                <Link
+                  href={tab.link}
+                  className={cn(
+                    "relative flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-full transition-all text-xs sm:text-sm font-semibold select-none",
+                    isTabActive
+                      ? "text-emerald-800 dark:text-emerald-400 font-bold"
+                      : "text-gray-600 dark:text-zinc-400 hover:text-black dark:hover:text-white",
+                    tabClassName
                   )}
-                  {(
-                    <span className=" xl:block text-xs sm:text-sm">
-                      {(() => {
-                        const cleanKey = tab.title.replace(/\s+/g, "");
-                        const finalKey = `nav.${cleanKey.charAt(0).toLowerCase()}${cleanKey.slice(1)}`;
-                        const trans = t(finalKey);
-                        return trans !== finalKey ? trans : tab.title;
-                      })()}
-                    </span>
+                >
+                  {isHotel && (
+                    <Building2
+                      className={cn(
+                        "w-4 h-4 shrink-0 transition-colors",
+                        isTabActive
+                          ? "text-emerald-800 dark:text-emerald-400"
+                          : "text-gray-500"
+                      )}
+                    />
                   )}
-                </span>
-              </Link>
+                  {isTour && (
+                    <Palmtree
+                      className={cn(
+                        "w-4 h-4 shrink-0 transition-colors",
+                        isTabActive
+                          ? "text-emerald-800 dark:text-emerald-400"
+                          : "text-gray-500"
+                      )}
+                    />
+                  )}
+                  {!isHotel && !isTour && tab.iconUrl && (
+                    <Image
+                      src={tab.iconUrl}
+                      alt={tab.title}
+                      width={18}
+                      height={18}
+                      className="rounded-full object-cover shrink-0"
+                    />
+                  )}
+                  <span>{tab.title}</span>
 
-              {/* Visual Separator */}
-              {index < propTabs.length - 1 && !ismobile && (
-                <div className="h-5 w-px bg-black/10 dark:bg-white/10 mx-1 opacity-30" />
-              )}
-            </div>
-          ))}
+                  {/* Active bottom underline indicator */}
+                  {isTabActive && (
+                    <motion.div
+                      layoutId="active-nav-tab-underline"
+                      transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
+                      className="absolute bottom-0 left-3 right-3 h-0.5 bg-emerald-800 dark:bg-emerald-400 rounded-full"
+                    />
+                  )}
+                </Link>
+
+                {/* Divider between tabs */}
+                {index < propTabs.length - 1 && (
+                  <span className="text-gray-300 dark:text-zinc-700 font-light select-none px-1">
+                    |
+                  </span>
+                )}
+              </React.Fragment>
+            );
+          })}
         </div>
 
         {/* Right arrow + fade — mobile only */}

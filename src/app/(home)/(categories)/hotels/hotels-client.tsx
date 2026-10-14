@@ -32,6 +32,10 @@ export type hoteldata = {
   city: string;
   image: string;
   startingPrice?: number | null;
+  rating?: number;
+  numReviews?: number;
+  amenities?: string[];
+  images?: string[];
 };
 
 export default function HotelsClientPage({ className }: HotelFramePageProps) {

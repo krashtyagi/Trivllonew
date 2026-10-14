@@ -85,10 +85,7 @@ const TYPE_META: Record<
 };
 
 function getMeta(type: string) {
-  return (
-    TYPE_META[type] ??
-    TYPE_META["place"]
-  );
+  return TYPE_META[type] ?? TYPE_META["place"];
 }
 
 // ─── Address Search (Dropdown) ──────────────────────────────────────────────
@@ -160,7 +157,7 @@ const AddressSearch = ({
             setIsOpen(true);
           }}
           onFocus={() => setIsOpen(true)}
-          className="md:h-12 h-6 w-full rounded-xl border-none px-2 outline-none bg-transparent text-sm md:text-base"
+          className="h-9 md:h-11 w-full rounded-xl border-none px-2 outline-none bg-transparent text-sm md:text-base font-semibold text-foreground focus-visible:ring-0 focus-visible:ring-offset-0 shadow-none"
         />
         {loading && (
           <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
@@ -176,7 +173,7 @@ const AddressSearch = ({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 5 }}
             transition={{ duration: 0.15 }}
-            className="mt-2 bg-background p-2 rounded-2xl absolute z-[60] w-full shadow-2xl border border-border max-h-[380px] overflow-y-auto"
+            className="mt-1.5 bg-background p-2 rounded-2xl absolute z-[100] w-[90vw] sm:w-[380px] md:w-[420px] left-0 shadow-2xl border border-border/80 max-h-[260px] sm:max-h-[290px] overflow-y-auto scrollbar-thin"
           >
             {/* DB Results — real properties */}
             {dbResults.length > 0 && (
@@ -295,14 +292,14 @@ const SearchInput = ({
   return (
     <div
       className={cn(
-        "flex items-center bg-primary/5 border border-primary/10 rounded-[10px] md:px-5 px-3 py-1 md:py-2",
+        "flex items-center bg-[#ebf2ee] dark:bg-zinc-800/90 rounded-xl px-3 sm:px-4 py-1 sm:py-1.5 border border-transparent hover:border-emerald-700/20 transition-colors w-full",
         className,
       )}
     >
       {Icon ? (
-        <Icon className="w-5 h-5 text-primary shrink-0" />
+        <Icon className="w-5 h-5 text-emerald-800 dark:text-emerald-400 shrink-0" />
       ) : (
-        <MapPin className="w-5 h-5 text-primary shrink-0" />
+        <MapPin className="w-5 h-5 text-emerald-800 dark:text-emerald-400 shrink-0" />
       )}
       <AddressSearch
         label={label}

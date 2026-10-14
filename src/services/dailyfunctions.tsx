@@ -102,6 +102,32 @@ export const LikeIcon = ({ _id, className, isFavourite, name, serviceType }: { _
             isFavourite: data.liked,
           };
         });
+        queryClient.setQueryData(["gethotels_home"], (oldData: any) => {
+          if (!oldData || !oldData.data) return oldData;
+          return {
+            ...oldData,
+            data: oldData.data.map((h: any) => {
+              const hId = (h._id || h.id)?.toString();
+              if (hId === _id.toString()) {
+                return {
+                  ...h,
+                  isFavorite: data.liked,
+                  isFavourite: data.liked,
+                };
+              }
+              return h;
+            }),
+          };
+        });
+        try {
+          const map = JSON.parse(
+            localStorage.getItem("trivllo_user_wishlist") || "{}"
+          );
+          map[_id.toString()] = data.liked;
+          localStorage.setItem("trivllo_user_wishlist", JSON.stringify(map));
+        } catch {
+          // ignore
+        }
       } else if (serviceType === "tour") {
         queryClient.setQueryData(["getTourDetails", _id], (oldData: any) => {
           if (!oldData) return oldData;

@@ -57,7 +57,7 @@ export function MenuBar() {
   }
 
   return (
-    <DropdownMenu>
+    <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
@@ -191,7 +191,7 @@ export function AppPrefrence() {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false)
   return (
-    <DropdownMenu open={open} onOpenChange={setOpen}>
+    <DropdownMenu modal={false} open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"

@@ -1,19 +1,11 @@
-import React, { useEffect } from 'react'
-import { Button } from '../ui/button'
-import { Suspense } from 'react'
-import dynamic from 'next/dynamic';
-import { usePathname, useRouter } from 'next/navigation';
-import { BookHeart } from 'lucide-react';
-import { TypewriterEffect } from '../ui/typewriter-effect';
-import { FlipWords } from '../ui/flip-words';
-import { RouterPush } from '../RouterPush';
-import { useQueryState } from 'nuqs';
-const MenuBar = dynamic(
-  () => import("../menubar").then((mod) => ({ default: mod.MenuBar })),
-  {
-    ssr: false,
-  },
-);
+import React, { useEffect, useState } from "react";
+import { Button } from "../ui/button";
+import { Suspense } from "react";
+import dynamic from "next/dynamic";
+import { usePathname, useRouter } from "next/navigation";
+import { Search, Heart, User as UserIcon, Sparkles } from "lucide-react";
+import { RouterPush } from "../RouterPush";
+
 const AppPrefrence = dynamic(
   () => import("../menubar").then((mod) => ({ default: mod.AppPrefrence })),
   {
@@ -21,88 +13,110 @@ const AppPrefrence = dynamic(
   },
 );
 
-
 const TopRight = ({ isMobile }: { isMobile: boolean }) => {
-  const pathname = usePathname()
-  const showfav = pathname.endsWith('profile')
-  const words = ["WishList", "saved", "plans"];
-  const router = useRouter()
-  const [tab, setTab] = useQueryState("tab", {
-    defaultValue: "/",
-    shallow: true,
-  });
+  const pathname = usePathname();
+  const router = useRouter();
+  const isFindPage = pathname.includes("/find");
 
+  const { data: user } = useCurrentUser();
+  const isLoggedIn = !!user?.data;
 
   return (
-    <div className="flex gap-1 md:gap-1.5 px-2 px-1 h-full items-center self-center">
-      {!showfav ?
-        <Button asChild variant={"ghost"} className="w-17 sm:w-17 md:w-19 lg:w-23 xl:w-25 text-xs py-0 h-7  bg-primary  hover:bg-primary hover:shadow-lg ">
-          <a href={process.env.NEXT_PUBLIC_PARTNER_URL} target="_blank" rel="noopener noreferrer" className="cursor-pointer font-bold text-card hover:text-background">Get Listed</a>
-        </Button> : (
-          <Button onClick={() => {
-            setTab('wishlist')
+    <div className="flex items-center gap-1 sm:gap-2 px-1 h-full shrink-0">
+      {/* Search Icon - desktop only, hidden on find page since search bar is in navbar */}
+      {!isMobile && !isFindPage && (
+        <button
+          onClick={() => {
+            window.scrollTo({ top: 120, behavior: "smooth" });
+          }}
+          className="p-2 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 text-gray-700 dark:text-gray-200 transition-colors cursor-pointer"
+          aria-label="Search"
+        >
+          <Search className="w-4 h-4" />
+        </button>
+      )}
 
-          }} variant={"secondary"} className="w-24 px-0 sm:px-2  text-xs py-0 flex gap-2">
-            <BookHeart className='text-primary' />
-            <FlipWords words={words} className='text-xs' /> <br />
-          </Button>
-        )}
-      {!isMobile && <Suspense>
-        {/* <MenuBar  /> */}
-        <ProfilePic />
-      </Suspense>}
+      {/* Wishlist Heart Icon - desktop only, ONLY if logged in */}
+      {isLoggedIn && !isMobile && (
+        <button
+          onClick={() => {
+            RouterPush(router, "/profile?tab=wishlist");
+          }}
+          className="p-2 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 text-gray-700 dark:text-gray-200 transition-colors cursor-pointer"
+          aria-label="Wishlist"
+        >
+          <Heart className="w-4 h-4" />
+        </button>
+      )}
+
+      {/* User Profile / Avatar - desktop only, ONLY if logged in */}
+      {isLoggedIn && !isMobile && (
+        <Suspense
+          fallback={
+            <div className="w-8 h-8 rounded-full bg-zinc-200 animate-pulse" />
+          }
+        >
+          <ProfilePic />
+        </Suspense>
+      )}
+
+      {/* Get Listed Button - visible on both */}
+      <Button
+        asChild
+        className="bg-[#0c3926] hover:bg-[#072619] text-white font-bold text-xs h-8 sm:h-9 px-3 sm:px-4 rounded-full shadow-sm hover:shadow-md transition-all active:scale-95 cursor-pointer"
+      >
+        <a
+          href={
+            process.env.NEXT_PUBLIC_PARTNER_URL ||
+            "https://partner.trivllo.com/login"
+          }
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-1.5 cursor-pointer text-white"
+        >
+          {/* <Sparkles className="w-3.5 h-3.5 text-emerald-300 hidden sm:inline" /> */}
+          <span>Get Listed</span>
+        </a>
+      </Button>
+
+      {/* App Preferences / Hamburger Menu */}
       <Suspense>
         <AppPrefrence />
       </Suspense>
     </div>
-  )
-}
+  );
+};
 
-export default TopRight
-
-
-
-
+export default TopRight;
 
 import Image from "next/image";
-import { useCurrentUser } from '@/services/hotel/querys';
-import { useNextGoingRoute } from '@/hooks/auth/route.hook';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { Skeleton } from '../ui/skeleton';
-import { toast } from 'sonner';
+import { useCurrentUser } from "@/services/hotel/querys";
+import { Skeleton } from "../ui/skeleton";
 
 const ProfilePic = () => {
-  const { data: user, isLoading, refetch } = useCurrentUser();
-  const pathname = usePathname();
-  const { goWithAuth } = useNextGoingRoute();
-  const isMobile = useIsMobile()
-  const isLoggedIn = !!user?.data;
-  const router = useRouter()
-  const [mounted, setMounted] = React.useState(false);
+  const { data: user, isLoading } = useCurrentUser();
+  const router = useRouter();
+  const [mounted, setMounted] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setMounted(true);
   }, []);
 
-  const handleNavigate = (path: string) => {
-    if (pathname === path) return;
-    goWithAuth(path, isLoggedIn);
-    toast.success("Redirecting...");
-  };
-
-  // Render a skeleton during SSR and before client mount to prevent hydration mismatch
   if (!mounted || isLoading) {
-    return <Skeleton className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-full" />;
+    return <Skeleton className="h-8 w-8 shrink-0 rounded-full" />;
   }
-  if (!user) return null
+
+  if (!user || !user?.data) {
+    return null;
+  }
+
   return (
     <Button
-      onClick={() => RouterPush(router, '/profile')}
+      onClick={() => RouterPush(router, "/profile")}
       variant="ghost"
-      // Reduced size on mobile (h-9), standard on desktop (sm:h-10)
-      className="relative h-8 w-8 sm:h-8 sm:w-8 md:h-10 md:w-10   rounded-full border-2 border-transparent hover:border-orange-400 p-0 transition-all duration-300"
+      className="relative h-8 w-8 rounded-full border border-border p-0 transition-transform hover:scale-105 cursor-pointer"
     >
-      <div className="relative h-full w-full overflow-hidden rounded-full border border-border">
+      <div className="relative h-full w-full overflow-hidden rounded-full">
         <Image
           src={user?.data?.avatar || "/icons/user.png"}
           alt="Profile"
@@ -111,10 +125,5 @@ const ProfilePic = () => {
         />
       </div>
     </Button>
-  )
-}
-
-
-
-
-
+  );
+};

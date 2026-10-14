@@ -159,33 +159,24 @@ export function BottomNav() {
       )}
 
       {/* 5. Profile/You Button */}
-      <div className="flex-1 flex justify-center">
-        {!isLoggedIn ? (
-          !isMobile ? (
-            <div className="flex flex-col items-center text-muted-foreground opacity-50">
-              <User size={iconSize} />
-              <span className="text-[10px] font-medium mt-1">You</span>
-            </div>
-          ) : (
-            <IndividualNavButton
-              active={isActive("/login")}
-              onClick={() => RouterPush(router, "/login")}
-              icon={User}
-              label="You"
-              size={iconSize}
-            />
-          )
-        ) : (
-          <IndividualNavButton
-            active={isActive("/profile") && !isBookingTab}
-            onClick={() => RouterPush(router, "/profile")}
-            icon={User}
-            label="You"
-            size={iconSize}
-            fill
-          />
-        )}
-      </div>
+      {!isLoggedIn ? (
+        <IndividualNavButton
+          active={isActive("/login")}
+          onClick={() => RouterPush(router, "/login")}
+          icon={User}
+          label="You"
+          size={iconSize}
+        />
+      ) : (
+        <IndividualNavButton
+          active={isActive("/profile") && !isBookingTab}
+          onClick={() => RouterPush(router, "/profile")}
+          icon={User}
+          label="You"
+          size={iconSize}
+          fill
+        />
+      )}
     </nav>
   );
 }
@@ -201,15 +192,15 @@ function IndividualNavButton({ active, onClick, icon: Icon, label, size, fill }:
         whileTap={{ scale: 0.85 }}
         className={cn(
           "flex flex-col items-center gap-1 transition-colors duration-200",
-          active ? "text-primary" : "text-muted-foreground"
+          active ? "text-[#0c3926] dark:text-emerald-400 font-bold" : "text-gray-500 dark:text-zinc-400"
         )}
       >
         <Icon
           size={size}
-          strokeWidth={active ? 2.5 : 2}
+          strokeWidth={active ? 2.5 : 1.8}
           fill={active && fill ? "currentColor" : "none"}
         />
-        <span className="text-[10px] font-medium leading-none">{label}</span>
+        <span className="text-[10px] font-semibold leading-none">{label}</span>
       </motion.div>
 
       {/* FIXED: Active Indicator - Positioned at the very top of the nav height */}
