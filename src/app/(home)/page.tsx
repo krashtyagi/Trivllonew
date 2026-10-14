@@ -27,12 +27,16 @@ export interface HotelData {
     data: hoteldata[];
 }
 export type hoteldata = {
-    _id: string,
-    name: string,
-    city: string,
-    image: string,
-    startingPrice?: number | null,
-}
+    _id: string;
+    name: string;
+    city: string;
+    image: string;
+    startingPrice?: number | null;
+    rating?: number;
+    numReviews?: number;
+    amenities?: string[];
+    images?: string[];
+};
 // export const  HotelPopularCites:CityTrends[]=[
 //  {
 //   name:"south goa",
@@ -131,7 +135,7 @@ const Hotel: React.FC<HotelFramePageProps> = ({ className }) => {
 
                         } />
 
-                    <div className={cn(CommonPagesStyles, " md:flex-col  flex gap-4  bg-background py-4  ")}>
+                    <div className={cn(CommonPagesStyles, "md:flex-col flex gap-2 md:gap-4 bg-background pt-1 pb-4 md:py-4")}>
 
                         <HotelFramePage
                             // popularTrends={HotelPopularCites}

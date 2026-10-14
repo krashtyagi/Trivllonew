@@ -635,7 +635,13 @@ const MainFramePage = ({
 
         return {
           title: comp.name,
-          location: `${city}, India • Starting ₹${comp.startingPrice || 999}/person`,
+          location: `${city}, India`,
+          price: comp.startingPrice || 999,
+          rating: (comp as any).rating?.average || 4.8,
+          numReviews: (comp as any).rating?.count || 140,
+          amenities: (comp as any).features?.length
+            ? (comp as any).features.slice(0, 3)
+            : ["Guided Tour", "Safety Gear", "Expert Guides"],
           image: logoImg,
           href: `/tours/${comp._id}`,
         };
@@ -662,7 +668,13 @@ const MainFramePage = ({
 
       return {
         title: comp.name,
-        location: `${comp.city || comp.location?.city || "India"} • ${comp.totalTours || 0} Available Tours`,
+        location: `${comp.city || comp.location?.city || "India"}`,
+        price: comp.startingPrice || 1499,
+        rating: (comp as any).rating?.average || 4.9,
+        numReviews: (comp as any).rating?.count || 185,
+        amenities: (comp as any).features?.length
+          ? (comp as any).features.slice(0, 3)
+          : ["Guided Tour", "Safety Gear", "Expert Guides"],
         image: logoImg,
         href: `/tours/${comp._id}`,
       };
@@ -741,7 +753,7 @@ const MainFramePage = ({
               items={carousel.items}
               isLoading={carousel.isLoading || false}
               icon={carousel.icon || <MapPin className="h-3 w-3 shrink-0" />}
-              galleryCardHide={true}
+              galleryCardHide={false}
             />
 
             {/* Ranked Banner after specific carousel positions (gap of 3 carousels) */}

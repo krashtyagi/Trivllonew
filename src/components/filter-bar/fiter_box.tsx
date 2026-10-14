@@ -1,62 +1,37 @@
-
-
 "use client";
 
 import { SearchBoxValuesProps } from "@/constants/constants";
-import { AnimatePresence, motion } from "framer-motion";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "../ui/button";
-import { Card } from "../ui/card";
 import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { Spinner } from "../spinner";
 import { RouterPush } from "../RouterPush";
 import { useHotelStore } from "@/store/hotel.store";
+import { useToursStore } from "@/store/tours.store";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import type { DateRange } from "react-day-picker";
-import { hooksSupplier } from "../navbar/filter-nav-bar/calander05";
-
-/** Returns dynamic display text for a filter block based on its label */
-function getFilterBlockDisplayText(
-  label: string,
-  fallback: string,
-  date: DateRange | undefined,
-  guests: { adults: number; children: number }
-): string {
-  const normalized = label.trim().toLowerCase();
-
-  if (normalized === "check in") {
-    return date?.from ? format(new Date(date.from), "dd MMM yyyy") : fallback;
-  }
-  if (normalized === "when") {
-    return date?.from ? format(new Date(date.from), "dd MMM yyyy") : fallback;
-  }
-  if (normalized === "booking date") {
-    return date?.from ? format(new Date(date.from), "dd MMM yyyy") : fallback;
-  }
-  if (normalized === "check out") {
-    return date?.to ? format(new Date(date.to), "dd MMM yyyy") : fallback;
-  }
-  if (normalized === "guests") {
-    const total = (guests?.adults ?? 0) + (guests?.children ?? 0);
-    if (total === 0) return fallback;
-    const parts: string[] = [];
-    if (guests.adults > 0) parts.push(`${guests.adults} Adult${guests.adults > 1 ? "s" : ""}`);
-    if (guests.children > 0) parts.push(`${guests.children} Child${guests.children > 1 ? "ren" : ""}`);
-    return parts.join(", ");
-  }
-
-  // For labels like "Company", "When", etc — just use fallback
-  return fallback;
-}
+import {
+  Calendar,
+  User,
+  Search,
+  ShieldCheck,
+  CheckCircle2,
+  Headphones,
+  Sparkles,
+  ArrowRight,
+  ChevronDown,
+} from "lucide-react";
 
 const FilterBox = ({
   FilterBoxValues,
-  link,
-  type,
-  directions, city, date, guests
+  link = "/hotels",
+  directions,
+  city,
+  date,
+  guests,
 }: {
   city: string;
   date: DateRange | undefined;
@@ -68,350 +43,479 @@ const FilterBox = ({
 }) => {
   const router = useRouter();
   const ismobile = useIsMobile();
-  // const { city, date, guests } = useHotelStore();
+  const { setCity: setHotelCity } = useHotelStore();
+  const { setCity: setTourCity } = useToursStore();
+
   const [loading, setLoading] = useState(false);
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
-  const [validationError, setValidationError] = useState<{ city: boolean; date: boolean } | null>(null);
-  const validationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const iscity = !!city;
+  const [featuredIndex, setFeaturedIndex] = useState(0);
+
+  const isTour = link?.includes("tour");
+
+  const featuredSpots = isTour
+    ? [
+        {
+          city: "Rishikesh",
+          tagline: "White waters, Himalayan heights, unforgettable thrills.",
+          image:
+            "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80",
+        },
+        {
+          city: "Manali",
+          tagline: "Snowy peaks, cozy stays, unforgettable memories.",
+          image:
+            "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80",
+        },
+        {
+          city: "Goa",
+          tagline: "Golden beaches, azure waters, vibrant tropical energy.",
+          image:
+            "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=1200&q=80",
+        },
+      ]
+    : [
+        {
+          city: "Manali",
+          tagline: "Snowy peaks, cozy stays, unforgettable memories.",
+          image:
+            "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80",
+        },
+        {
+          city: "Rishikesh",
+          tagline: "Riverside luxury, yoga retreats, sacred Himalayan sunsets.",
+          image:
+            "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80",
+        },
+        {
+          city: "Goa",
+          tagline: "Heritage Portuguese villas & private beachfront suites.",
+          image:
+            "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=1200&q=80",
+        },
+      ];
+
+  const currentFeatured = featuredSpots[featuredIndex];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setFeaturedIndex((prev) => (prev + 1) % featuredSpots.length);
+    }, 6000);
+    return () => clearInterval(timer);
+  }, [featuredSpots.length]);
 
   const handleSearchClick = () => {
-    const missingCity = !city;
-    const missingDate = !date?.from || !date?.to;
-    if (missingCity || missingDate) {
-      if (validationTimeoutRef.current) clearTimeout(validationTimeoutRef.current);
-      setValidationError({ city: missingCity, date: missingDate });
-      validationTimeoutRef.current = setTimeout(() => setValidationError(null), 3500);
-      return;
+    if (!city) {
+      if (isTour) {
+        setTourCity("manali");
+      } else {
+        setHotelCity("manali");
+      }
     }
-    RouterPush(router, `${link}/find`);
     setLoading(true);
+    RouterPush(router, `${link}/find`);
   };
 
-  useEffect(() => {
-    const html = document.documentElement;
-    const body = document.body;
-
-    if (activeIdx !== null) {
-      const scrollY = window.scrollY;
-
-      body.style.position = 'fixed';
-      body.style.top = `-${scrollY}px`;
-      body.style.width = '100%';
-      body.style.overflowY = 'scroll';
+  const handleFeaturedClick = (targetCity: string) => {
+    if (isTour) {
+      setTourCity(targetCity.toLowerCase());
+      RouterPush(router, `/tours/find`);
     } else {
-      const scrollY = body.style.top;
-
-      body.style.position = '';
-      body.style.top = '';
-      body.style.width = '';
-      body.style.overflowY = '';
-
-      window.scrollTo(0, parseInt(scrollY || '0') * -1);
+      setHotelCity(targetCity.toLowerCase());
+      RouterPush(router, `/hotels/find`);
     }
+  };
 
-    return () => {
-      body.style.position = '';
-      body.style.top = '';
-      body.style.width = '';
-      body.style.overflowY = '';
-    };
-  }, [activeIdx]);
+  const displayCheckIn = date?.from
+    ? format(new Date(date.from), "dd MMM")
+    : "10 Oct";
+  const displayCheckOut = date?.to
+    ? format(new Date(date.to), "dd MMM")
+    : "11 Oct";
+  const displayGuests =
+    guests?.adults || guests?.children
+      ? `${guests.adults || 1} Adult${(guests.adults || 1) > 1 ? "s" : ""}${
+          guests.children ? `, ${guests.children} Child` : ""
+        }`
+      : "1 Adult";
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setActiveIdx(null);
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  const videoList =
+    FilterBoxValues?.videos && FilterBoxValues.videos.length > 0
+      ? FilterBoxValues.videos
+      : [
+          {
+            title: "Capture the Joy.",
+            description:
+              "450+ vacation rentals, 120 local guides, and endless memories.",
+            link: "/search-box-videos/sardaar.mp4",
+          },
+          {
+            title: "Classic Rooms.",
+            description: "Stay in comfort and style.",
+            link: "/search-box-videos/room.mp4",
+          },
+        ];
 
-  // if (link?.substring(1, link.length) === "adventures" || link?.substring(1, link.length) === "tours") return null;
+  const videoIndex = featuredIndex % videoList.length;
+  const activeVideo = videoList[videoIndex];
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 md:gap-6 items-start  mx-auto md:py-4 md:px-[43px] ">
+    <>
+      {/* MOBILE VIEW */}
+      <div className="md:hidden w-full px-3 pt-0.5 pb-1 bg-background">
+        <div className="bg-white dark:bg-zinc-900 rounded-xl p-2.5 shadow-sm border border-gray-100/90 dark:border-zinc-800 relative">
+          <div className="w-full relative z-30">{directions}</div>
 
-      <div className="lg:col-span-3 relative w-full group bg-transparent">
-        <Card className={cn(
-          "w-full flex flex-col gap-4 shadow-2xl dark:shadow-zinc-950 border-none bg-card/10 rounded-[1.5rem] px-4 pt-6 pb-12 md:px-8 md:pt-8 md:pb-14",
-          ismobile && "py-2 pb-7"
-        )}>
-          <div className="md:space-y-6 space-y-2">
-
-            {/* City field with validation */}
-            <div className="relative">
-              <AnimatePresence>
-                {validationError?.city && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0, marginBottom: 0 }}
-                    animate={{ opacity: 1, height: "auto", marginBottom: 6 }}
-                    exit={{ opacity: 0, height: 0, marginBottom: 0 }}
-                    transition={{ height: { duration: 0.6, ease: "easeOut" }, opacity: { duration: 0.4, ease: "easeOut" }, marginBottom: { duration: 0.6, ease: "easeOut" } }}
-                    className="overflow-hidden"
-                  >
-                    <motion.div
-                      initial={{ x: -16 }}
-                      animate={{ x: 0 }}
-                      transition={{ type: "spring", damping: 20, stiffness: 180, delay: 0.15 }}
-                      className="flex items-center gap-1.5 pl-2 py-0.5"
-                    >
-                      <motion.div
-                        animate={{ y: [0, 3, 0] }}
-                        transition={{ repeat: Infinity, duration: 1.0, ease: "easeInOut" }}
-                        className="text-red-500"
-                      >
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12l7 7 7-7" /></svg>
-                      </motion.div>
-                      <motion.span
-                        className="text-[10px] md:text-xs font-bold bg-gradient-to-r from-red-500 to-orange-400 bg-clip-text text-transparent"
-                        animate={{ opacity: [0.7, 1, 0.7] }}
-                        transition={{ repeat: Infinity, duration: 1.0, ease: "easeInOut" }}
-                      >
-                        Select a destination
-                      </motion.span>
-                    </motion.div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-              <motion.div
-                animate={validationError?.city ? {
-                  boxShadow: [
-                    "0 0 0 0px rgba(239,68,68,0)",
-                    "0 0 0 3px rgba(239,68,68,0.3)",
-                    "0 0 0 0px rgba(239,68,68,0)"
-                  ]
-                } : { boxShadow: "0 0 0 0px rgba(239,68,68,0)" }}
-                transition={{ repeat: validationError?.city ? Infinity : 0, duration: 1.0, ease: "easeInOut" }}
-                className="rounded-[12px]"
-              >
-                {directions}
-              </motion.div>
+          <div
+            className={cn(
+              "grid gap-1.5 mt-1.5",
+              isTour ? "grid-cols-2" : "grid-cols-3",
+            )}
+          >
+            <div
+              onClick={() => setActiveIdx(0)}
+              className="border border-gray-200/90 dark:border-zinc-700/80 rounded-lg py-1.5 px-1 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+            >
+              <Calendar className="w-3.5 h-3.5 text-[#0c3926] dark:text-emerald-400" />
+              <span className="text-[8px] font-bold tracking-wider text-muted-foreground uppercase mt-0.5">
+                {isTour ? "BOOKING DATE" : "CHECK IN"}
+              </span>
+              <span className="text-[10px] font-semibold text-foreground truncate">
+                {date?.from
+                  ? format(new Date(date.from), "dd MMM")
+                  : "Add dates"}
+              </span>
             </div>
 
-
-            <div className="relative">
-              {/* Date fields validation indicator */}
-              <AnimatePresence>
-                {validationError?.date && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0, marginBottom: 0 }}
-                    animate={{ opacity: 1, height: "auto", marginBottom: 6 }}
-                    exit={{ opacity: 0, height: 0, marginBottom: 0 }}
-                    transition={{ height: { duration: 0.6, ease: "easeOut", delay: 0.1 }, opacity: { duration: 0.4, ease: "easeOut", delay: 0.1 }, marginBottom: { duration: 0.6, ease: "easeOut", delay: 0.1 } }}
-                    className="overflow-hidden"
-                  >
-                    <motion.div
-                      initial={{ x: -16 }}
-                      animate={{ x: 0 }}
-                      transition={{ type: "spring", damping: 20, stiffness: 180, delay: 0.25 }}
-                      className="flex items-center gap-1.5 pl-2 py-0.5"
-                    >
-                      <motion.div
-                        animate={{ y: [0, 3, 0] }}
-                        transition={{ repeat: Infinity, duration: 1.4, ease: "easeInOut" }}
-                        className="text-primary"
-                      >
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12l7 7 7-7" /></svg>
-                      </motion.div>
-                      <motion.span
-                        className="text-[10px] md:text-xs font-bold bg-primary/80 to-primary/70 bg-clip-text text-transparent"
-                        animate={{ opacity: [0.7, 1, 0.7] }}
-                        transition={{ repeat: Infinity, duration: 1.8, ease: "easeInOut" }}
-                      >
-                        Choose your dates
-                      </motion.span>
-                    </motion.div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-              <div className="flex gap-2 md:gap-3">
-                {FilterBoxValues.filterBlocks.map((item, idx) => {
-                  const IconValues = item.icon;
-                  const isActive = activeIdx === idx;
-                  const isDateBlock = ["check in", "check out", "when", "booking date"].includes(item.label.trim().toLowerCase());
-                  const highlightDate = !!(validationError?.date && isDateBlock);
-
-                  return (
-                    <div key={idx} className="flex-1">
-                      <motion.div
-                        onClick={() => setActiveIdx(isActive ? null : idx)}
-                        animate={highlightDate ? {
-                          boxShadow: [
-                            "0 0 0 0px rgba(249,115,22,0)",
-                            "0 0 0 3px rgba(249,115,22,0.35)",
-                            "0 0 0 0px rgba(249,115,22,0)"
-                          ]
-                        } : { boxShadow: "0 0 0 0px rgba(249,115,22,0)" }}
-                        transition={{ repeat: highlightDate ? Infinity : 0, duration: 1.5, ease: "easeInOut" }}
-                        className={cn(
-                          "flex md:flex-row flex-col w-full items-center gap-2 md:gap-3 bg-secondary/30 border border-border rounded-[12px] px-3 py-2 md:py-3 cursor-pointer relative z-[30]",
-                          isActive && "border-primary ring-2 ring-primary/10 bg-secondary"
-                        )}
-                      >
-                        <IconValues className="w-3 h-3 sm:w-5 sm:h-5 text-primary shrink-0" />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[9px] md:text-[10px] uppercase font-bold text-muted-foreground">{item.label}</p>
-                          <p className="text-[8px] md:text-sm font-semibold truncate text-foreground/70">{getFilterBlockDisplayText(item.label, item.text, date, guests)}</p>
-                        </div>
-                      </motion.div>
-                    </div>
-                  );
-                })}
+            {!isTour && (
+              <div
+                onClick={() => setActiveIdx(1)}
+                className="border border-gray-200/90 dark:border-zinc-700/80 rounded-lg py-1.5 px-1 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+              >
+                <Calendar className="w-3.5 h-3.5 text-[#0c3926] dark:text-emerald-400" />
+                <span className="text-[8px] font-bold tracking-wider text-muted-foreground uppercase mt-0.5">
+                  CHECK OUT
+                </span>
+                <span className="text-[10px] font-semibold text-foreground truncate">
+                  {date?.to ? format(new Date(date.to), "dd MMM") : "Add dates"}
+                </span>
               </div>
+            )}
 
-              <Dialog open={activeIdx !== null} onOpenChange={(open) => { if (!open) setActiveIdx(null); }}>
-                <DialogContent
-                  className={cn(
-                    "z-[160] bg-background border border-border shadow-2xl rounded-2xl p-6",
-                    "w-[95%] max-w-[500px] md:max-w-[650px] max-h-[80vh] overflow-y-auto flex justify-center"
-                  )}
-                >
-                  <DialogTitle className="sr-only">Filter Options</DialogTitle>
-                  {activeIdx !== null && FilterBoxValues.filterBlocks[activeIdx]?.element}
-                </DialogContent>
-              </Dialog>
+            <div
+              onClick={() => setActiveIdx(isTour ? 1 : 2)}
+              className="border border-gray-200/90 dark:border-zinc-700/80 rounded-lg py-1.5 px-1 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+            >
+              <User className="w-3.5 h-3.5 text-[#0c3926] dark:text-emerald-400" />
+              <span className="text-[8px] font-bold tracking-wider text-muted-foreground uppercase mt-0.5">
+                GUESTS
+              </span>
+              <span className="text-[10px] font-semibold text-foreground truncate">
+                {displayGuests}
+              </span>
             </div>
           </div>
-        </Card>
 
-        <div className="absolute -bottom-4 md:-bottom-6 left-1/2 -translate-x-1/2 z-30 w-full flex justify-center">
-          <motion.div
-            animate={validationError ? { x: [0, -8, 8, -8, 8, -4, 4, 0] } : { x: 0 }}
-            transition={{ duration: 0.5, ease: "easeInOut" }}
-          >
+          <div className="flex justify-center -mb-4 mt-2">
             <Button
-              variant={"default"}
-              disabled={loading}
-              className={cn(
-                "w-[140px] md:min-w-[240px] md:px-7 hover:scale-105 flex backdrop-blur-md transition-all duration-300 items-center justify-center bg-primary dark:border-none text-zinc-100 h-9 md:h-14 rounded-full text-lg font-extrabold shadow-md border-[3px] border-zinc-100",
-                "disabled:opacity-100 text-xs md:text-lg",
-                validationError && "!bg-red-500 dark:!bg-red-500"
-              )}
               onClick={handleSearchClick}
+              disabled={loading}
+              className="bg-[#0c3926] hover:bg-[#072619] text-white font-bold text-[11px] h-8 px-5 rounded-full shadow-md border-2 border-white dark:border-zinc-900 cursor-pointer active:scale-95 transition-all"
             >
-              {loading ? <Spinner /> :
-                iscity && date && date.from && date.to ?
-                  `Search ${link?.substring(1, link.length)}`
-                  : `Select city and date`}
+              {loading ? (
+                <Spinner />
+              ) : (
+                <span>
+                  {city && date?.from
+                    ? isTour
+                      ? "Search Tours"
+                      : "Search Hotels"
+                    : "Select city and date"}
+                </span>
+              )}
             </Button>
-          </motion.div>
+          </div>
+        </div>
+
+        <div
+          onClick={handleSearchClick}
+          className="mt-5 mb-1 w-full rounded-xl overflow-hidden relative shadow-sm h-[140px] cursor-pointer group"
+        >
+          <video
+            key={activeVideo.link}
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          >
+            <source src={activeVideo.link} type="video/mp4" />
+          </video>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
+          <div className="relative z-10 h-full p-3 flex flex-col justify-end">
+            <h3 className="text-base font-extrabold text-white drop-shadow leading-tight">
+              {activeVideo.title}
+            </h3>
+            <p className="text-[10px] text-white/90 drop-shadow line-clamp-2 max-w-[260px] font-medium">
+              {activeVideo.description}
+            </p>
+            <div className="flex items-center gap-1 mt-1.5">
+              {videoList.map((_, i) => (
+                <span
+                  key={i}
+                  className={cn(
+                    "h-1 rounded-full transition-all duration-300",
+                    videoIndex === i ? "w-4 bg-white" : "w-1 bg-white/50",
+                  )}
+                />
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
-      <div className="lg:col-span-2 w-full h-full lg:px-0 px-2 mt-4 lg:mt-0">
-        <LoopingVideoHero VIDEOS={FilterBoxValues?.videos || []} />
+      {/* TABLET & DESKTOP VIEW */}
+      <div
+        className="hidden md:flex w-full relative bg-cover bg-center py-8 md:py-10 min-h-[190px] md:min-h-[280px] items-center z-20"
+        style={{
+          backgroundImage: `url('/hotels/main_page_bg.png')`,
+          backgroundPosition: "center 40%",
+        }}
+      >
+        <div className="absolute inset-0 bg-white/10 pointer-events-none" />
+
+        <div className="w-full max-w-full mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="grid grid-cols-1 xl:grid-cols-12 gap-3 items-center">
+            {/* Left Header & Filter */}
+            <div className="col-span-12 xl:col-span-8 flex flex-col justify-center">
+              <div className="max-w-2xl mb-2">
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2 leading-tight">
+                  <span>
+                    {isTour
+                      ? "Find Your Next Adventure"
+                      : "Find Your Perfect Stay"}
+                  </span>
+                </h1>
+                <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 font-medium leading-normal max-w-xl mt-0.5">
+                  {isTour
+                    ? "Discover guided treks, thrilling river rafting, cultural journeys, and bespoke expeditions across India."
+                    : "Discover handpicked hotels, from cozy stays to luxury escapes, across the most beautiful places in India."}
+                </p>
+              </div>
+
+              {/* Compact Search Bar Container */}
+              <div className="bg-white dark:bg-zinc-900 rounded-2xl p-1.5 sm:p-2 shadow-xl border border-black/5 dark:border-white/10">
+                <div className="grid grid-cols-12 gap-1.5 sm:gap-2 items-center">
+                  {/* 1. Destination Field */}
+                  <div
+                    className={cn(
+                      "relative z-30 flex items-center w-full",
+                      isTour
+                        ? "col-span-12 sm:col-span-4"
+                        : "col-span-12 sm:col-span-3",
+                    )}
+                  >
+                    <div className="w-full">{directions}</div>
+                  </div>
+
+                  {/* 2. Check In Field */}
+                  <div
+                    onClick={() => setActiveIdx(0)}
+                    className={cn(
+                      "flex items-center gap-1.5 p-1.5 sm:p-2 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800/80 cursor-pointer transition-colors border border-transparent hover:border-border min-w-0",
+                      isTour
+                        ? "col-span-6 sm:col-span-3"
+                        : "col-span-6 sm:col-span-2",
+                    )}
+                  >
+                    <Calendar className="w-4 h-4 text-emerald-700 shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[9px] uppercase font-bold tracking-wider text-muted-foreground leading-none">
+                        {isTour ? "Booking Date" : "Check In"}
+                      </p>
+                      <p className="text-xs font-semibold truncate text-foreground mt-0.5">
+                        {displayCheckIn}
+                      </p>
+                    </div>
+                    <ChevronDown className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                  </div>
+
+                  {/* 3. Check Out Field (Hotels only) */}
+                  {!isTour ? (
+                    <div
+                      onClick={() => setActiveIdx(1)}
+                      className="col-span-6 sm:col-span-2 flex items-center gap-1.5 p-1.5 sm:p-2 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800/80 cursor-pointer transition-colors border border-transparent hover:border-border min-w-0"
+                    >
+                      <Calendar className="w-4 h-4 text-emerald-700 shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[9px] uppercase font-bold tracking-wider text-muted-foreground leading-none">
+                          Check Out
+                        </p>
+                        <p className="text-xs font-semibold truncate text-foreground mt-0.5">
+                          {displayCheckOut}
+                        </p>
+                      </div>
+                      <ChevronDown className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                    </div>
+                  ) : null}
+
+                  {/* 4. Guests Field */}
+                  <div
+                    onClick={() => setActiveIdx(isTour ? 1 : 2)}
+                    className={cn(
+                      "flex items-center gap-1.5 p-1.5 sm:p-2 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800/80 cursor-pointer transition-colors border border-transparent hover:border-border min-w-0",
+                      isTour
+                        ? "col-span-6 sm:col-span-2"
+                        : "col-span-6 sm:col-span-2",
+                    )}
+                  >
+                    <User className="w-4 h-4 text-emerald-700 shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[9px] uppercase font-bold tracking-wider text-muted-foreground leading-none">
+                        Guests
+                      </p>
+                      <p className="text-xs font-semibold truncate text-foreground mt-0.5">
+                        {displayGuests}
+                      </p>
+                    </div>
+                    <ChevronDown className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                  </div>
+
+                  {/* 5. Search Button */}
+                  <div
+                    className={cn(
+                      "flex justify-end w-full",
+                      isTour
+                        ? "col-span-12 sm:col-span-3"
+                        : "col-span-12 sm:col-span-3",
+                    )}
+                  >
+                    <Button
+                      onClick={handleSearchClick}
+                      disabled={loading}
+                      className="w-full bg-[#0c3926] hover:bg-[#072619] text-white font-bold rounded-xl px-3 py-2.5 h-10 sm:h-11 text-xs flex items-center justify-center gap-1.5 shadow-md hover:shadow-lg active:scale-95 transition-all cursor-pointer"
+                    >
+                      {loading ? (
+                        <Spinner />
+                      ) : (
+                        <>
+                          <Search className="w-3.5 h-3.5 shrink-0" />
+                          <span className="truncate">
+                            {isTour ? "Search Tours" : "Search Hotels"}
+                          </span>
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Compact Trust Badges */}
+                <div className="mt-1.5 pt-1.5 border-t border-border/30 flex items-center gap-3 text-[10px] text-muted-foreground font-medium flex-wrap">
+                  <span className="flex items-center gap-1">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-700" />
+                    <span>Best Prices</span>
+                  </span>
+                  <span className="text-border">|</span>
+                  <span className="flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />
+                    <span>Verified Properties</span>
+                  </span>
+                  <span className="text-border">|</span>
+                  <span className="flex items-center gap-1">
+                    <Headphones className="w-3.5 h-3.5 text-emerald-700" />
+                    <span>24/7 Support</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Featured Card (XL Desktop) */}
+            <div className="hidden xl:flex xl:col-span-4 w-full justify-center">
+              <div
+                onClick={() => handleFeaturedClick(currentFeatured.city)}
+                className="w-full max-w-sm h-[200px] rounded-2xl overflow-hidden relative shadow-xl group cursor-pointer border border-white/30 flex flex-col justify-between p-4"
+                style={{
+                  backgroundImage: `url(${currentFeatured.image})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-black/10 group-hover:from-black/90 transition-colors" />
+
+                <div className="relative z-10 flex justify-between items-center">
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100/90 text-emerald-950 font-bold text-[10px] shadow">
+                    <Sparkles className="w-3 h-3 text-emerald-800" />
+                    Featured
+                  </span>
+                </div>
+
+                <div className="relative z-10 space-y-1">
+                  <h3 className="text-lg font-bold text-white drop-shadow">
+                    Explore {currentFeatured.city}
+                  </h3>
+                  <p className="text-[11px] text-white/90 drop-shadow line-clamp-2 max-w-xs font-medium">
+                    {currentFeatured.tagline}
+                  </p>
+                  <div className="pt-1 flex items-center justify-between">
+                    <button className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-black/40 hover:bg-black/65 backdrop-blur-md text-white border border-white/30 text-[11px] font-semibold shadow transition-all group-hover:scale-105 cursor-pointer">
+                      <span>{isTour ? "Explore Tours" : "Explore Hotels"}</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </button>
+
+                    <div className="flex items-center gap-1">
+                      {featuredSpots.map((_, i) => (
+                        <span
+                          key={i}
+                          className={cn(
+                            "h-1 rounded-full transition-all duration-300",
+                            featuredIndex === i
+                              ? "w-4 bg-white"
+                              : "w-1 bg-white/40",
+                          )}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
-    </div>
+      {/* Date & Guest Picker Modal */}
+      <Dialog
+        open={activeIdx !== null}
+        onOpenChange={(open) => {
+          if (!open) setActiveIdx(null);
+        }}
+      >
+        <DialogContent
+          className={cn(
+            "z-[160] bg-background border border-border shadow-2xl rounded-2xl p-5",
+            "w-[95%] max-w-[480px] md:max-w-[600px] max-h-[85vh] overflow-y-auto flex flex-col items-center",
+          )}
+        >
+          <DialogTitle className="text-xs font-semibold text-muted-foreground self-start mb-2">
+            {activeIdx !== null
+              ? FilterBoxValues.filterBlocks[activeIdx]?.label
+              : "Select Details"}
+          </DialogTitle>
+          <div className="w-full flex justify-center">
+            {activeIdx !== null &&
+              FilterBoxValues.filterBlocks[activeIdx]?.element}
+          </div>
+          <div className="mt-3 w-full flex justify-end">
+            <Button
+              onClick={() => setActiveIdx(null)}
+              className="bg-emerald-800 hover:bg-emerald-900 text-white font-semibold rounded-lg text-xs px-4 py-1.5 cursor-pointer"
+            >
+              Confirm
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
-
-
-const ValuesSupplier = ({ hk, pos }: { hk: keyof typeof hooksSupplier, pos: number }) => {
-  const { date, guests, ...rest } = hooksSupplier[hk]();
-
-
-  switch (pos) {
-    case 1:
-      return (
-        date?.from
-
-      )
-
-
-    case 2:
-      return (
-        date?.to
-      )
-
-    case 3:
-      return (
-        `${guests.adults} Adults ${guests.children && `, ${guests.children} Children`}`
-      )
-    default:
-      return (
-        date?.from
-
-      )
-
-
-  }
-
-
-}
-
-export function LoopingVideoHero({ VIDEOS }: {
-  VIDEOS: {
-    title: string
-    description: string
-    link: string
-  }[]
-}) {
-  const [index, setIndex] = useState(0);
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    if (VIDEOS.length <= 1) return;
-    const interval = setInterval(() => {
-      setIndex((prev) => (prev + 1) % VIDEOS.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [VIDEOS.length]);
-
-  return (
-    <div className="relative rounded-[1.5rem] overflow-hidden shadow-2xl w-full h-[140px] sm:h-[200px] md:h-[320px] lg:h-full group bg-transparent min-h-[140px]">
-      <AnimatePresence mode="popLayout">
-        <motion.video
-          key={`video-${index}`}
-          ref={videoRef}
-          src={VIDEOS[index]?.link}
-          initial={{ opacity: 0, scale: 1.1 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          transition={{ duration: 0.8, ease: "easeInOut" }}
-          autoPlay
-          muted
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover opacity-60 rounded-[1.5rem]"
-        />
-
-        <motion.div
-          key={`text-${index}`}
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: 20 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="absolute inset-0 flex items-center p-6 md:p-10 z-10 pointer-events-none"
-        >
-          <div className="flex flex-col gap-1 md:gap-2">
-            <h2 className="text-white font-bold text-lg md:text-3xl drop-shadow-lg">
-              {VIDEOS[index]?.title}
-            </h2>
-            <p className="text-zinc-200 text-xs md:text-base font-medium max-w-xs drop-shadow-md">
-              {VIDEOS[index]?.description}
-            </p>
-          </div>
-        </motion.div>
-      </AnimatePresence>
-
-      <div className="absolute rounded-[1.5rem] inset-0 bg-gradient-to-r from-black/60 to-transparent pointer-events-none" />
-
-      <div className="absolute bottom-4 left-6 flex gap-1.5 z-20">
-        {VIDEOS.map((_, i) => (
-          <div key={i} className="h-1 w-6 rounded-full bg-white/20 overflow-hidden">
-            {index === i && (
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: "100%" }}
-                transition={{ duration: 5, ease: "linear" }}
-                className="h-full bg-white"
-              />
-            )}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 export default FilterBox;

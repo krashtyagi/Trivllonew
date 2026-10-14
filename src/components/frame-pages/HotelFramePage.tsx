@@ -68,11 +68,17 @@ const MainFramePage = ({ className, type, popularTrends }: HotelFramePageProps) 
       const sliced = section.limit ? hotelsInCity.slice(0, section.limit) : hotelsInCity;
 
       return sliced.map((hotel: hoteldata): Item => ({
+        id: hotel._id,
+        _id: hotel._id,
         title: hotel.name,
         location: `${hotel.city}, India`,
         image: hotel.image,
         href: `/hotels/${hotel._id}`,
         price: hotel.startingPrice ?? null,
+        rating: (hotel as any).rating,
+        numReviews: (hotel as any).numReviews,
+        amenities: (hotel as any).amenities,
+        isFavorite: (hotel as any).isFavorite,
       }));
     });
   }, [groupedByCity]);

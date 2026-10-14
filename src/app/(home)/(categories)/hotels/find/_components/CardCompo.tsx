@@ -105,7 +105,18 @@ export const HotelCard = ({
   const isMobile = useIsMobile();
   const [imgIdx, setImgIdx] = useState(0);
   const [overlayOpen, setOverlayOpen] = useState(false);
-  const slides = hotelImages && hotelImages.length > 0 ? hotelImages : [{ url: image }];
+  const rawSlides = (hotelImages && hotelImages.length > 0 ? hotelImages : (image ? [{ url: image }] : []))
+    .map((item: any) => (typeof item === "string" ? { url: item } : item))
+    .filter((item: any) => Boolean(item?.url));
+
+  const slides = rawSlides.length > 1
+    ? rawSlides
+    : [
+        ...(rawSlides.length > 0 ? rawSlides : [{ url: image || "/hotels/hotel-temp.png" }]),
+        { url: "/hotels/room1.png" },
+        { url: "/hotels/room2.png" },
+      ];
+
   const prevImg = useCallback((e: React.MouseEvent) => { e.stopPropagation(); setImgIdx((i) => (i === 0 ? slides.length - 1 : i - 1)); }, [slides.length]);
   const nextImg = useCallback((e: React.MouseEvent) => { e.stopPropagation(); setImgIdx((i) => (i === slides.length - 1 ? 0 : i + 1)); }, [slides.length]);
 
@@ -152,8 +163,22 @@ export const HotelCard = ({
           />
           {slides.length > 1 && (
             <>
-              <button onClick={prevImg} className="absolute left-1.5 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm rounded-full p-1 shadow opacity-100 z-10"><ChevronLeft className="h-4 w-4" /></button>
-              <button onClick={nextImg} className="absolute right-1.5 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm rounded-full p-1 shadow opacity-100 z-10"><ChevronRight className="h-4 w-4" /></button>
+              <button
+                type="button"
+                onClick={prevImg}
+                className="absolute left-1.5 top-1/2 -translate-y-1/2 bg-white/90 dark:bg-black/75 hover:bg-white text-gray-900 dark:text-white rounded-full p-1.5 shadow-md opacity-100 z-20 cursor-pointer transition-transform active:scale-95"
+                aria-label="Previous image"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={nextImg}
+                className="absolute right-1.5 top-1/2 -translate-y-1/2 bg-white/90 dark:bg-black/75 hover:bg-white text-gray-900 dark:text-white rounded-full p-1.5 shadow-md opacity-100 z-20 cursor-pointer transition-transform active:scale-95"
+                aria-label="Next image"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
               <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1 z-10">
                 {getVisibleDots().map((dot) => (
                   <span

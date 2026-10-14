@@ -122,65 +122,33 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
   const ismobile = useIsMobile();
 
   return (
-    <div className=" flex flex-col pb-13 md:pb-0   ">
+    <div className="flex flex-col pb-16 md:pb-0">
       <div
         className={cn(
-          "relative top-0 left-0 z-40 w-full bg-card flex flex-col justify-center bg-gradient-to-br from-zinc-100 to-transparent dark:bg-gradient-to-bl dark:from-zinc-700 border-b border-gray-300 dark:border-gray-700",
-          "h-auto",
-          "bg-background overflow-visible",
-          isMobile ? "bg-transparent border-none shadow-sm static" : "",
+          "sticky top-0 left-0 z-50 w-full bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md border-b border-gray-200/80 dark:border-gray-800 shadow-xs",
+          "transition-all",
+          isMobile ? "h-14 px-3" : "h-16 px-3 md:px-6",
         )}
       >
-        {/* <WaveShader
-          color="142, 72%, 55%"
-          colorSecondary="158, 60%, 48%"
-          angle={45}
-          waveCount={5}
-          amplitude={18}
-          wavelength={1.2}
-          speed={0.2}
-          opacity={0.08}
-          randomness={0.6}
-          blur={35}
-          position="full"
-        /> */}
-        <div className="flex flex-col  justify-center md:py-3 md:px-5  sm:pr-3 px-2 h-full">
-          <div className="flex  justify-between py-3     h-full">
-            <LOGO />
-            {
-              <div className="hidden md:flex flex-col items-center gap-[5px] h-full md:block w-full">
-                {shouldShowNavbar ? (
-                  <div className="md:w-[485px] lg:w-[585px] ">
-                    <FindTabsNav mobile={false} tabs={FilterOfPages} />
-                  </div>
-                ) : (
-                  <TabsNav mobile={false} tabs={pages} />
-                )}
+        <div className="w-full max-w-7xl mx-auto flex items-center justify-between h-full gap-2 sm:gap-4">
+          <LOGO />
+          <div className="hidden md:flex items-center justify-center flex-1 mx-2 lg:mx-4 min-w-0">
+            {shouldShowNavbar ? (
+              <div className="w-fit flex justify-center">
+                <FindTabsNav mobile={false} tabs={FilterOfPages} />
               </div>
-            }
-            <TopRight isMobile={isMobile} />
+            ) : (
+              <TabsNav mobile={false} tabs={pages} />
+            )}
           </div>
-
-          {/* {(
-            <div className="hidden md:flex flex-col items-center gap-[5px] h-full md:block -my-1">
-              {!shouldShowNavbar && (
-                <TabsNav mobile={false} tabs={pages} />
-              )}
-            </div>
-          )} */}
+          <TopRight isMobile={isMobile} />
         </div>
-        {/* {!isMobile && !shouldShowNavbar && <PersistentHeader>
-          <div className="flex h-14 items-center justify-around px-20 ">
-            <TabsNav mobile={false} tabs={pages} containerClassName="shadow-none border-none bg-transparent" />
-          </div>
-        </PersistentHeader>} */}
       </div>
 
       <main
         className={cn(
           "flex-1 bg-card relative",
-          // shouldShowNavbar ? "pt-21" : "pt-29",
-          isMobile ? "pt-2" : "",
+          isMobile ? "pt-1" : "",
         )}
       >
         <div className="relative z-10">
@@ -199,12 +167,12 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
 
       <Footer />
       {/* CUSTOM LOGIN AD POPUP */}
-      {showAdPopup && !hasDismissed && (
+      {/* {showAdPopup && !hasDismissed && (
         <PopLogin
           setHasDismissed={setHasDismissed}
           setShowAdPopup={setShowAdPopup}
         />
-      )}
+      )} */}
       <MobileNavWrapper
         content={
           <div className="flex h-14 items-center justify-around">

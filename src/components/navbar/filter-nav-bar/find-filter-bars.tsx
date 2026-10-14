@@ -45,7 +45,7 @@ export const FindTabsNav = ({
   return (
 
 
-    <div className="w-full  flex justify-center overflow-visible">
+    <div className="w-fit mx-auto flex justify-center overflow-visible">
       <AnimatePresence mode="wait">
         {isVisible && (
           <motion.div
@@ -54,13 +54,12 @@ export const FindTabsNav = ({
             animate={{ opacity: 1, y: 0, height: "auto" }}
             exit={{ opacity: 0, y: -20, height: 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="w-full max-w-5xl"
+            className="w-fit mx-auto"
           >
             <Search_bar_filter filter_bar={active} mobile={ismobile} />
           </motion.div>
         )}
       </AnimatePresence>
-
     </div>
 
   );
