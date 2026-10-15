@@ -6,6 +6,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { dotoggleLike } from "./hotel/hotel.service";
+import { resetUser } from "@/lib/analytics/posthog";
 
 
 export const handleRefresh = (queryClient: any, queryKey: string[]) => {
@@ -198,17 +199,15 @@ export const LikeIcon = ({ _id, className, isFavourite, name, serviceType }: { _
     </button>
   );
 };
-// export const 
+
 export const useLogout = () => {
   try {
     const queryClient = useQueryClient();
 
     const logout = () => {
       localStorage.removeItem(userAccessToken);
-
       queryClient.removeQueries({ queryKey: ["current_user"] });
-
-
+      resetUser();
     };
     logout();
 
