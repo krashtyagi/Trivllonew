@@ -9,6 +9,8 @@ import MobileValueProvider from "@/context/mobile-value";
 import { NuqsAdapter } from "nuqs/adapters/react";
 import { Payment, useHotelStore } from "@/store/hotel.store";
 import { PostHogProvider } from "./posthogProvider";
+import { PostHogAuthSync } from "./posthog-auth-sync";
+
 const MainProvider = ({ children }: { children: React.ReactNode }) => {
   const [queryClient] = React.useState(() => new QueryClient());
 
@@ -28,6 +30,7 @@ const MainProvider = ({ children }: { children: React.ReactNode }) => {
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange> */}
+          <PostHogAuthSync />
           <MobileValueProvider>{children}</MobileValueProvider>
           {/* </ThemeProvider> */}
         </QueryClientProviderLib>
