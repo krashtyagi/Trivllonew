@@ -125,12 +125,12 @@ const FilterBox = ({
     }
   };
 
-  const displayCheckIn = date?.from
-    ? format(new Date(date.from), "dd MMM")
-    : "10 Oct";
-  const displayCheckOut = date?.to
-    ? format(new Date(date.to), "dd MMM")
-    : "11 Oct";
+  const displayDateRange =
+    date?.from && date?.to
+      ? `${format(new Date(date.from), "dd MMM")} - ${format(new Date(date.to), "dd MMM")}`
+      : date?.from
+      ? `${format(new Date(date.from), "dd MMM")}`
+      : "Add dates";
   const displayGuests =
     guests?.adults || guests?.children
       ? `${guests.adults || 1} Adult${(guests.adults || 1) > 1 ? "s" : ""}${
@@ -165,44 +165,22 @@ const FilterBox = ({
         <div className="bg-white dark:bg-zinc-900 rounded-xl p-2.5 shadow-sm border border-gray-100/90 dark:border-zinc-800 relative">
           <div className="w-full relative z-30">{directions}</div>
 
-          <div
-            className={cn(
-              "grid gap-1.5 mt-1.5",
-              isTour ? "grid-cols-2" : "grid-cols-3",
-            )}
-          >
+          <div className="grid gap-1.5 mt-1.5 grid-cols-2">
             <div
               onClick={() => setActiveIdx(0)}
               className="border border-gray-200/90 dark:border-zinc-700/80 rounded-lg py-1.5 px-1 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
             >
               <Calendar className="w-3.5 h-3.5 text-[#0c3926] dark:text-emerald-400" />
-              <span className="text-[8px] font-bold tracking-wider text-muted-foreground uppercase mt-0.5">
-                {isTour ? "BOOKING DATE" : "CHECK IN"}
+              <span className="text-[8px] font-bold tracking-wider text-muted-foreground uppercase mt-0.5 truncate max-w-full px-1">
+                {isTour ? "BOOKING DATE" : "CHECK-IN - CHECK-OUT"}
               </span>
-              <span className="text-[10px] font-semibold text-foreground truncate">
-                {date?.from
-                  ? format(new Date(date.from), "dd MMM")
-                  : "Add dates"}
+              <span className="text-[10px] font-semibold text-foreground truncate max-w-full px-1">
+                {displayDateRange}
               </span>
             </div>
 
-            {!isTour && (
-              <div
-                onClick={() => setActiveIdx(1)}
-                className="border border-gray-200/90 dark:border-zinc-700/80 rounded-lg py-1.5 px-1 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
-              >
-                <Calendar className="w-3.5 h-3.5 text-[#0c3926] dark:text-emerald-400" />
-                <span className="text-[8px] font-bold tracking-wider text-muted-foreground uppercase mt-0.5">
-                  CHECK OUT
-                </span>
-                <span className="text-[10px] font-semibold text-foreground truncate">
-                  {date?.to ? format(new Date(date.to), "dd MMM") : "Add dates"}
-                </span>
-              </div>
-            )}
-
             <div
-              onClick={() => setActiveIdx(isTour ? 1 : 2)}
+              onClick={() => setActiveIdx(1)}
               className="border border-gray-200/90 dark:border-zinc-700/80 rounded-lg py-1.5 px-1 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
             >
               <User className="w-3.5 h-3.5 text-[#0c3926] dark:text-emerald-400" />
@@ -317,50 +295,31 @@ const FilterBox = ({
                     <div className="w-full">{directions}</div>
                   </div>
 
-                  {/* 2. Check In Field */}
+                  {/* 2. Check-in - Check-out Field */}
                   <div
                     onClick={() => setActiveIdx(0)}
                     className={cn(
-                      "flex items-center gap-1.5 p-1.5 sm:p-2 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800/80 cursor-pointer transition-colors border border-transparent hover:border-border min-w-0",
+                      "flex items-center gap-2 p-1.5 sm:p-2 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800/80 cursor-pointer transition-colors border border-transparent hover:border-border min-w-0",
                       isTour
                         ? "col-span-6 sm:col-span-3"
-                        : "col-span-6 sm:col-span-2",
+                        : "col-span-6 sm:col-span-4",
                     )}
                   >
                     <Calendar className="w-4 h-4 text-emerald-700 shrink-0" />
                     <div className="flex-1 min-w-0">
                       <p className="text-[9px] uppercase font-bold tracking-wider text-muted-foreground leading-none">
-                        {isTour ? "Booking Date" : "Check In"}
+                        {isTour ? "Booking Date" : "Check-in - Check-out"}
                       </p>
                       <p className="text-xs font-semibold truncate text-foreground mt-0.5">
-                        {displayCheckIn}
+                        {displayDateRange}
                       </p>
                     </div>
                     <ChevronDown className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
                   </div>
 
-                  {/* 3. Check Out Field (Hotels only) */}
-                  {!isTour ? (
-                    <div
-                      onClick={() => setActiveIdx(1)}
-                      className="col-span-6 sm:col-span-2 flex items-center gap-1.5 p-1.5 sm:p-2 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800/80 cursor-pointer transition-colors border border-transparent hover:border-border min-w-0"
-                    >
-                      <Calendar className="w-4 h-4 text-emerald-700 shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[9px] uppercase font-bold tracking-wider text-muted-foreground leading-none">
-                          Check Out
-                        </p>
-                        <p className="text-xs font-semibold truncate text-foreground mt-0.5">
-                          {displayCheckOut}
-                        </p>
-                      </div>
-                      <ChevronDown className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-                    </div>
-                  ) : null}
-
-                  {/* 4. Guests Field */}
+                  {/* 3. Guests Field */}
                   <div
-                    onClick={() => setActiveIdx(isTour ? 1 : 2)}
+                    onClick={() => setActiveIdx(1)}
                     className={cn(
                       "flex items-center gap-1.5 p-1.5 sm:p-2 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800/80 cursor-pointer transition-colors border border-transparent hover:border-border min-w-0",
                       isTour

@@ -16,7 +16,6 @@ import {
 import HotelContextProvider from "./_providers_context/hotel-contextProvider";
 import { MessageModal } from "@/components/messagemodal";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { trackHotelView } from "@/lib/analytics/posthog";
 
 const HotelDetails = ({ className }: { className?: string }) => {
   const { date, guests } = useHotelStore();
@@ -39,24 +38,6 @@ const HotelDetails = ({ className }: { className?: string }) => {
 
   const { data: hotelDetailsData } =
     useHotelDetailsQuery(hotelId);
-
-  useEffect(() => {
-    if (hotelDetailsData && hotelDetailsData.name) {
-      const city =
-        typeof hotelDetailsData.address === "object"
-          ? (hotelDetailsData.address as any)?.city || hotelDetailsData.city
-          : hotelDetailsData.city || hotelDetailsData.address;
-
-      trackHotelView({
-        hotel_id: hotelDetailsData._id || hotelId,
-        hotel_name: hotelDetailsData.name,
-        city: city || "",
-        rating: hotelDetailsData.rating,
-        num_reviews: hotelDetailsData.numReviews,
-        is_featured: hotelDetailsData.isFeatured,
-      });
-    }
-  }, [hotelDetailsData, hotelId]);
 
 
   if (!hotelDetailsData || !hotelDetailsData.name) {

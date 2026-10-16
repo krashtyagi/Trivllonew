@@ -15,7 +15,6 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import TourDetailsContextProvider from "./_providers_context/TourDetailsContextProvider";
 import { useParam } from "@/services/dailyfunctions";
 import { useTourDetailsQuery } from "@/services/tours/tours.queries";
-import { trackTourView } from "@/lib/analytics/posthog";
 
 const HotelDetails = ({ className }: { className?: string }) => {
   const [isBookingMode, setIsBookingMode] = React.useState(false);
@@ -28,20 +27,6 @@ const HotelDetails = ({ className }: { className?: string }) => {
 
   const { data: tourDetailsData, isLoading: tourDetailsLoading } =
     useTourDetailsQuery(hotelId);
-
-  useEffect(() => {
-    const tour = tourDetailsData?.data;
-    if (tour) {
-      trackTourView({
-        tour_id: tour._id || hotelId,
-        tour_name: tour.name || tour.title || "Tour Package",
-        city: tour.city || tour.destination || tour.location || "",
-        price: tour.price || tour.basePrice,
-        duration: tour.duration,
-        category: tour.category,
-      });
-    }
-  }, [tourDetailsData, hotelId]);
 
 
   if (!tourDetailsData || !tourDetailsData.data || tourDetailsLoading) {
