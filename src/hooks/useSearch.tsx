@@ -17,7 +17,6 @@ export interface PlaceResult {
   lon?: number;
   type: string; // city | town | village | hotel | district | landmark …
   source: "db" | "geo"; // where the result came from
-  count?: number; // number of properties (DB results only)
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -145,7 +144,6 @@ function dbToPlaceResults(suggestions: DestinationSuggestion[]): PlaceResult[] {
     label: s.label,
     type: s.type,
     source: "db" as const,
-    count: s.count,
   }));
 }
 

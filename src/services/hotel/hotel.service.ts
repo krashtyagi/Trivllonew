@@ -65,6 +65,23 @@ export const getNewHotels = async () => {
   }
 };
 
+export const getNearbyHotels = async (
+  lat: number,
+  lng: number,
+  radius: number = 2000,
+  limit: number = 50,
+) => {
+  try {
+    const res = await axiosApi.get("/hotels/nearby", {
+      params: { lat, lng, radius, limit },
+    });
+    return res.data || { success: true, count: 0, data: [] };
+  } catch (error) {
+    console.error("Error fetching nearby hotels:", error);
+    return { success: false, count: 0, data: [] };
+  }
+};
+
 export type RankedItem = {
   _id: string;
   name: string;
@@ -239,7 +256,6 @@ export type DestinationSuggestion = {
   label: string;
   city?: string;
   state?: string;
-  count?: number;
   id?: string;
 };
 

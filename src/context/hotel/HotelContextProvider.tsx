@@ -7,28 +7,21 @@ import {
   parseAsString,
   parseAsInteger,
 } from "nuqs"
+import { useSearchParams } from "next/navigation"
 import { useGetHotelsByFiltersDemo, useHotelSearch } from "@/services/hotel/querys"
 import { Hotel } from "@/types"
 import { useHotelStore } from "@/store/hotel.store"
 import { useNuqsContext } from "../NuqsContentProvider"
 
-
-
-
-
 type HotelContextProps = {
-
   hotels: Hotel[]
   isLoading: boolean
   total: number
   page: number
   setPage: (page: number) => void
-
 }
 
-
-
-const HotelContext = React.createContext<HotelContextProps | null>(null)
+export const HotelContext = React.createContext<HotelContextProps | null>(null);
 
 export const HotelContextProvider = ({
   children,
@@ -36,25 +29,38 @@ export const HotelContextProvider = ({
   children: React.ReactNode
 }) => {
   const { filters, setFilters, page, setPage } = useNuqsContext()
-  const { guests, city, date } = useHotelStore();
+  const searchParams = useSearchParams()
+  const queryCity = searchParams.get("city")
+  const { guests, city, setCity, date } = useHotelStore()
+
+  useEffect(() => {
+    if (queryCity && queryCity.trim() && queryCity.toLowerCase() !== city?.toLowerCase()) {
+      setCity(queryCity.trim())
+    }
+  }, [queryCity, city, setCity])
+
+  const activeCity = queryCity?.trim() || city
+
   function formatDate(dateValue: any) {
     if (!dateValue) return undefined;
     const d = typeof dateValue === "string" ? new Date(dateValue) : dateValue;
     if (isNaN(d.getTime())) return undefined;
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   }
+
   const combinedFilters = React.useMemo(() => ({
     ...filters,
-    city,
+    city: activeCity,
     adults: guests.adults,
     children: guests.children,
     date: {
       checkIn: formatDate(date?.from),
       checkOut: formatDate(date?.to)
     }
-  }), [filters, guests, city, date]);
-  const debouncedFilters = useDebounce(combinedFilters, 1500)
-  const debouncedPage = useDebounce(page, 1000)
+  }), [filters, guests, activeCity, date]);
+
+  const debouncedFilters = useDebounce(combinedFilters, 400)
+  const debouncedPage = useDebounce(page, 300)
   // console.log(guests, city, date);
 
   // const { data: d } = useHotelSearch({

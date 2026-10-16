@@ -11,7 +11,8 @@ import { useHotelContext } from "@/context/hotel/HotelContextProvider";
 import { Hotel } from "@/types";
 // import { SheetNavigation } from "./sheetNavigation";
 
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Map } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ScrollToTopByParams } from "@/components/ui/ScrollToTopByParams";
 import { Pagination_console } from "@/components/ui/pagination-console";
 import SwitchGrids from "@/components/side-bar-filter/SwitchGrid";
@@ -27,6 +28,9 @@ export const ContentFrame = (props: Props) => {
   const { total, isLoading, page, setPage } = useHotelContext()
   const { city, setCity } = useHotelStore();
   const [open, setOpen] = useState(false)
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   return (
     <div className="md:w-full">
       <div className="flex justify-between px-4 sm:px-0">
@@ -48,13 +52,22 @@ export const ContentFrame = (props: Props) => {
             <h2 className="text-2xl font-semibold mb-4 ">
               {total > 0 ? `Explore ${total}+ hotels in ${city}` : `Explore hotels in ${city}`}
             </h2>
-            {/* <div className="w-10 min-w-37 md:w-1/2 mb-6">
-
-            <ComboboxMultiple />
-          </div> */}
           </div>
         </div>
-        <div>
+        <div className="flex items-center gap-2 shrink-0">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const params = new URLSearchParams(searchParams.toString());
+              params.set("map-open", "true");
+              router.push(`/hotels/find?${params.toString()}`);
+            }}
+            className="flex items-center gap-1.5 h-9 px-3 rounded-xl text-xs font-semibold hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors shadow-xs"
+          >
+            <Map className="w-3.5 h-3.5 text-emerald-500" />
+            <span>Show map</span>
+          </Button>
           {!ismobile && <SwitchGrids />}
         </div>
       </div>

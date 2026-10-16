@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import React, {
+  useEffect,
+  useRef,
+  useState,
+  useCallback,
+  useMemo,
+} from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -742,7 +748,7 @@ export function MoreStaysCard({
                 "absolute overflow-hidden rounded-xl border-[1.5px] border-white shadow-lg cursor-pointer group/thumb hover:brightness-105 transition-all duration-300",
                 isTop
                   ? "ring-2 ring-white/90 shadow-[0_8px_20px_rgba(0,0,0,0.45)] scale-[1.02]"
-                  : "hover:scale-105 hover:z-[60]"
+                  : "hover:scale-105 hover:z-[60]",
               )}
               onClick={(e) => {
                 e.stopPropagation();

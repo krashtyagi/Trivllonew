@@ -9,6 +9,7 @@ import { PageSkeleton } from "@/components/loader/skeleton";
 import { hotelItems } from "@/constants/filter-constants";
 import dynamic from "next/dynamic";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useSearchParams } from "next/navigation";
 
 const SideBarFilter = dynamic(
   () => import("@/components/filter-bar/sidebar-filter").then((mod) => mod.SideBarFilter),
@@ -49,21 +50,53 @@ const ContentFrame = dynamic(
   }
 );
 
+const FullPageMapView = dynamic(
+  () => import("@/components/map/full-page-map").then((mod) => mod.FullPageMapView),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-[calc(100vh-80px)] flex items-center justify-center bg-zinc-100 dark:bg-zinc-900 animate-pulse">
+        <p className="text-sm text-muted-foreground font-medium">Loading full page map...</p>
+      </div>
+    ),
+  }
+);
+
+const FindHotelsContent = () => {
+  const searchParams = useSearchParams();
+  const isMapOpen = searchParams.get("map-open") === "true";
+
+  if (isMapOpen) {
+    return <FullPageMapView />;
+  }
+
+  return (
+    <FilterFramePages
+      filterClassname="w-full flex gap-4 justify-center"
+      filterSidebar={
+        <SideBarFilter
+          items={hotelItems}
+          mapSrc="/map-icons/map.png"
+          alt="map image"
+          overlayTitle="See Location on Map"
+        />
+      }
+      content={<ContentFrame />}
+    />
+  );
+};
+
 type FindHotelProps = {
   className?: string;
 };
 
 const FindHotels: React.FC<FindHotelProps> = (props) => {
   return (
-    <div className={cn(props.className, "w-full bg-background  sm:px-0")}>
+    <div className={cn(props.className, "w-full bg-background sm:px-0")}>
       <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong" />}>
         <Suspense fallback={<PageSkeleton />}>
           <HotelContextProvider>
-            <FilterFramePages
-              filterClassname="w-full flex gap-4 justify-center "
-              filterSidebar={<SideBarFilter items={hotelItems} mapSrc="/map-icons/map.png" alt="map image" overlayTitle="See Location on Map" />}
-              content={<ContentFrame />}
-            />
+            <FindHotelsContent />
           </HotelContextProvider>
         </Suspense>
       </ErrorBoundary>

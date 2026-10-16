@@ -1,41 +1,76 @@
-
 'use client';
 
 import { cn } from '@/lib/utils';
 import React, { useState, useEffect, useRef } from 'react';
-import { MapContainer, Marker, TileLayer, useMap, Circle } from 'react-leaflet';
+import { MapContainer, Marker, TileLayer, useMap, Circle, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
 import L from 'leaflet';
 import 'leaflet-routing-machine';
 
+export type MapHotelItem = {
+  id?: string;
+  _id?: string;
+  name?: string;
+  title?: string;
+  price?: number | null;
+  startingPrice?: number | null;
+  coordinates?: [number, number]; // [lng, lat]
+  location?: any;
+  address?: any;
+  image?: any;
+  images?: any[];
+  thumbnail?: string;
+  hotelImages?: any[];
+  city?: string;
+  href?: string;
+  distance?: number | null;
+};
+
 type Props = {
   className?: string;
   height?: string;
   width?: string;
-  cordinates?: [number, number]; // Expected as [lng, lat] based on your usage
+  cordinates?: [number, number]; // Expected as [lng, lat]
   showRouting?: boolean;
+  hotels?: MapHotelItem[];
+  interactive?: boolean;
+  zoom?: number;
+  showRadius?: boolean;
+  radiusMeters?: number;
+  userCoords?: [number, number] | null; // [lat, lng]
+  selectedHotelId?: string | null;
+  onSelectHotel?: (id: string) => void;
+  fitAllHotels?: boolean;
 };
 
 // --- Icons ---
 const destinationIcon = new L.Icon({
   iconUrl: '/map-icons/map_marker2.png',
   iconRetinaUrl: '/map-icons/map_marker2.png',
-  iconSize: [38, 45],
-  iconAnchor: [19, 45],
-  popupAnchor: [0, -45],
+  iconSize: [36, 42],
+  iconAnchor: [18, 42],
+  popupAnchor: [0, -42],
 });
 
 const userIcon = new L.Icon({
   iconUrl: '/map-icons/man.png',
   iconRetinaUrl: '/map-icons/man.png',
-  iconSize: [38, 45],
-  iconAnchor: [19, 45],
-  popupAnchor: [0, -45],
+  iconSize: [36, 42],
+  iconAnchor: [18, 42],
+  popupAnchor: [0, -42],
 });
 
 // --- Routing Component ---
-const RoutingMachine = ({ userPos, destination, onRouteFound }: { userPos: [number, number], destination: [number, number], onRouteFound?: () => void }) => {
+const RoutingMachine = ({
+  userPos,
+  destination,
+  onRouteFound,
+}: {
+  userPos: [number, number];
+  destination: [number, number];
+  onRouteFound?: () => void;
+}) => {
   const map = useMap();
   const routingControlRef = useRef<any>(null);
   const onRouteFoundRef = useRef(onRouteFound);
@@ -52,45 +87,283 @@ const RoutingMachine = ({ userPos, destination, onRouteFound }: { userPos: [numb
       routingControlRef.current = L.Routing.control({
         waypoints: [
           L.latLng(userPos[0], userPos[1]),
-          L.latLng(destination[0], destination[1])
+          L.latLng(destination[0], destination[1]),
         ],
         lineOptions: {
-          styles: [{ color: '#3b82f6', weight: 5, opacity: 0.7 }],
+          styles: [{ color: '#3b82f6', weight: 4, opacity: 0.75 }],
           extendToWaypoints: true,
-          missingRouteTolerance: 10
+          missingRouteTolerance: 10,
         },
-        createMarker: () => null, // Hides default markers so your custom ones show instead
+        createMarker: () => null,
         routeWhileDragging: false,
         addWaypoints: false,
         show: false,
-      }).on('routesfound', function (e: any) {
-        const routes = e.routes;
-        const summary = routes[0].summary;
-        if (onRouteFoundRef.current) onRouteFoundRef.current();
-      }).on('routingerror', function (e: any) {
-        console.error("Routing error:", e);
-        if (onRouteFoundRef.current) onRouteFoundRef.current();
-      }).addTo(map);
+      })
+        .on('routesfound', function () {
+          if (onRouteFoundRef.current) onRouteFoundRef.current();
+        })
+        .on('routingerror', function (e: any) {
+          console.error('Routing error:', e);
+          if (onRouteFoundRef.current) onRouteFoundRef.current();
+        })
+        .addTo(map);
     } else {
       routingControlRef.current.setWaypoints([
         L.latLng(userPos[0], userPos[1]),
-        L.latLng(destination[0], destination[1])
+        L.latLng(destination[0], destination[1]),
       ]);
     }
+
+    return () => {
+      if (routingControlRef.current && map) {
+        try {
+          map.removeControl(routingControlRef.current);
+          routingControlRef.current = null;
+        } catch {
+          // ignore
+        }
+      }
+    };
   }, [map, userPos, destination]);
 
   return null;
 };
 
-// --- Main Map Component ---
-const MapLeaf = ({ className, width, height = '400px', cordinates, showRouting = false }: Props) => {
-  const [isDarkMode, setIsDarkMode] = useState(false);
-  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
-  const [isRouteLoading, setIsRouteLoading] = useState(false);
+// --- Smooth Camera Panning & Bounds Fitting Component ---
+const ChangeView = ({
+  center,
+  zoom,
+  hotels,
+  fitAllHotels = false,
+}: {
+  center: [number, number];
+  zoom: number;
+  hotels?: MapHotelItem[];
+  fitAllHotels?: boolean;
+}) => {
+  const map = useMap();
+  const lastHotelsSignature = useRef<string>('');
 
-  // 1. Get User Location
   useEffect(() => {
-    if (showRouting && !userLocation) {
+    if (!map) return;
+
+    if (fitAllHotels && hotels && hotels.length > 1) {
+      const signature = hotels.map((h) => h._id || h.id || '').join(',');
+      if (signature !== lastHotelsSignature.current) {
+        lastHotelsSignature.current = signature;
+        const validPoints: [number, number][] = [];
+        hotels.forEach((h) => {
+          const pt = getHotelLatLng(h);
+          if (pt && !isNaN(pt[0]) && !isNaN(pt[1])) {
+            validPoints.push(pt);
+          }
+        });
+        if (validPoints.length > 1) {
+          const bounds = L.latLngBounds(
+            validPoints.map((p) => L.latLng(p[0], p[1]))
+          );
+          map.fitBounds(bounds, { padding: [60, 60], maxZoom: 14 });
+          return;
+        }
+      }
+    } else {
+      map.setView(center, zoom);
+    }
+  }, [center[0], center[1], zoom, map, hotels, fitAllHotels]);
+
+  return null;
+};
+
+// Helper to extract [lat, lng] from various hotel coordinate formats
+const getHotelLatLng = (h: MapHotelItem): [number, number] | null => {
+  if (Array.isArray(h.coordinates) && h.coordinates.length >= 2) {
+    return [Number(h.coordinates[1]), Number(h.coordinates[0])];
+  }
+  if (Array.isArray(h.location?.coordinates) && h.location.coordinates.length >= 2) {
+    return [Number(h.location.coordinates[1]), Number(h.location.coordinates[0])];
+  }
+  if (Array.isArray(h.address?.location?.coordinates) && h.address.location.coordinates.length >= 2) {
+    return [Number(h.address.location.coordinates[1]), Number(h.address.location.coordinates[0])];
+  }
+  return null;
+};
+
+// --- Sub-component for individual hotel marker with auto-opening compact card ---
+const HotelMarker = ({
+  hotel,
+  isOpen,
+  onSelect,
+}: {
+  hotel: MapHotelItem;
+  isOpen: boolean;
+  onSelect: () => void;
+}) => {
+  const markerRef = useRef<L.Marker | null>(null);
+
+  useEffect(() => {
+    const marker = markerRef.current;
+    if (!marker) return;
+
+    const tryOpen = () => {
+      try {
+        if (!marker.isPopupOpen()) {
+          marker.openPopup();
+        }
+      } catch {
+        // ignore
+      }
+    };
+
+    const t1 = setTimeout(tryOpen, 250);
+    const t2 = setTimeout(tryOpen, 700);
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, [hotel._id, hotel.id]);
+
+  const pos = getHotelLatLng(hotel);
+  if (!pos) return null;
+
+  const title = hotel.name || hotel.title || 'Hotel';
+  const price = hotel.price ?? hotel.startingPrice;
+  const rawImg =
+    hotel.thumbnail ||
+    (typeof hotel.image === 'string' ? hotel.image : hotel.image?.url) ||
+    (Array.isArray((hotel as any).hotelImages) && (hotel as any).hotelImages[0]?.url) ||
+    (typeof hotel.images?.[0] === 'string'
+      ? hotel.images[0]
+      : hotel.images?.[0]?.url);
+  const img = typeof rawImg === 'string' && rawImg.trim() ? rawImg.trim() : undefined;
+  const targetHref =
+    hotel.href || (hotel._id || hotel.id ? `/hotels/${hotel._id || hotel.id}` : undefined);
+
+  return (
+    <Marker
+      ref={markerRef}
+      position={pos}
+      icon={destinationIcon}
+      eventHandlers={{
+        click: (e) => {
+          onSelect();
+          try {
+            e.target.openPopup();
+          } catch {
+            // ignore
+          }
+        },
+      }}
+    >
+      <Popup
+        autoPan={false}
+        autoClose={false}
+        closeOnClick={false}
+        closeButton={true}
+      >
+        <div className="w-[170px] font-sans text-xs select-none">
+          {img && (
+            <div className="relative w-full h-[88px] rounded-lg overflow-hidden mb-1.5 bg-zinc-100 dark:bg-zinc-800">
+              <img
+                src={img}
+                alt={title}
+                className="w-full h-full object-cover block"
+                loading="eager"
+              />
+            </div>
+          )}
+          <h4
+            className="font-semibold text-xs text-zinc-900 dark:text-zinc-100 leading-tight truncate"
+            title={title}
+          >
+            {title}
+          </h4>
+          {hotel.city && (
+            <p className="text-zinc-500 text-[10px] truncate mt-0.5">
+              {hotel.city}, India
+            </p>
+          )}
+
+          <div className="flex items-center justify-between gap-1 mt-1 pt-1 border-t border-zinc-100 dark:border-zinc-800">
+            {price != null && price > 0 ? (
+              <div className="flex items-baseline gap-0.5">
+                <span className="font-bold text-zinc-900 dark:text-zinc-100 text-xs">
+                  ₹{Number(price).toLocaleString('en-IN')}
+                </span>
+                <span className="text-[9px] text-zinc-400">/nt</span>
+              </div>
+            ) : (
+              <span />
+            )}
+
+            {hotel.distance != null && (
+              <span className="text-[9px] font-medium text-zinc-600 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded border border-zinc-200 dark:border-zinc-700">
+                {hotel.distance < 1000
+                  ? `${Math.round(hotel.distance)}m`
+                  : `${(hotel.distance / 1000).toFixed(1)}km`}
+              </span>
+            )}
+          </div>
+
+          {targetHref && (
+            <a
+              href={targetHref}
+              className="mt-1.5 flex items-center justify-center w-full h-6 bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-zinc-100 dark:hover:bg-zinc-200 dark:text-zinc-900 rounded-md text-[10px] font-medium transition-colors"
+            >
+              View Details
+            </a>
+          )}
+        </div>
+      </Popup>
+    </Marker>
+  );
+};
+
+// --- Main Map Component ---
+const MapLeaf = ({
+  className,
+  width,
+  height = '400px',
+  cordinates,
+  showRouting = false,
+  hotels,
+  interactive = true,
+  zoom = 13,
+  showRadius = false,
+  radiusMeters = 2000,
+  userCoords,
+  selectedHotelId,
+  onSelectHotel,
+  fitAllHotels = true,
+}: Props) => {
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [userLocation, setUserLocation] = useState<[number, number] | null>(
+    userCoords ? [userCoords[0], userCoords[1]] : null
+  );
+  const [isRouteLoading, setIsRouteLoading] = useState(false);
+  const [activeHotelId, setActiveHotelId] = useState<string | null>(
+    selectedHotelId || (hotels && hotels.length > 0 ? hotels[0]._id || hotels[0].id || '0' : null)
+  );
+
+  // Sync activeHotelId when prop or hotels change
+  useEffect(() => {
+    if (selectedHotelId) {
+      setActiveHotelId(selectedHotelId);
+    } else if (hotels && hotels.length > 0) {
+      setActiveHotelId(hotels[0]._id || hotels[0].id || '0');
+    }
+  }, [selectedHotelId, hotels]);
+
+  // Sync userLocation if userCoords prop updates
+  useEffect(() => {
+    if (userCoords) {
+      setUserLocation([userCoords[0], userCoords[1]]);
+    }
+  }, [userCoords]);
+
+  // Get User Location if routing requested and no location yet
+  useEffect(() => {
+    if (showRouting && !userLocation && !userCoords) {
       setIsRouteLoading(true);
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
@@ -98,7 +371,7 @@ const MapLeaf = ({ className, width, height = '400px', cordinates, showRouting =
             setUserLocation([pos.coords.latitude, pos.coords.longitude]);
           },
           (err) => {
-            console.error("Location error:", err);
+            console.error('Location error:', err);
             setIsRouteLoading(false);
           },
           { enableHighAccuracy: true }
@@ -107,76 +380,202 @@ const MapLeaf = ({ className, width, height = '400px', cordinates, showRouting =
         setIsRouteLoading(false);
       }
     }
-  }, [showRouting, userLocation]);
+  }, [showRouting, userLocation, userCoords]);
 
-  // 2. Dark Mode Observer
+  // Dark Mode Observer
   useEffect(() => {
     const updateTheme = () => {
-      setIsDarkMode(document.documentElement.classList.contains("dark"));
+      setIsDarkMode(document.documentElement.classList.contains('dark'));
     };
     updateTheme();
     const observer = new MutationObserver(updateTheme);
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
     return () => observer.disconnect();
   }, []);
 
-  const tileUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
-  const tileAttribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
+  const tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+  const tileAttribution =
+    '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
 
-  // Coordinate check for the destination
-  const destLatLng: [number, number] = cordinates ? [cordinates[1], cordinates[0]] : [19.0760, 72.8777];
+  // Target hotel coordinates for camera centering and destination
+  const selectedHotel =
+    hotels?.find((h, i) => (h._id || h.id || String(i)) === activeHotelId) || hotels?.[0];
+  const targetHotelCoord = selectedHotel ? getHotelLatLng(selectedHotel) : null;
+
+  const mapCenter: [number, number] =
+    targetHotelCoord ||
+    (userCoords ? [userCoords[0], userCoords[1]] : null) ||
+    (cordinates ? [cordinates[1], cordinates[0]] : null) ||
+    [22.7196, 75.8577];
+
+  const routeOrigin = userLocation || (userCoords ? [userCoords[0], userCoords[1]] : null);
+  // Route destination MUST be a valid hotel coordinate, NEVER a fallback default
+  const routeDest = targetHotelCoord;
+  const canShowRoute =
+    Boolean(showRouting) &&
+    Boolean(routeOrigin) &&
+    Boolean(routeDest) &&
+    Boolean(
+      routeOrigin &&
+      routeDest &&
+      (Math.abs(routeOrigin[0] - routeDest[0]) > 0.0001 ||
+       Math.abs(routeOrigin[1] - routeDest[1]) > 0.0001)
+    );
 
   return (
     <div className={cn('w-full relative z-0', className)} style={{ height, width }}>
       <style>{`
-        .leaflet-control-zoom { border: none !important; border-radius: 12px !important; overflow: hidden !important; margin: 16px !important; box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important; }
-        .leaflet-control-zoom a { background-color: white !important; color: #3f3f46 !important; width: 36px !important; height: 36px !important; display: flex !important; align-items: center !important; justify-content: center !important; border-bottom: 1px solid #eee !important; }
-        .dark .leaflet-control-zoom a { background-color: #27272a !important; color: #e4e4e7 !important; border-bottom: 1px solid #3f3f46 !important; }
+        .leaflet-control-zoom {
+          border: none !important;
+          border-radius: 10px !important;
+          overflow: hidden !important;
+          margin: 14px !important;
+          box-shadow: 0 4px 14px rgba(0,0,0,0.12) !important;
+        }
+        .leaflet-control-zoom a {
+          background-color: #ffffff !important;
+          color: #27272a !important;
+          width: 32px !important;
+          height: 32px !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          border-bottom: 1px solid #f4f4f5 !important;
+          font-size: 14px !important;
+        }
+        .dark .leaflet-control-zoom a {
+          background-color: #18181b !important;
+          color: #f4f4f5 !important;
+          border-bottom: 1px solid #27272a !important;
+        }
+        .leaflet-popup-content-wrapper {
+          border-radius: 12px !important;
+          padding: 0px !important;
+          box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(0,0,0,0.06) !important;
+          background: #ffffff !important;
+          overflow: hidden !important;
+        }
+        .dark .leaflet-popup-content-wrapper {
+          background: #18181b !important;
+          box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255,255,255,0.12) !important;
+          color: #f4f4f5 !important;
+        }
+        .leaflet-popup-content {
+          margin: 6px !important;
+          line-height: 1.3 !important;
+        }
+        .leaflet-popup-tip {
+          background: #ffffff !important;
+          box-shadow: none !important;
+        }
+        .dark .leaflet-popup-tip {
+          background: #18181b !important;
+        }
+        .leaflet-container a.leaflet-popup-close-button {
+          top: 6px !important;
+          right: 6px !important;
+          width: 20px !important;
+          height: 20px !important;
+          font-size: 13px !important;
+          line-height: 20px !important;
+          color: #ffffff !important;
+          background: rgba(0, 0, 0, 0.55) !important;
+          border-radius: 9999px !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          padding: 0 !important;
+          backdrop-filter: blur(4px) !important;
+        }
+        .leaflet-container a.leaflet-popup-close-button:hover {
+          background: rgba(0, 0, 0, 0.8) !important;
+          color: #ffffff !important;
+        }
       `}</style>
 
       {/* Loading Overlay */}
       {isRouteLoading && (
         <div className="absolute inset-0 z-[2000] flex items-center justify-center bg-zinc-900/10 backdrop-blur-[2px] rounded-lg pointer-events-none transition-all duration-300">
-          <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent shadow-md"></div>
+          <div className="animate-spin rounded-full h-10 w-10 border-3 border-zinc-900 dark:border-white border-t-transparent shadow-md"></div>
         </div>
       )}
 
       <MapContainer
-        center={destLatLng}
-        zoom={13}
-        scrollWheelZoom={true}
+        center={mapCenter}
+        zoom={zoom}
+        scrollWheelZoom={interactive}
+        dragging={interactive}
+        zoomControl={interactive}
         className="h-full w-full rounded-lg"
       >
+        <ChangeView
+          center={mapCenter}
+          zoom={zoom}
+          hotels={hotels}
+          fitAllHotels={fitAllHotels && interactive}
+        />
         <TileLayer
-          key={isDarkMode ? "dark" : "light"}
-          className={isDarkMode ? "invert hue-rotate-180 brightness-95 contrast-90" : ""}
+          key={isDarkMode ? 'dark' : 'light'}
+          className={isDarkMode ? 'invert hue-rotate-180 brightness-95 contrast-90' : ''}
           attribution={tileAttribution}
           url={tileUrl}
         />
 
         {/* Current Location Marker & Accuracy Circle */}
-        {userLocation && (
+        {routeOrigin && (
           <>
-            <Marker position={userLocation} icon={userIcon} />
+            <Marker position={routeOrigin} icon={userIcon} />
             <Circle
-              center={userLocation}
-              radius={200}
-              pathOptions={{ fillColor: '#3b82f6', fillOpacity: 0.1, color: 'transparent' }}
+              center={routeOrigin}
+              radius={180}
+              pathOptions={{ fillColor: '#3b82f6', fillOpacity: 0.12, color: 'transparent' }}
             />
           </>
         )}
 
+        {/* Radar Geospatial Radius Circle (soft blue, non-intrusive) */}
+        {showRadius && routeOrigin && (
+          <Circle
+            center={routeOrigin}
+            radius={radiusMeters}
+            pathOptions={{
+              fillColor: '#3b82f6',
+              fillOpacity: 0.07,
+              color: '#3b82f6',
+              weight: 1.5,
+              dashArray: '5, 5',
+            }}
+          />
+        )}
+
         {/* Road Routing Logic */}
-        {showRouting && userLocation && (
+        {canShowRoute && routeOrigin && routeDest && (
           <RoutingMachine
-            userPos={userLocation}
-            destination={destLatLng}
+            userPos={routeOrigin}
+            destination={routeDest}
             onRouteFound={() => setIsRouteLoading(false)}
           />
         )}
 
-        {/* Destination Marker */}
-        <Marker position={destLatLng} icon={destinationIcon} />
+        {/* Hotel Markers with Auto-Open Sleek Card */}
+        {hotels && hotels.length > 0 ? (
+          hotels.map((h, i) => {
+            const hId = h._id || h.id || String(i);
+            return (
+              <HotelMarker
+                key={hId}
+                hotel={h}
+                isOpen={activeHotelId === hId}
+                onSelect={() => {
+                  setActiveHotelId(hId);
+                  onSelectHotel?.(hId);
+                }}
+              />
+            );
+          })
+        ) : (
+          <Marker position={mapCenter} icon={destinationIcon} />
+        )}
       </MapContainer>
     </div>
   );

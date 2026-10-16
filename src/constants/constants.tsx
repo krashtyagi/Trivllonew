@@ -284,13 +284,7 @@ const HotelConstantsteste = () => {
 
 export const Hotel_Box_FilterBarValues: BoxFilterBarVaues[] = [
   {
-    label: "Check In",
-    icon: Calendar,
-    element: <HotelCalendern hookname="hotels" />,
-    text: "Add dates",
-  },
-  {
-    label: "Check Out",
+    label: "Check-in - Check-out",
     icon: Calendar,
     element: <HotelCalendern hookname="hotels" />,
     text: "Add dates",

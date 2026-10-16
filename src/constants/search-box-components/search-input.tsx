@@ -245,16 +245,9 @@ function SuggestionItem({
       </div>
 
       <div className="flex flex-col min-w-0 flex-1">
-        <div className="flex items-center gap-2">
-          <p className="font-semibold text-sm text-foreground truncate">
-            {place.name}
-          </p>
-          {place.count && place.count > 0 && (
-            <span className="text-[10px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded-md shrink-0">
-              {place.count} {place.count === 1 ? "stay" : "stays"}
-            </span>
-          )}
-        </div>
+        <p className="font-semibold text-sm text-foreground truncate">
+          {place.name}
+        </p>
         <p className="text-[11px] text-muted-foreground truncate">
           {place.label}
         </p>

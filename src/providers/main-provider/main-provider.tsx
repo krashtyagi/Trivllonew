@@ -8,9 +8,6 @@ import { ThemeProvider } from "./theme-provider";
 import MobileValueProvider from "@/context/mobile-value";
 import { NuqsAdapter } from "nuqs/adapters/react";
 import { Payment, useHotelStore } from "@/store/hotel.store";
-import { PostHogProvider } from "./posthogProvider";
-import { PostHogAuthSync } from "./posthog-auth-sync";
-
 const MainProvider = ({ children }: { children: React.ReactNode }) => {
   const [queryClient] = React.useState(() => new QueryClient());
 
@@ -21,21 +18,11 @@ const MainProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   return (
-    <PostHogProvider>
-      <NuqsAdapter>
-        <QueryClientProviderLib client={queryClient}>
-          {/* <ThemeProvider
-
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange> */}
-          <PostHogAuthSync />
-          <MobileValueProvider>{children}</MobileValueProvider>
-          {/* </ThemeProvider> */}
-        </QueryClientProviderLib>
-      </NuqsAdapter>
-    </PostHogProvider>
+    <NuqsAdapter>
+      <QueryClientProviderLib client={queryClient}>
+        <MobileValueProvider>{children}</MobileValueProvider>
+      </QueryClientProviderLib>
+    </NuqsAdapter>
   );
 };
 

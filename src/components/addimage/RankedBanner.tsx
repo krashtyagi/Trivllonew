@@ -476,15 +476,15 @@ const SlideCard = ({
         </h3>
 
         {/* Location & Rating Info */}
-        <div className="flex items-center gap-3 text-xs sm:text-sm text-zinc-300 font-normal mb-6">
-          <span className="flex items-center gap-1.5 bg-white/10 backdrop-blur-md px-2.5 py-1 rounded-md border border-white/10">
-            <MapPin className="w-3.5 h-3.5 text-rose-400" />
+        <div className="flex items-center gap-3 text-xs sm:text-sm text-zinc-300 font-normal mb-6 flex-wrap">
+          <span className="flex items-center gap-1.5 bg-white/10 backdrop-blur-md px-2.5 py-1 rounded-lg border border-white/15 shadow-sm">
+            <MapPin className="w-3.5 h-3.5 text-emerald-400" />
             {item.city}, India
           </span>
           {item.rating && item.rating > 0 ? (
-            <span className="flex items-center gap-1 bg-white/10 backdrop-blur-md px-2.5 py-1 rounded-md border border-white/10">
-              <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-              <span className="text-white font-medium">
+            <span className="flex items-center gap-1.5 bg-white/10 backdrop-blur-md px-2.5 py-1 rounded-lg border border-white/15 shadow-sm">
+              <Star className="w-3.5 h-3.5 fill-[#4ade80] text-[#4ade80] drop-shadow-[0_0_6px_rgba(74,222,128,0.8)]" />
+              <span className="text-white font-semibold">
                 {item.rating.toFixed(1)}
               </span>
             </span>
@@ -680,7 +680,7 @@ export default function RankedBanner({ rank, entityType }: RankedBannerProps) {
   return (
     <div
       ref={containerRef}
-      className="w-full my-3 md:my-5"
+      className="w-full px-3 sm:px-4 md:px-0 my-3 md:my-5"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >

@@ -80,13 +80,7 @@ const Hotel: React.FC<HotelFramePageProps> = ({ className }) => {
 
                         filterBlocks: [
                             {
-                                label: "Check In",
-                                icon: Calendar,
-                                element: <HotelCalendern hookname="hotels" />,
-                                text: "Add dates",
-                            },
-                            {
-                                label: "Check Out",
+                                label: "Check-in - Check-out",
                                 icon: Calendar,
                                 element: <HotelCalendern hookname="hotels" />,
                                 text: "Add dates",
