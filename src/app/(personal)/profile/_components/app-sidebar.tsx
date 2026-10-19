@@ -132,6 +132,7 @@ export const Logout = ({ refetch }: { refetch: () => void }) => {
   const handleLogout = () => {
     localStorage.removeItem(userAccessToken);
     localStorage.removeItem("nextRoute");
+    localStorage.removeItem("trivllo_user_wishlist");
 
     queryClient.removeQueries({ queryKey: ["current_user"] });
     refetch();

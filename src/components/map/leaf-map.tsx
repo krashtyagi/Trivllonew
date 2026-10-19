@@ -1,8 +1,8 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import React, { useState, useEffect, useRef } from 'react';
-import { MapContainer, Marker, TileLayer, useMap, Circle, Popup } from 'react-leaflet';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { MapContainer, Marker, TileLayer, useMap, Circle, Popup, ZoomControl } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
 import L from 'leaflet';
@@ -169,7 +169,99 @@ const ChangeView = ({
     } else {
       map.setView(center, zoom);
     }
+    const timer = setTimeout(() => {
+      map.invalidateSize();
+    }, 150);
+    return () => clearTimeout(timer);
   }, [center[0], center[1], zoom, map, hotels, fitAllHotels]);
+
+  return null;
+};
+
+// --- Google Maps Style Cooperative Gesture Controller ---
+const GestureController = ({
+  interactive = true,
+  onShowWarning,
+}: {
+  interactive?: boolean;
+  onShowWarning: (msg: string) => void;
+}) => {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!map || !interactive) return;
+    const container = map.getContainer();
+
+    // Disable default wheel zoom initially so it requires Ctrl / Cmd
+    map.scrollWheelZoom.disable();
+
+    const isMac =
+      typeof window !== 'undefined' &&
+      /Mac|iPod|iPhone|iPad/.test(navigator.platform);
+    const scrollMsg = isMac
+      ? 'Use ⌘ + scroll to zoom the map'
+      : 'Use ctrl + scroll to zoom the map';
+    const touchMsg = 'Use two fingers to move the map';
+
+    const handleWheel = (e: WheelEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        // Prevent default browser window/viewport zoom
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (typeof (map as any).scrollWheelZoom?._delta !== 'number') {
+          (map as any).scrollWheelZoom._delta = 0;
+        }
+
+        try {
+          (map as any).scrollWheelZoom._onWheelScroll(e);
+        } catch {
+          if (e.deltaY < 0) {
+            map.zoomIn();
+          } else if (e.deltaY > 0) {
+            map.zoomOut();
+          }
+        }
+      } else {
+        map.scrollWheelZoom.disable();
+        onShowWarning(scrollMsg);
+      }
+    };
+
+    const handleTouchStart = (e: TouchEvent) => {
+      if (e.touches.length === 1) {
+        map.dragging.disable();
+      } else {
+        map.dragging.enable();
+      }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length === 1) {
+        onShowWarning(touchMsg);
+      } else if (e.touches.length >= 2) {
+        // Prevent default browser pinch-zoom on touch screens
+        e.preventDefault();
+        map.dragging.enable();
+      }
+    };
+
+    const handleTouchEnd = () => {
+      map.dragging.enable();
+    };
+
+    container.addEventListener('wheel', handleWheel, { passive: false });
+    container.addEventListener('touchstart', handleTouchStart, { passive: true });
+    container.addEventListener('touchmove', handleTouchMove, { passive: false });
+    container.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+    return () => {
+      container.removeEventListener('wheel', handleWheel);
+      container.removeEventListener('touchstart', handleTouchStart);
+      container.removeEventListener('touchmove', handleTouchMove);
+      container.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [map, interactive, onShowWarning]);
 
   return null;
 };
@@ -341,6 +433,19 @@ const MapLeaf = ({
     userCoords ? [userCoords[0], userCoords[1]] : null
   );
   const [isRouteLoading, setIsRouteLoading] = useState(false);
+  const [showGestureWarning, setShowGestureWarning] = useState(false);
+  const [gestureWarningMessage, setGestureWarningMessage] = useState('');
+  const gestureTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const triggerGestureWarning = useCallback((msg: string) => {
+    setGestureWarningMessage(msg);
+    setShowGestureWarning(true);
+    if (gestureTimeoutRef.current) clearTimeout(gestureTimeoutRef.current);
+    gestureTimeoutRef.current = setTimeout(() => {
+      setShowGestureWarning(false);
+    }, 1400);
+  }, []);
+
   const [activeHotelId, setActiveHotelId] = useState<string | null>(
     selectedHotelId || (hotels && hotels.length > 0 ? hotels[0]._id || hotels[0].id || '0' : null)
   );
@@ -425,28 +530,43 @@ const MapLeaf = ({
   return (
     <div className={cn('w-full relative z-0', className)} style={{ height, width }}>
       <style>{`
-        .leaflet-control-zoom {
+        .leaflet-bottom.leaflet-right .leaflet-control-zoom {
+          margin-bottom: 16px !important;
+          margin-right: 16px !important;
           border: none !important;
-          border-radius: 10px !important;
+          border-radius: 8px !important;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3) !important;
           overflow: hidden !important;
-          margin: 14px !important;
-          box-shadow: 0 4px 14px rgba(0,0,0,0.12) !important;
         }
         .leaflet-control-zoom a {
           background-color: #ffffff !important;
-          color: #27272a !important;
+          color: #3c4043 !important;
           width: 32px !important;
           height: 32px !important;
+          font-size: 18px !important;
+          line-height: 30px !important;
           display: flex !important;
           align-items: center !important;
           justify-content: center !important;
-          border-bottom: 1px solid #f4f4f5 !important;
-          font-size: 14px !important;
+          border-bottom: 1px solid #ebebeb !important;
+        }
+        .leaflet-control-zoom a:last-child {
+          border-bottom: none !important;
+        }
+        .leaflet-control-zoom a:hover {
+          background-color: #f8f9fa !important;
+          color: #202124 !important;
+        }
+        .dark .leaflet-bottom.leaflet-right .leaflet-control-zoom {
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.7) !important;
         }
         .dark .leaflet-control-zoom a {
-          background-color: #18181b !important;
-          color: #f4f4f5 !important;
-          border-bottom: 1px solid #27272a !important;
+          background-color: #202124 !important;
+          color: #e8eaed !important;
+          border-bottom: 1px solid #3c4043 !important;
+        }
+        .dark .leaflet-control-zoom a:hover {
+          background-color: #303134 !important;
         }
         .leaflet-popup-content-wrapper {
           border-radius: 12px !important;
@@ -500,14 +620,31 @@ const MapLeaf = ({
         </div>
       )}
 
+      {/* Gesture Handling Warning Overlay (Google Maps Style) */}
+      <div
+        className={cn(
+          "absolute inset-0 z-[1100] pointer-events-none flex items-center justify-center bg-black/60 backdrop-blur-[1px] transition-opacity duration-300 rounded-lg",
+          showGestureWarning ? "opacity-100" : "opacity-0"
+        )}
+      >
+        <p className="text-white text-sm sm:text-base md:text-lg font-medium text-center px-6 py-3 drop-shadow-md select-none tracking-wide">
+          {gestureWarningMessage}
+        </p>
+      </div>
+
       <MapContainer
         center={mapCenter}
         zoom={zoom}
-        scrollWheelZoom={interactive}
+        scrollWheelZoom={false}
         dragging={interactive}
-        zoomControl={interactive}
+        zoomControl={false}
         className="h-full w-full rounded-lg"
       >
+        <GestureController
+          interactive={interactive}
+          onShowWarning={triggerGestureWarning}
+        />
+        {interactive && <ZoomControl position="bottomright" />}
         <ChangeView
           center={mapCenter}
           zoom={zoom}

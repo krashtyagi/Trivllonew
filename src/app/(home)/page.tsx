@@ -63,7 +63,7 @@ export type hoteldata = {
 //   tagline:"Popular stays in Bangalore"
 //  },
 // ]
-const Hotel: React.FC<HotelFramePageProps> = ({ className }) => {
+const Hotel = () => {
     const { city, setCity, setDate, date, guests } = useHotelStore();
     // const [city1, setCity1] = useState("")
 
@@ -73,7 +73,7 @@ const Hotel: React.FC<HotelFramePageProps> = ({ className }) => {
 
 
     return (
-        <div className={cn(" w-full ", ismobile ? "" : "", className)}>
+        <div className={cn(" w-full ", ismobile ? "" : "")}>
             <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong" />}>
                 <Suspense fallback={<PageSkeleton />}>
                     <FilterBox city={city} date={date} guests={guests} FilterBoxValues={{

@@ -18,10 +18,10 @@ const serviceTypeMap: Record<string, string> = {
 
 const page = async ({
     params,
-    searchParams, className
+    searchParams
 }: {
-    params: Promise<{ slug: string[] }>, className?: string
-    searchParams: Promise<{ [key: string]: string | undefined }>
+    params: Promise<{ slug: string[] }>;
+    searchParams: Promise<{ [key: string]: string | undefined }>;
 }) => {
     const { slug } = await params;
     const { categories, date, guests } = await searchParams;
@@ -31,7 +31,7 @@ const page = async ({
     const serviceType = serviceTypeMap[hookname] || "tour";
 
     return (
-        <div className={cn("w-full", className)}>
+        <div className="w-full">
             <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong" />}>
                 <Suspense fallback={<PageSkeleton />}>
                     <NotAuthorise title="Not Authorised" description="You are not authorised to access this page">

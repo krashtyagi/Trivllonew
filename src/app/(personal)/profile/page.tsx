@@ -13,7 +13,7 @@ import { WishlistSection } from "./_components/wishlist/wish-list"
 import { ReviewList } from "./_components/reviews/my-reviews"
 import { MessageModal } from "@/components/messagemodal"
 import { PageSkeleton } from "@/components/loader/skeleton"
-import { ProfileLayoutSkeleton } from "./layout"
+import { ProfileLayoutSkeleton } from "./_components/profile-skeleton"
 import Support from "./_components/support/Support"
 // import { ActiveReservations, AllReservations, CancelledReservations, CompletedReservations } from "./_components/trips/all"
 
@@ -44,7 +44,7 @@ const content: Record<ProfileTabKey, React.ReactNode> = {
   cancelled: <AllReservations variant={"cancelled"} />,
 }
 
-export default function Page({ className }: { className?: string }) {
+export default function Page() {
   const { navMain } = useProfileSidebar()
 
   const tabValues = [
@@ -53,7 +53,7 @@ export default function Page({ className }: { className?: string }) {
   ]
 
   return (
-    <div className={cn("w-full flex", className)}>
+    <div className="w-full flex">
       <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong" />}>
         <Suspense fallback={<ProfileLayoutSkeleton />}>
           {tabValues.map((value) => (

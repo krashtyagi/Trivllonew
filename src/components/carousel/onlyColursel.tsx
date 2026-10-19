@@ -280,6 +280,7 @@ const Card = React.memo(
     type?: string;
     onClick: () => void;
   }) => {
+    const router = useRouter();
     const queryClient = useQueryClient();
     const targetId =
       (
@@ -288,18 +289,14 @@ const Card = React.memo(
         (item.href ? item.href.split("/").pop() : "")
       )?.toString() || "";
 
+    const checkIsLoggedIn = () => {
+      if (typeof window === "undefined") return false;
+      return Boolean(localStorage.getItem(userAccessToken));
+    };
+
     const getInitialLiked = () => {
-      if (typeof window !== "undefined" && targetId) {
-        try {
-          const map = JSON.parse(
-            localStorage.getItem("trivllo_user_wishlist") || "{}",
-          );
-          if (typeof map[targetId] === "boolean") {
-            return map[targetId];
-          }
-        } catch {
-          // ignore
-        }
+      if (typeof window !== "undefined" && !localStorage.getItem(userAccessToken)) {
+        return false;
       }
       return Boolean(item.isFavorite);
     };
@@ -308,37 +305,26 @@ const Card = React.memo(
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-      if (typeof window !== "undefined" && targetId) {
-        try {
-          const map = JSON.parse(
-            localStorage.getItem("trivllo_user_wishlist") || "{}",
-          );
-          if (typeof map[targetId] === "boolean") {
-            setIsLiked(map[targetId]);
-            return;
-          }
-        } catch {
-          // ignore
-        }
+      // Purge any legacy wishlist data from localStorage
+      if (
+        typeof window !== "undefined" &&
+        localStorage.getItem("trivllo_user_wishlist")
+      ) {
+        localStorage.removeItem("trivllo_user_wishlist");
       }
-      setIsLiked(Boolean(item.isFavorite));
+
+      const isLoggedIn = checkIsLoggedIn();
+      if (!isLoggedIn) {
+        setIsLiked(false);
+      } else {
+        setIsLiked(Boolean(item.isFavorite));
+      }
     }, [item.isFavorite, targetId]);
 
     const syncCaches = (isFav: boolean) => {
       if (!targetId) return;
 
-      // 1. Persistent storage
-      try {
-        const map = JSON.parse(
-          localStorage.getItem("trivllo_user_wishlist") || "{}",
-        );
-        map[targetId] = isFav;
-        localStorage.setItem("trivllo_user_wishlist", JSON.stringify(map));
-      } catch {
-        // ignore
-      }
-
-      // 2. TanStack cache for home screen hotels
+      // 1. TanStack cache for home screen hotels
       queryClient.setQueryData(["gethotels_home"], (oldData: any) => {
         if (!oldData || !oldData.data) return oldData;
         return {
@@ -357,7 +343,7 @@ const Card = React.memo(
         };
       });
 
-      // 3. TanStack cache for hotel details page
+      // 2. TanStack cache for hotel details page
       queryClient.setQueryData(["hotel_details", targetId], (oldData: any) => {
         if (!oldData) return oldData;
         return {
@@ -373,49 +359,49 @@ const Card = React.memo(
 
     const handleLikeClick = async (e: React.MouseEvent) => {
       e.stopPropagation();
+      e.preventDefault();
       if (!targetId) return;
-
-      const newLiked = !isLiked;
-      setIsLiked(newLiked);
-      syncCaches(newLiked);
 
       const token =
         typeof window !== "undefined"
           ? localStorage.getItem(userAccessToken)
           : null;
 
-      if (token) {
-        try {
-          setLoading(true);
-          const res = await dotoggleLike(
-            targetId,
-            type === "tours" ? "tour" : "hotel",
-          );
-          const isFav =
-            res?.isFavorite !== undefined
-              ? res.isFavorite
-              : res?.data?.isFavorite !== undefined
-                ? res.data.isFavorite
-                : newLiked;
+      if (!token) {
+        setIsLiked(false);
+        toast.info("Please log in to save to your wishlist");
+        RouterPush(router, "/login");
+        return;
+      }
 
-          setIsLiked(isFav);
-          syncCaches(isFav);
-          toast.success(
-            isFav ? `Saved ${item.title} to wishlist` : `Removed from wishlist`,
-          );
-        } catch {
-          setIsLiked(!newLiked);
-          syncCaches(!newLiked);
-          toast.error("Failed to update wishlist");
-        } finally {
-          setLoading(false);
-        }
-      } else {
-        toast.success(
-          newLiked
-            ? `Saved ${item.title} to wishlist`
-            : `Removed from wishlist`,
+      const newLiked = !isLiked;
+      setIsLiked(newLiked);
+      syncCaches(newLiked);
+
+      try {
+        setLoading(true);
+        const res = await dotoggleLike(
+          targetId,
+          type === "tours" ? "tour" : "hotel",
         );
+        const isFav =
+          res?.isFavorite !== undefined
+            ? res.isFavorite
+            : res?.data?.isFavorite !== undefined
+              ? res.data.isFavorite
+              : newLiked;
+
+        setIsLiked(isFav);
+        syncCaches(isFav);
+        toast.success(
+          isFav ? `Saved ${item.title} to wishlist` : `Removed from wishlist`,
+        );
+      } catch {
+        setIsLiked(!newLiked);
+        syncCaches(!newLiked);
+        toast.error("Failed to update wishlist");
+      } finally {
+        setLoading(false);
       }
     };
 
