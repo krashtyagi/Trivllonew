@@ -34,6 +34,9 @@ import { cn } from "@/lib/utils";
 import { Decription } from "../../../_componentsRoot_categories/description";
 import { LayoutGridDemo } from "../../../_componentsRoot_categories/imsges";
 import { useTranslation } from "@/hooks/useTranslation";
+import { HotelDescription } from "./HotelDescription";
+import { HotelAmenities } from "./HotelAmenities";
+import { useScrollDirection } from "@/hooks/useScrollDirection";
 
 type TabKey =
   | "overview"
@@ -55,6 +58,7 @@ export function TabsLine({
   isAvailabilityLoading: boolean;
 }) {
   const { t } = useTranslation();
+  const isNavHidden = useScrollDirection();
 
   const sectionRef = useRef<HTMLDivElement | null>(null);
   const hotelId = hotel?._id;
@@ -63,7 +67,12 @@ export function TabsLine({
   const content: Record<TabKey, React.ReactNode> = {
     overview: <LayoutGridDemo images={hotel.images} />,
     description: (
-      <Decription data={{ name: hotel.name, description: hotel.description }} />
+      <HotelDescription
+        hotelName={hotel.name}
+        description={hotel.description}
+        city={hotel.city}
+        address={formatAddress(hotel.address)}
+      />
     ),
     location: (
       <MapLocation
@@ -72,7 +81,13 @@ export function TabsLine({
         map="/map.png"
       />
     ),
-    amenities: <AmenitiesValues amenities={hotel.amenities} />,
+    amenities: (
+      <HotelAmenities
+        amenities={hotel.amenities}
+        hotelName={hotel.name}
+        title={t("hotel.amenities")}
+      />
+    ),
     reviews: <ReviewsMain companyId={hotelId} CompanyType="hotel" />,
     rooms: (
       <RoomsMain
@@ -87,115 +102,129 @@ export function TabsLine({
     sectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
 
   return (
-    <div className="mx-auto w-full max-w-screen-2xl px-4 md:px-6 lg:px-10">
-      <section id="overview" className="py-3 -mx-5 md:mx-0">
-        {content.overview}
-      </section>
-      <div className="z-30 sticky top-0 z-0 bg-white/50 dark:bg-background/30 backdrop-blur-md border-b border-t h-16 flex items-center -mx-4 px-4 md:px-6 mb-8">
-        <div className="flex gap-6 overflow-x-auto no-scrollbar">
-          {values.map((tab) => (
-            <a
-              key={tab.id}
-              href={`#${tab.title}`}
-              className="capitalize whitespace-nowrap pb-2 border-b-2 border-transparent hover:border-orange-500 text-sm font-semibold transition-all text-slate-600 hover:text-slate-900 dark:hover:text-primary"
-              onClick={(e) => {
-                e.preventDefault();
-                const target = document.getElementById(tab.title);
-                if (!target) return;
+    <div className="w-full">
+      <div className="mx-auto w-full max-w-screen-2xl px-4 md:px-6 lg:px-10">
+        <section id="overview" className="py-3">
+          {content.overview}
+        </section>
+      </div>
 
-                const headerOffset = 80;
-                const elementPosition = target.getBoundingClientRect().top;
-                const offsetPosition =
-                  elementPosition + window.pageYOffset - headerOffset;
+      {/* Full-width sticky bar edge-to-edge */}
+      <div
+        className={cn(
+          "sticky z-30 w-full bg-white/95 dark:bg-background/95 backdrop-blur-md border-b border-t border-border shadow-xs mb-8 transition-all duration-300 ease-in-out",
+          isNavHidden ? "top-0" : "top-14 md:top-16",
+        )}
+      >
+        <div className="mx-auto w-full max-w-screen-2xl px-4 md:px-6 lg:px-10 h-12 md:h-14 flex items-center">
+          <div className="flex gap-6 overflow-x-auto no-scrollbar items-center w-full">
+            {values.map((tab) => (
+              <a
+                key={tab.id}
+                href={`#${tab.title}`}
+                className="capitalize whitespace-nowrap pb-2 border-b-2 border-transparent hover:border-orange-500 text-sm font-semibold transition-all text-slate-600 hover:text-slate-900 dark:text-zinc-400 dark:hover:text-primary cursor-pointer"
+                onClick={(e) => {
+                  e.preventDefault();
+                  const target = document.getElementById(tab.title);
+                  if (!target) return;
 
-                // Custom smooth scroll that cannot be aborted by native browser layout shift bugs
-                const startPosition = window.pageYOffset;
-                const distance = offsetPosition - startPosition;
-                const duration = 600; // ms
-                let start: number | null = null;
+                  const headerOffset = isNavHidden ? 60 : 120;
+                  const elementPosition = target.getBoundingClientRect().top;
+                  const offsetPosition =
+                    elementPosition + window.pageYOffset - headerOffset;
 
-                const easeInOutQuad = (
-                  t: number,
-                  b: number,
-                  c: number,
-                  d: number,
-                ) => {
-                  t /= d / 2;
-                  if (t < 1) return (c / 2) * t * t + b;
-                  t--;
-                  return (-c / 2) * (t * (t - 2) - 1) + b;
-                };
+                  // Custom smooth scroll that cannot be aborted by native browser layout shift bugs
+                  const startPosition = window.pageYOffset;
+                  const distance = offsetPosition - startPosition;
+                  const duration = 600; // ms
+                  let start: number | null = null;
 
-                const animation = (currentTime: number) => {
-                  if (start === null) start = currentTime;
-                  const timeElapsed = currentTime - start;
-                  const run = easeInOutQuad(
-                    timeElapsed,
-                    startPosition,
-                    distance,
-                    duration,
-                  );
-                  window.scrollTo(0, run);
-                  if (timeElapsed < duration) {
-                    requestAnimationFrame(animation);
-                  } else {
-                    window.scrollTo(0, offsetPosition);
-                  }
-                };
+                  const easeInOutQuad = (
+                    t: number,
+                    b: number,
+                    c: number,
+                    d: number,
+                  ) => {
+                    t /= d / 2;
+                    if (t < 1) return (c / 2) * t * t + b;
+                    t--;
+                    return (-c / 2) * (t * (t - 2) - 1) + b;
+                  };
 
-                requestAnimationFrame(animation);
-              }}
-            >
-              {t(`hotel.${tab.title}`)}
-            </a>
-          ))}
+                  const animation = (currentTime: number) => {
+                    if (start === null) start = currentTime;
+                    const timeElapsed = currentTime - start;
+                    const run = easeInOutQuad(
+                      timeElapsed,
+                      startPosition,
+                      distance,
+                      duration,
+                    );
+                    window.scrollTo(0, run);
+                    if (timeElapsed < duration) {
+                      requestAnimationFrame(animation);
+                    } else {
+                      window.scrollTo(0, offsetPosition);
+                    }
+                  };
+
+                  requestAnimationFrame(animation);
+                }}
+              >
+                {t(`hotel.${tab.title}`)}
+              </a>
+            ))}
+          </div>
         </div>
       </div>
-      <div className="flex flex-col lg:flex-row lg:gap-6 mb-5">
-        <main className="flex-1 min-w-0 space-y-1">
-          <section id="description" className=" py-2 gap-2">
-            <h3 className="text-xl font-bold mb-2 dark:text-zinc-400 text-zinc-800">
-              {t("hotel.description")}
-            </h3>
-            {content.description}
-          </section>
-          <section
-            id="amenities"
-            className="scroll-mt-16 border-t md:pt-3 pt-2"
-          >
-            {content.amenities}
-          </section>
-          <section
-            id="location"
-            className="scroll-mt-5 border-t md:pt-4 pt-5 my-4"
-            ref={sectionRef}
-          >
-            {content.location}
-          </section>
-        </main>
-        <aside className="lg:w-[380px] flex-shrink-0">
-          <div className="lg:sticky lg:top-24">
-            {/* <CometCard translateDepth={5}> */}
-            <BookingCard
-              isBookingMode={isBookingMode}
-              isLoading={isAvailabilityLoading}
-            />
-            {/* </CometCard> */}
-          </div>
-        </aside>
+
+      <div className="mx-auto w-full max-w-screen-2xl px-4 md:px-6 lg:px-10">
+        <div className="flex flex-col lg:flex-row lg:gap-6 mb-5">
+          <main className="flex-1 min-w-0 space-y-3">
+            <section id="description" className=" py-2 gap-2">
+              <h3 className="text-base sm:text-lg font-bold capitalize mb-1.5 dark:text-zinc-400 text-zinc-800">
+                {t("hotel.description")}
+              </h3>
+              {content.description}
+            </section>
+            <section
+              id="amenities"
+              className="scroll-mt-16 border-t md:pt-3 pt-2"
+            >
+              {content.amenities}
+            </section>
+            <section
+              id="location"
+              className="scroll-mt-5 border-t md:pt-4 pt-5 my-4"
+              ref={sectionRef}
+            >
+              {content.location}
+            </section>
+          </main>
+          <aside className="lg:w-[380px] flex-shrink-0">
+            <div className="lg:sticky lg:top-24">
+              {/* <CometCard translateDepth={5}> */}
+              <BookingCard
+                isBookingMode={isBookingMode}
+                isLoading={isAvailabilityLoading}
+              />
+              {/* </CometCard> */}
+            </div>
+          </aside>
+        </div>
+        <section
+          id="rooms"
+          className="scroll-mt-24 border-t md:pt-10 pt-6 md:mb-16 mb-5 w-full"
+        >
+          <SliderIfNotChooseDate handleClick={handleClick}>
+            {content.rooms}
+          </SliderIfNotChooseDate>
+        </section>
+        <section id="reviews" className="py-5 border-t md:pt-5 pt-6 md:mb- mb-5">
+          {content.reviews}
+        </section>
+        <HotelPolicies id={hotelId} />
       </div>
-      <section
-        id="rooms"
-        className="scroll-mt-24 border-t md:pt-10 pt-6 md:mb-16 mb-5 w-full"
-      >
-        <SliderIfNotChooseDate handleClick={handleClick}>
-          {content.rooms}
-        </SliderIfNotChooseDate>
-      </section>
-      <section id="reviews" className="py-5 border-t md:pt-5 pt-6 md:mb- mb-5">
-        {content.reviews}
-      </section>
-      <HotelPolicies id={hotelId} />
     </div>
   );
 }
@@ -272,32 +301,32 @@ function BookingCard({
 
   return (
     <Card className="border border-border shadow-xl rounded-2xl bg-background/90 text-foreground overflow-visible relative">
-      <CardContent className="p-6 space-y-6">
+      <CardContent className="p-3 sm:p-6 space-y-3 sm:space-y-6">
         <div
           ref={containerRef}
-          className="relative rounded-2xl border border-border divide-x divide-border flex overflow-visible bg-background z-1"
+          className="relative rounded-xl sm:rounded-2xl border border-border divide-x divide-border flex overflow-visible bg-background z-1"
         >
           <div
-            className="flex-1 p-4 hover:bg-muted cursor-pointer transition rounded-l-2xl"
+            className="flex-1 p-2.5 sm:p-4 hover:bg-muted cursor-pointer transition rounded-l-xl sm:rounded-l-2xl"
             onClick={handleToggleCalendar}
           >
-            <span className="text-[10px] uppercase font-black text-muted-foreground block mb-1">
+            <span className="text-[10px] uppercase font-black text-muted-foreground block mb-0.5 sm:mb-1">
               {t("hotel.checkIn")}
             </span>
-            <p className="text-xs md:text-sm font-bold text-foreground">
+            <p className="text-xs sm:text-sm font-bold text-foreground">
               {date?.from
                 ? format(date.from, "dd/MM/yyyy")
                 : t("hotel.addDate")}
             </p>
           </div>
           <div
-            className="flex-1 p-4 hover:bg-muted cursor-pointer transition rounded-r-2xl"
+            className="flex-1 p-2.5 sm:p-4 hover:bg-muted cursor-pointer transition rounded-r-xl sm:rounded-r-2xl"
             onClick={handleToggleCalendar}
           >
-            <span className="text-[10px] uppercase font-black text-muted-foreground block mb-1">
+            <span className="text-[10px] uppercase font-black text-muted-foreground block mb-0.5 sm:mb-1">
               {t("hotel.checkOut")}
             </span>
-            <p className="text-xs md:text-sm font-bold text-foreground">
+            <p className="text-xs sm:text-sm font-bold text-foreground">
               {date?.to ? format(date.to, "dd/MM/yyyy") : t("hotel.addDate")}
             </p>
           </div>
@@ -314,7 +343,7 @@ function BookingCard({
             </div>
           )}
         </div>
-        <div className="rounded-2xl border border-border p-1 bg-background w-full">
+        <div className="rounded-xl sm:rounded-2xl border border-border p-0.5 sm:p-1 bg-background w-full">
           <VisitorsMembers
             showCalendar={false}
             maxLimit={maxGuests}
@@ -322,14 +351,14 @@ function BookingCard({
             maxChildren={maxChildren}
           />
         </div>
-        <div className="py-2">
-          <p className="text-xs text-muted-foreground font-bold uppercase mb-1">
+        <div className="py-1 sm:py-2">
+          <p className="text-[10px] sm:text-xs text-muted-foreground font-bold uppercase mb-0.5 sm:mb-1">
             {t("hotel.prices")}
           </p>
           {isLoading ? (
-            <div className="animate-pulse h-8 w-32 bg-muted rounded" />
+            <div className="animate-pulse h-6 sm:h-8 w-24 sm:w-32 bg-muted rounded" />
           ) : (
-            <p className="text-2xl font-black text-foreground">
+            <p className="text-base sm:text-2xl font-black text-foreground">
               {minPrice > 0
                 ? `₹${minPrice} to ₹${maxPrice}`
                 : t("hotel.selectDates")}
@@ -339,7 +368,7 @@ function BookingCard({
         <Button
           id="show-rooms-btn"
           disabled={isInvalidDates}
-          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold h-14 rounded-2xl text-lg shadow-lg transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold h-10 sm:h-14 rounded-xl sm:rounded-2xl text-xs sm:text-lg shadow-md sm:shadow-lg transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
           onClick={async (e) => {
             e.preventDefault();
             setFetch(true);
@@ -359,7 +388,7 @@ function BookingCard({
         >
           {t("hotel.showRooms")}
         </Button>
-        <p className="text-[11px] text-center text-muted-foreground font-medium italic">
+        <p className="text-[10px] sm:text-[11px] text-center text-muted-foreground font-medium italic">
           {t("hotel.bestPriceGuaranteed")}
         </p>
       </CardContent>
@@ -390,11 +419,13 @@ export function VisitorsMembers({
     <Accordion
       type="single"
       collapsible
-      className="w-full px-5"
+      className="w-full px-2.5 sm:px-5"
       style={{ display: showCalendar ? "none" : "block" }}
     >
-      <AccordionItem value="rooms and guests">
-        <AccordionTrigger>{t("hotel.roomsAndGuests")}</AccordionTrigger>
+      <AccordionItem value="rooms and guests" className="border-b-0">
+        <AccordionTrigger className="text-xs sm:text-sm font-semibold py-2.5 sm:py-4 hover:no-underline">
+          {t("hotel.roomsAndGuests")}
+        </AccordionTrigger>
         <AccordionContent>
           <GuestSelector
             maxLimit={effectiveMaxLimit}
