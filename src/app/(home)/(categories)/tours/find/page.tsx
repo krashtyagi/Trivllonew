@@ -55,19 +55,31 @@ type FindHotelProps = {
 
 const FindHotels: React.FC<FindHotelProps> = (props) => {
   return (
-    <div className={cn(props.className, "w-full bg-background  sm:px-0")}>
-      <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong" />}>
-        <Suspense fallback={<PageSkeleton />}>
-          <TourContextProvider>
+    <div className={cn(props.className, "relative w-full min-h-screen overflow-x-hidden")}>
+      {/* Scenic Atmospheric Background with Soft Ambient Gradient */}
+      <div
+        className="absolute inset-0 pointer-events-none z-0 bg-cover bg-no-repeat"
+        style={{
+          backgroundImage: `url('/hotels/main_page_bg.png')`,
+          backgroundPosition: "center 18%",
+        }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-b from-white/65 via-white/85 to-white/95 dark:from-zinc-950/75 dark:via-zinc-950/90 dark:to-zinc-950/98 backdrop-blur-[2px]" />
+      </div>
 
-            <FilterFramePages
-              filterClassname="w-full flex gap-4 justify-center "
-              filterSidebar={<SideBarFilter items={tourItems} mapSrc="/map-icons/map.png" alt="map image" overlayTitle="See Location on Map" />}
-              content={<ContentFrame key={0} />}
-            />
-          </TourContextProvider>
-        </Suspense>
-      </ErrorBoundary>
+      <div className="relative z-10 w-full sm:px-0">
+        <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong" />}>
+          <Suspense fallback={<PageSkeleton />}>
+            <TourContextProvider>
+              <FilterFramePages
+                filterClassname="w-full flex gap-4 justify-center"
+                filterSidebar={<SideBarFilter items={tourItems} mapSrc="/map-icons/map.png" alt="map image" overlayTitle="See Location on Map" />}
+                content={<ContentFrame key={0} />}
+              />
+            </TourContextProvider>
+          </Suspense>
+        </ErrorBoundary>
+      </div>
     </div>
   );
 };

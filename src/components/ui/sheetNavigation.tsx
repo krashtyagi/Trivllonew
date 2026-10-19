@@ -14,7 +14,7 @@ export const SheetNavigation = ({ trigger, content, setOpen }: { trigger: React.
   return (
     <Sheet onOpenChange={setOpen}>
       <SheetTrigger asChild>{trigger}</SheetTrigger>
-      <SheetContent className="overflow-y-scroll">
+      <SheetContent className="overflow-y-scroll bg-white/95 dark:bg-zinc-950/95 backdrop-blur-xl border-none shadow-2xl p-3 sm:p-5 rounded-l-3xl">
         <VisuallyHidden>
           <DialogTitle>Menu</DialogTitle>
           <DialogDescription>

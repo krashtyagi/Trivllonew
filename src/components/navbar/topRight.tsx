@@ -23,7 +23,49 @@ const TopRight = ({ isMobile }: { isMobile: boolean }) => {
 
   return (
     <div className="flex items-center gap-1 sm:gap-2 px-1 h-full shrink-0">
-      {/* Search Icon - desktop only, hidden on find page since search bar is in navbar */}
+      {/* MOBILE ONLY ICONS (Matching Image 2) */}
+      <button
+        onClick={() => {
+          RouterPush(router, isFindPage ? "/" : "/hotels/find");
+        }}
+        className="p-1.5 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 text-gray-700 dark:text-gray-200 transition-colors cursor-pointer md:hidden"
+        aria-label="Search"
+      >
+        <Search className="w-4 h-4" />
+      </button>
+
+      {/* Wishlist Heart Icon - mobile, ONLY IF LOGGED IN */}
+      {isLoggedIn && (
+        <button
+          onClick={() => {
+            RouterPush(router, "/profile?tab=wishlist");
+          }}
+          className="p-1.5 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 text-gray-700 dark:text-gray-200 transition-colors cursor-pointer md:hidden"
+          aria-label="Wishlist"
+        >
+          <Heart className="w-4 h-4" />
+        </button>
+      )}
+
+      {/* User Avatar - mobile, ONLY IF LOGGED IN */}
+      {isLoggedIn && (
+        <div className="md:hidden flex items-center">
+          <button
+            onClick={() => RouterPush(router, "/profile")}
+            className="relative h-7 w-7 rounded-full overflow-hidden border border-border/80 p-0 transition-transform active:scale-95 cursor-pointer block"
+            aria-label="Profile"
+          >
+            <Image
+              src={user?.data?.avatar || "/icons/traveler_avatar.jpg"}
+              alt="Profile"
+              fill
+              className="object-cover"
+            />
+          </button>
+        </div>
+      )}
+
+      {/* DESKTOP ONLY ICONS (PC View Unchanged) */}
       {!isMobile && !isFindPage && (
         <button
           onClick={() => {
@@ -60,10 +102,10 @@ const TopRight = ({ isMobile }: { isMobile: boolean }) => {
         </Suspense>
       )}
 
-      {/* Get Listed Button - visible on both */}
+      {/* Get Listed Button - visible on desktop only (hidden on mobile in Image 2) */}
       <Button
         asChild
-        className="bg-[#0c3926] hover:bg-[#072619] text-white font-bold text-xs h-8 sm:h-9 px-3 sm:px-4 rounded-full shadow-sm hover:shadow-md transition-all active:scale-95 cursor-pointer"
+        className="hidden md:inline-flex bg-[#0c3926] hover:bg-[#072619] text-white font-bold text-xs h-8 sm:h-9 px-3 sm:px-4 rounded-full shadow-sm hover:shadow-md transition-all active:scale-95 cursor-pointer"
       >
         <a
           href={
@@ -74,7 +116,6 @@ const TopRight = ({ isMobile }: { isMobile: boolean }) => {
           rel="noopener noreferrer"
           className="flex items-center gap-1.5 cursor-pointer text-white"
         >
-          {/* <Sparkles className="w-3.5 h-3.5 text-emerald-300 hidden sm:inline" /> */}
           <span>Get Listed</span>
         </a>
       </Button>

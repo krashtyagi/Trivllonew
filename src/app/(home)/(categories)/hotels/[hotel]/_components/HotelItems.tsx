@@ -35,10 +35,18 @@ const HotelItems = ({
             </h1>
 
             <div className="flex items-center gap-0.5">
-              <StarRating rating={hotel.rating} />
-              <span className="ml-2 text-xs font-bold text-muted-foreground">
-                {hotel.rating === 0 ? "No Rating" : hotel.rating}
-              </span>
+              {hotel.rating > 0 ? (
+                <>
+                  <StarRating rating={hotel.rating} />
+                  <span className="ml-2 text-xs font-bold text-muted-foreground">
+                    {hotel.rating}
+                  </span>
+                </>
+              ) : (
+                <span className="text-xs text-muted-foreground font-medium">
+                  No ratings yet
+                </span>
+              )}
             </div>
           </div>
 

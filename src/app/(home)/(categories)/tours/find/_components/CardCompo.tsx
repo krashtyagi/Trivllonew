@@ -66,7 +66,7 @@ const formatCurrency = (v: number) =>
   `₹${v.toLocaleString("en-IN")}`;
 
 const ratingLabel = (r: number) =>
-  r >= 4.5 ? "Excellent" : r >= 3.5 ? "Very Good" : r >= 2.5 ? "Good" : "Average";
+  r >= 4.5 ? "Excellent" : r >= 3.5 ? "Very Good" : r >= 2.5 ? "Good" : "";
 
 // ─── ToursCard ───────────────────────────────────────────────────────────────────
 
@@ -225,19 +225,27 @@ export const ToursCard = ({ tour, wrap, favourite }: ToursCardProps) => {
           )}
 
           {/* Rating */}
-          <div className="flex items-center justify-between gap-3 pt-1">
-            <div className="flex flex-col items-start gap-0.5">
-              <span className="text-xs font-bold text-primary">
-                {ratingLabel(company?.rating || 0)}
-              </span>
-              <div className="flex gap-0.5">
-                <StarRating rating={company?.rating || 0} className="h-[11px] w-[11px]" />
+          {company?.rating && company.rating > 0 ? (
+            <div className="flex items-center justify-between gap-3 pt-1">
+              <div className="flex flex-col items-start gap-0.5">
+                <span className="text-xs font-bold text-primary">
+                  {ratingLabel(company.rating)}
+                </span>
+                <div className="flex gap-0.5">
+                  <StarRating rating={company.rating} className="h-[11px] w-[11px]" />
+                </div>
+              </div>
+              <div className="bg-primary text-white font-black h-8 w-8 flex items-center justify-center rounded-lg rounded-bl-none text-sm shadow-inner">
+                {company.rating.toFixed(1)}
               </div>
             </div>
-            <div className="bg-primary text-white font-black h-8 w-8 flex items-center justify-center rounded-lg rounded-bl-none text-sm shadow-inner">
-              {(company?.rating || 0).toFixed(1)}
+          ) : (
+            <div className="flex items-center gap-1.5 pt-1">
+              <span className="text-[11px] font-medium text-muted-foreground bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded-full">
+                No ratings yet
+              </span>
             </div>
-          </div>
+          )}
 
           {/* Pricing */}
           <div className="pt-3 border-t flex flex-row items-end justify-between mt-1">
@@ -391,31 +399,39 @@ export const ToursCard = ({ tour, wrap, favourite }: ToursCardProps) => {
             )}
 
             {/* Rating row */}
-            <div className="flex items-center justify-between gap-2 pt-1">
-              <div className="flex items-center gap-2">
-                <div className="flex gap-0.5">
-                  <StarRating rating={company?.rating || 0} className="h-3.5 w-3.5" />
+            {company?.rating && company.rating > 0 ? (
+              <div className="flex items-center justify-between gap-2 pt-1">
+                <div className="flex items-center gap-2">
+                  <div className="flex gap-0.5">
+                    <StarRating rating={company.rating} className="h-3.5 w-3.5" />
+                  </div>
+                  <span className="text-xs font-semibold text-primary">
+                    {ratingLabel(company.rating)}
+                  </span>
                 </div>
-                <span className="text-xs font-semibold text-primary">
-                  {ratingLabel(company?.rating || 0)}
+                {!isHorizontal && (
+                  <div className="bg-primary text-white font-bold h-8 w-8 flex items-center justify-center rounded-lg rounded-bl-none text-sm shadow-sm shrink-0">
+                    {company.rating.toFixed(1)}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="flex items-center gap-1.5 pt-1">
+                <span className="text-xs font-medium text-muted-foreground bg-zinc-100 dark:bg-zinc-800 px-2.5 py-1 rounded-full">
+                  No ratings yet
                 </span>
               </div>
-              {!isHorizontal && (
-                <div className="bg-primary text-white font-bold h-8 w-8 flex items-center justify-center rounded-lg rounded-bl-none text-sm shadow-sm shrink-0">
-                  {(company?.rating || 0).toFixed(1)}
-                </div>
-              )}
-            </div>
+            )}
           </div>
 
           {/* Rating badge on right for Horizontal mode */}
-          {isHorizontal && (
+          {isHorizontal && company?.rating && company.rating > 0 && (
             <div className="flex flex-col items-end gap-2 shrink-0">
               <p className="font-bold text-primary text-xs leading-none text-right">
-                {ratingLabel(company?.rating || 0)}
+                {ratingLabel(company.rating)}
               </p>
               <div className="bg-primary text-white font-bold h-10 w-10 flex items-center justify-center rounded-lg rounded-bl-none text-lg shadow-sm">
-                {(company?.rating || 0).toFixed(1)}
+                {company.rating.toFixed(1)}
               </div>
             </div>
           )}

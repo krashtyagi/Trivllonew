@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -79,18 +78,29 @@ export function HotelRoomCard({
   const bothdate = !!date?.to && !!date?.from;
 
   // Image slider state
-  const slides = roomImages && roomImages.length > 0
-    ? roomImages.map(img => typeof img === "string" ? { url: img } : { url: (img as { url: string }).url || "/hotels/img1.png" })
-    : [{ url: imageUrl || "/hotels/img1.png" }];
+  const slides =
+    roomImages && roomImages.length > 0
+      ? roomImages.map((img) =>
+          typeof img === "string"
+            ? { url: img }
+            : { url: (img as { url: string }).url || "/hotels/img1.png" },
+        )
+      : [{ url: imageUrl || "/hotels/img1.png" }];
   const [imgIdx, setImgIdx] = useState(0);
-  const prevImg = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    setImgIdx((i) => (i === 0 ? slides.length - 1 : i - 1));
-  }, [slides.length]);
-  const nextImg = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    setImgIdx((i) => (i === slides.length - 1 ? 0 : i + 1));
-  }, [slides.length]);
+  const prevImg = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      setImgIdx((i) => (i === 0 ? slides.length - 1 : i - 1));
+    },
+    [slides.length],
+  );
+  const nextImg = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      setImgIdx((i) => (i === slides.length - 1 ? 0 : i + 1));
+    },
+    [slides.length],
+  );
 
   // Instagram-style pagination dots (max 5 dots with edge scaling)
   const maxDots = 5;
@@ -107,7 +117,8 @@ export function HotelRoomCard({
       const actualIdx = startIdx + i;
       const isActive = actualIdx === imgIdx;
       const isLeftEdge = i === 0 && startIdx > 0;
-      const isRightEdge = i === maxDots - 1 && (startIdx + maxDots) < slides.length;
+      const isRightEdge =
+        i === maxDots - 1 && startIdx + maxDots < slides.length;
       return {
         index: actualIdx,
         isActive,
@@ -163,24 +174,32 @@ export function HotelRoomCard({
     });
     const nextRoute = localStorage.getItem("nextRoute");
     RouterPush(router, nextRoute || "/");
-
   };
 
-  const rawToken = typeof window !== "undefined" ? localStorage.getItem(userAccessToken) : null;
-  const isAuthenticated = !!rawToken && rawToken !== "null" && rawToken !== "undefined" && rawToken.trim().length > 0 || false;
+  const rawToken =
+    typeof window !== "undefined"
+      ? localStorage.getItem(userAccessToken)
+      : null;
+  const isAuthenticated =
+    (!!rawToken &&
+      rawToken !== "null" &&
+      rawToken !== "undefined" &&
+      rawToken.trim().length > 0) ||
+    false;
   return (
     <Card
       className={cn(
         "w-full overflow-hidden border border-border/60 bg-card",
         "hover:shadow-lg transition-all duration-300 rounded-2xl mb-4 last:mb-0",
         "dark:hover:shadow-[0_8px_20px_rgba(255,255,255,0.06)]",
+        "md:max-h-[260px]",
       )}
     >
       <div
         className={cn(
-          "grid grid-cols-1 md:grid-cols-[280px_minmax(0,1fr)_220px]",
-          "lg:grid-cols-[320px_minmax(0,1fr)_240px]",
-          "min-h-[220px] md:min-h-[260px]",
+          "grid grid-cols-1 md:grid-cols-[260px_minmax(0,1fr)_220px]",
+          "lg:grid-cols-[280px_minmax(0,1fr)_230px]",
+          "min-h-[220px] md:h-[260px] md:max-h-[260px]",
         )}
       >
         {/* IMAGE SECTION with slider */}
@@ -215,14 +234,17 @@ export function HotelRoomCard({
                 {getVisibleDots().map((dot) => (
                   <span
                     key={dot.index}
-                    onClick={(e) => { e.stopPropagation(); setImgIdx(dot.index); }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setImgIdx(dot.index);
+                    }}
                     className={cn(
                       "rounded-full cursor-pointer transition-all duration-200",
                       dot.isActive
                         ? "w-4 h-1.5 bg-white shadow-sm"
                         : dot.isSmall
-                        ? "w-1 h-1 bg-white/30"
-                        : "w-1.5 h-1.5 bg-white/50 hover:bg-white/70"
+                          ? "w-1 h-1 bg-white/30"
+                          : "w-1.5 h-1.5 bg-white/50 hover:bg-white/70",
                     )}
                   />
                 ))}
@@ -238,8 +260,8 @@ export function HotelRoomCard({
         </div>
 
         {/* CONTENT SECTION – reduced vertical spacing */}
-        <div className="p-4 md:p-5 lg:p-6 min-w-0 flex flex-col justify-between border-b md:border-b-0 md:border-r border-border">
-          <div className="space-y-3 md:space-y-4 min-w-0">
+        <div className="p-4 md:p-3.5 lg:p-4 min-w-0 flex flex-col justify-between border-b md:border-b-0 md:border-r border-border">
+          <div className="space-y-2 md:space-y-2.5 min-w-0">
             <div className="flex items-start justify-between gap-2 md:gap-3">
               <div className="flex-1 min-w-0">
                 <h3
@@ -252,43 +274,60 @@ export function HotelRoomCard({
                   <p
                     className={cn(
                       "text-[11px] md:text-xs font-semibold mt-0.5",
-                      roomsLeft <= 3 ? "text-destructive" : "text-muted-foreground",
+                      roomsLeft <= 3
+                        ? "text-destructive"
+                        : "text-muted-foreground",
                     )}
                   >
                     {roomsLeft} room{roomsLeft !== 1 ? "s" : ""} left
                   </p>
                 )}
               </div>
-              <div className="flex flex-col items-end flex-shrink-0">
-                <div className="flex items-center gap-1">
-                  <span className="text-[10px] md:text-[11px] font-bold text-primary uppercase tracking-tight">
-                    Excellent
-                  </span>
-                  <div className="bg-primary text-primary-foreground text-[11px] md:text-xs font-bold px-1.5 py-0.5 rounded">
-                    {rating.toFixed(1)}
+              {rating > 0 && reviewCount > 0 && (
+                <div className="flex flex-col items-end flex-shrink-0">
+                  <div className="flex items-center gap-1">
+                    <span className="text-[10px] md:text-[11px] font-bold text-primary uppercase tracking-tight">
+                      {rating >= 4.5
+                        ? "Excellent"
+                        : rating >= 3.5
+                          ? "Very Good"
+                          : rating >= 2.5
+                            ? "Good"
+                            : "Rated"}
+                    </span>
+                    <div className="bg-primary text-primary-foreground text-[11px] md:text-xs font-bold px-1.5 py-0.5 rounded">
+                      {rating.toFixed(1)}
+                    </div>
                   </div>
+                  <span className="text-[9px] md:text-[10px] text-muted-foreground mt-0.5">
+                    {reviewCount.toLocaleString()}{" "}
+                    {reviewCount === 1 ? "review" : "reviews"}
+                  </span>
                 </div>
-                <span className="text-[9px] md:text-[10px] text-muted-foreground mt-0.5">
-                  {reviewCount.toLocaleString()} reviews
-                </span>
-              </div>
+              )}
             </div>
 
             <div className="flex items-center gap-4 md:gap-6 py-2 md:py-3 border-y border-border">
               <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-1.5 text-foreground">
                   <Bed size={14} className="text-muted-foreground" />
-                  <span className="text-[11px] md:text-xs font-semibold">{beds}</span>
+                  <span className="text-[11px] md:text-xs font-semibold">
+                    {beds}
+                  </span>
                 </div>
                 <div className="flex items-center gap-1.5 text-foreground">
                   <Users size={14} className="text-muted-foreground" />
-                  <span className="text-[11px] md:text-xs font-semibold">{guests} Persons</span>
+                  <span className="text-[11px] md:text-xs font-semibold">
+                    {guests} Persons
+                  </span>
                 </div>
               </div>
               <div className="w-[1px] h-8 bg-border hidden sm:block" />
               <div className="flex items-center gap-1.5 text-foreground">
                 <Square size={14} className="text-muted-foreground" />
-                <span className="text-[11px] md:text-xs font-semibold">{size} m²</span>
+                <span className="text-[11px] md:text-xs font-semibold">
+                  {size} m²
+                </span>
               </div>
             </div>
 
@@ -301,7 +340,9 @@ export function HotelRoomCard({
                     className="flex items-center gap-1 text-[10px] md:text-xs font-medium bg-muted/60 px-2.5 py-1 rounded-full border border-border whitespace-nowrap"
                   >
                     {Icon && <Icon className="h-3 w-3 shrink-0" />}
-                    <span>{formatLabel(amenity.name)}</span>
+                    <span className="md:block hidden">
+                      {formatLabel(amenity.name)}
+                    </span>
                   </div>
                 );
               })}
@@ -310,34 +351,34 @@ export function HotelRoomCard({
         </div>
 
         {/* PRICING & CTA – smaller button on mobile */}
-        <div className="bg-muted/20 p-4 md:p-5 lg:p-6 flex flex-col justify-between items-end">
+        <div className="bg-muted/20 p-4 md:p-3.5 lg:p-4 flex flex-col justify-between items-end">
           <div className="text-right space-y-1.5 md:space-y-2">
-            {(
+            {
               <span className="text-xs md:text-sm text-muted-foreground line-through">
                 ₹{originalPrice.toLocaleString()}
               </span>
-            )}
+            }
             <div className="flex items-baseline justify-end gap-1">
-              {
-                totalPrice ? (
-                  <span className="text-2xl md:text-3xl lg:text-4xl font-black text-foreground">
-                    ₹{totalPrice?.toLocaleString()}
-                  </span>
-                ) : (
-                  <span className="text-2xl md:text-3xl lg:text-4xl font-black text-foreground">
-                    ₹{discountedPrice.toLocaleString()}
-                  </span>
-                )
-              }
+              {totalPrice ? (
+                <span className="text-2xl md:text-3xl lg:text-4xl font-black text-foreground">
+                  ₹{totalPrice?.toLocaleString()}
+                </span>
+              ) : (
+                <span className="text-2xl md:text-3xl lg:text-4xl font-black text-foreground">
+                  ₹{discountedPrice.toLocaleString()}
+                </span>
+              )}
               <span className="text-[10px] md:text-xs text-muted-foreground font-medium uppercase">
-                {totalPrice ? `for ${nights} ${nights === 1 ? 'night' : 'nights'}` : '/ night'}
+                {totalPrice
+                  ? `for ${nights} ${nights === 1 ? "night" : "nights"}`
+                  : "/ night"}
               </span>
             </div>
           </div>
 
           {showReserveButton && (
             <div className="w-full mt-4 md:mt-5">
-              {(!isAuthenticated) ? (
+              {!isAuthenticated ? (
                 <Sign_in_hover
                   tag="Log-in"
                   variant="ghost"
@@ -357,7 +398,9 @@ export function HotelRoomCard({
                           handleReserve();
                         }}
                       >
-                        {isBookingMode && roomsLeft === 0 ? "Not Available" : "Reserve"}
+                        {isBookingMode && roomsLeft === 0
+                          ? "Not Available"
+                          : "Reserve"}
                       </Button>
                     ),
                     type: "nextRoute",
@@ -367,7 +410,7 @@ export function HotelRoomCard({
                 />
               ) : (
                 <Button
-                  disabled={isBookingMode && roomsLeft === 0 || loading}
+                  disabled={(isBookingMode && roomsLeft === 0) || loading}
                   size="sm"
                   className={cn(
                     "w-full h-9 md:h-11 lg:h-12 font-semibold rounded-xl text-sm md:text-base",
@@ -380,11 +423,15 @@ export function HotelRoomCard({
                     handleReserve_with_Alrady_Login();
                   }}
                 >
-                  {isBookingMode && bothdate && roomsLeft === 0
-                    ? "Not Available"
-                    : loading
-                      ? <Spinner />
-                      : bothdate ? "Reserve" : "Select Dates"}
+                  {isBookingMode && bothdate && roomsLeft === 0 ? (
+                    "Not Available"
+                  ) : loading ? (
+                    <Spinner />
+                  ) : bothdate ? (
+                    "Reserve"
+                  ) : (
+                    "Select Dates"
+                  )}
                 </Button>
               )}
             </div>

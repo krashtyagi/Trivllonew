@@ -71,7 +71,7 @@ export function Footer() {
   }
 
   return (
-    <footer className=" isolate overflow-hidden bg-[#031c15] text-white ">
+    <footer className="relative z-20 isolate overflow-hidden bg-[#031c15] text-white">
       {/* Google fonts for handwriting and serif accents */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Playfair+Display:ital,wght@1,600;1,700&display=swap');

@@ -36,10 +36,18 @@ const TourDetailsItems = ({
             </h1>
 
             <div className="flex items-center gap-0.5">
-              <StarRating rating={data.company.rating} />
-              <span className="ml-2 text-xs font-bold text-muted-foreground">
-                {data.company.rating === 0 ? "No Rating" : data.company.rating}
-              </span>
+              {data.company.rating > 0 ? (
+                <>
+                  <StarRating rating={data.company.rating} />
+                  <span className="ml-2 text-xs font-bold text-muted-foreground">
+                    {data.company.rating}
+                  </span>
+                </>
+              ) : (
+                <span className="text-xs text-muted-foreground font-medium">
+                  No ratings yet
+                </span>
+              )}
             </div>
           </div>
 

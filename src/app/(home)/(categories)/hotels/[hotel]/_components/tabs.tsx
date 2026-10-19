@@ -23,7 +23,10 @@ import {
 import { CounterWithoutQuery } from "@/components/side-bar-filter/counter";
 import { PaymentProps } from "@/schema/payment.schema";
 import { UseFormReturn } from "react-hook-form";
-import { useHotelContext, useOptionalHotelContext } from "../_providers_context/hotel-contextProvider";
+import {
+  useHotelContext,
+  useOptionalHotelContext,
+} from "../_providers_context/hotel-contextProvider";
 import SliderIfNotChooseDate from "../_providers_context/SliderIfNotChooseDate";
 import GuestSelector from "@/components/filter-bar/newui-selectedCounter";
 import { CometCard } from "@/components/ui/comet-card";
@@ -53,14 +56,15 @@ export function TabsLine({
 }) {
   const { t } = useTranslation();
 
-
   const sectionRef = useRef<HTMLDivElement | null>(null);
   const hotelId = hotel?._id;
   if (!hotel) return null;
 
   const content: Record<TabKey, React.ReactNode> = {
     overview: <LayoutGridDemo images={hotel.images} />,
-    description: <Decription data={{ name: hotel.name, description: hotel.description }} />,
+    description: (
+      <Decription data={{ name: hotel.name, description: hotel.description }} />
+    ),
     location: (
       <MapLocation
         address={formatAddress(hotel.address) || hotel.city}
@@ -69,7 +73,7 @@ export function TabsLine({
       />
     ),
     amenities: <AmenitiesValues amenities={hotel.amenities} />,
-    reviews: <ReviewsMain companyId={hotelId} CompanyType='hotel' />,
+    reviews: <ReviewsMain companyId={hotelId} CompanyType="hotel" />,
     rooms: (
       <RoomsMain
         hotelId={hotelId}
@@ -101,7 +105,8 @@ export function TabsLine({
 
                 const headerOffset = 80;
                 const elementPosition = target.getBoundingClientRect().top;
-                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                const offsetPosition =
+                  elementPosition + window.pageYOffset - headerOffset;
 
                 // Custom smooth scroll that cannot be aborted by native browser layout shift bugs
                 const startPosition = window.pageYOffset;
@@ -109,7 +114,12 @@ export function TabsLine({
                 const duration = 600; // ms
                 let start: number | null = null;
 
-                const easeInOutQuad = (t: number, b: number, c: number, d: number) => {
+                const easeInOutQuad = (
+                  t: number,
+                  b: number,
+                  c: number,
+                  d: number,
+                ) => {
                   t /= d / 2;
                   if (t < 1) return (c / 2) * t * t + b;
                   t--;
@@ -119,7 +129,12 @@ export function TabsLine({
                 const animation = (currentTime: number) => {
                   if (start === null) start = currentTime;
                   const timeElapsed = currentTime - start;
-                  const run = easeInOutQuad(timeElapsed, startPosition, distance, duration);
+                  const run = easeInOutQuad(
+                    timeElapsed,
+                    startPosition,
+                    distance,
+                    duration,
+                  );
                   window.scrollTo(0, run);
                   if (timeElapsed < duration) {
                     requestAnimationFrame(animation);
@@ -137,9 +152,11 @@ export function TabsLine({
         </div>
       </div>
       <div className="flex flex-col lg:flex-row lg:gap-6 mb-5">
-        <main className="flex-1 min-w-0 space-y-5">
+        <main className="flex-1 min-w-0 space-y-1">
           <section id="description" className=" py-2 gap-2">
-            <h3 className="text-xl font-bold mb-2 dark:text-zinc-400 text-zinc-800">{t("hotel.description")}</h3>
+            <h3 className="text-xl font-bold mb-2 dark:text-zinc-400 text-zinc-800">
+              {t("hotel.description")}
+            </h3>
             {content.description}
           </section>
           <section
@@ -157,7 +174,6 @@ export function TabsLine({
           </section>
         </main>
         <aside className="lg:w-[380px] flex-shrink-0">
-
           <div className="lg:sticky lg:top-24">
             {/* <CometCard translateDepth={5}> */}
             <BookingCard
@@ -170,22 +186,13 @@ export function TabsLine({
       </div>
       <section
         id="rooms"
-        className="scroll-mt-24 border-t md:pt-16 pt-6 md:mb-16 mb-5 w-full"
+        className="scroll-mt-24 border-t md:pt-10 pt-6 md:mb-16 mb-5 w-full"
       >
-        <div className="mb-8 text-left">
-          <h3 className="text-2xl font-bold">{t("hotel.availableRooms")}</h3>
-          <p className="text-slate-500 text-sm">
-            {t("hotel.chooseBestRoom")}
-          </p>
-        </div>
         <SliderIfNotChooseDate handleClick={handleClick}>
           {content.rooms}
         </SliderIfNotChooseDate>
       </section>
-      <section
-        id="reviews"
-        className="py-5 border-t md:pt-5 pt-6 md:mb- mb-5"
-      >
+      <section id="reviews" className="py-5 border-t md:pt-5 pt-6 md:mb- mb-5">
         {content.reviews}
       </section>
       <HotelPolicies id={hotelId} />
@@ -222,7 +229,8 @@ function BookingCard({
   const { t } = useTranslation();
   const [showCalendar, setShowCalendar] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const { rooms, maxGuests, maxAdults, maxChildren, setFetch } = useHotelContext();
+  const { rooms, maxGuests, maxAdults, maxChildren, setFetch } =
+    useHotelContext();
 
   useEffect(() => {
     if (showCalendar && !isInvalidDates) {
@@ -277,7 +285,9 @@ function BookingCard({
               {t("hotel.checkIn")}
             </span>
             <p className="text-xs md:text-sm font-bold text-foreground">
-              {date?.from ? format(date.from, "dd/MM/yyyy") : t("hotel.addDate")}
+              {date?.from
+                ? format(date.from, "dd/MM/yyyy")
+                : t("hotel.addDate")}
             </p>
           </div>
           <div
@@ -296,7 +306,7 @@ function BookingCard({
               className={cn(
                 "absolute p-2 z-[100px] bg-background border border-border shadow-2xl rounded-2xl",
                 "top-full mt-2 left-1/2 -translate-x-1/2",
-                " w-[98vw] md:w-auto"
+                " w-[98vw] md:w-auto",
               )}
               onClick={(e) => e.stopPropagation()}
             >
@@ -320,7 +330,9 @@ function BookingCard({
             <div className="animate-pulse h-8 w-32 bg-muted rounded" />
           ) : (
             <p className="text-2xl font-black text-foreground">
-              {minPrice > 0 ? `₹${minPrice} to ₹${maxPrice}` : t("hotel.selectDates")}
+              {minPrice > 0
+                ? `₹${minPrice} to ₹${maxPrice}`
+                : t("hotel.selectDates")}
             </p>
           )}
         </div>
@@ -337,7 +349,8 @@ function BookingCard({
                 const el = document.getElementById("rooms");
                 if (el) {
                   const offset = 96; // matches scroll-mt-24 (24 * 4 = 96px)
-                  const top = el.getBoundingClientRect().top + window.scrollY - offset;
+                  const top =
+                    el.getBoundingClientRect().top + window.scrollY - offset;
                   window.scrollTo({ top, behavior: "smooth" });
                 }
               }, 100);
