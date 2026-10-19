@@ -15,9 +15,11 @@ import { PopLogin } from "./PopMessages";
 import { userAccessToken } from "@/types/auth";
 import { WaveShader } from "../ui/wave-shader";
 import { FlowingRibbons } from "../ui/flowing-ribbons";
+import { useScrollDirection } from "@/hooks/useScrollDirection";
 
 const pagesNames = pages.map((page) => page.link.split("/")[1]);
 const NavWrapper = ({ children }: { children: React.ReactNode }) => {
+  const isNavHidden = useScrollDirection();
   const location = usePathname();
   const isMobile = useIsMobile();
   const [showAdPopup, setShowAdPopup] = useState(false);
@@ -126,7 +128,8 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
       <div
         className={cn(
           "sticky top-0 left-0 z-50 w-full bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md border-b border-gray-200/80 dark:border-gray-800 shadow-xs",
-          "transition-all",
+          "transition-transform duration-300 ease-in-out",
+          isNavHidden ? "-translate-y-full" : "translate-y-0",
           isMobile ? "h-14 px-3" : "h-16 px-3 md:px-6",
         )}
       >

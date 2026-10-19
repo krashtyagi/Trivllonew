@@ -54,7 +54,7 @@ const HotelDetails = () => {
 
 
   return (
-    <div className="w-full overflow-x-clip">
+    <div className="w-full">
       <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong" />}>
         <Suspense fallback={<HotelPageSkeleton />}>
           <ScrollToTop />
