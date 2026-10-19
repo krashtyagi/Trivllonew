@@ -22,7 +22,7 @@ export type {
   TourCompany,
 };
 
-const TourServiceDetailsPage = ({ className }: { className?: string }) => {
+const TourServiceDetailsPage = () => {
   const [isBookingMode] = React.useState(false);
   localStorage.removeItem("nextRoute");
   localStorage.removeItem("like");
@@ -33,7 +33,7 @@ const TourServiceDetailsPage = ({ className }: { className?: string }) => {
 
   if (!tourDetailsData || !tourDetailsData.data?.company || isLoading) {
     return (
-      <div className={cn("w-full", className)}>
+      <div className="w-full">
         <ScrollToTop />
         <HotelPageSkeleton />
       </div>
@@ -41,7 +41,7 @@ const TourServiceDetailsPage = ({ className }: { className?: string }) => {
   }
 
   return (
-    <div className={cn("w-full", className)}>
+    <div className="w-full">
       <ErrorBoundary
         fallback={
           <MessageModal title="Error" description="Something went wrong" />

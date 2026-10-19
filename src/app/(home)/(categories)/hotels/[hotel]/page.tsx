@@ -17,7 +17,7 @@ import HotelContextProvider from "./_providers_context/hotel-contextProvider";
 import { MessageModal } from "@/components/messagemodal";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-const HotelDetails = ({ className }: { className?: string }) => {
+const HotelDetails = () => {
   const { date, guests } = useHotelStore();
   const isBookingMode = !!date?.from && !!date?.to;
   const ismobile = useIsMobile();
@@ -42,7 +42,7 @@ const HotelDetails = ({ className }: { className?: string }) => {
 
   if (!hotelDetailsData || !hotelDetailsData.name) {
     return (
-      <div className={cn("w-full", className)}>
+      <div className="w-full">
         <ScrollToTop />
         <HotelPageSkeleton />
       </div>
@@ -54,7 +54,7 @@ const HotelDetails = ({ className }: { className?: string }) => {
 
 
   return (
-    <div className={cn("w-full overflow-x-clip", className)}>
+    <div className="w-full overflow-x-clip">
       <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong" />}>
         <Suspense fallback={<HotelPageSkeleton />}>
           <ScrollToTop />

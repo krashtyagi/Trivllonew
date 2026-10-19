@@ -16,7 +16,7 @@ import TourDetailsContextProvider from "./_providers_context/TourDetailsContextP
 import { useParam } from "@/services/dailyfunctions";
 import { useTourDetailsQuery } from "@/services/tours/tours.queries";
 
-const HotelDetails = ({ className }: { className?: string }) => {
+const HotelDetails = () => {
   const [isBookingMode, setIsBookingMode] = React.useState(false);
   const ismobile = useIsMobile();
   localStorage.removeItem("nextRoute")
@@ -31,7 +31,7 @@ const HotelDetails = ({ className }: { className?: string }) => {
 
   if (!tourDetailsData || !tourDetailsData.data || tourDetailsLoading) {
     return (
-      <div className={cn("w-full", className)}>
+      <div className="w-full">
         <ScrollToTop />
         <HotelPageSkeleton />
       </div>
@@ -43,7 +43,7 @@ const HotelDetails = ({ className }: { className?: string }) => {
 
 
   return (
-    <div className={cn("w-full   ", className)}>
+    <div className="w-full">
       <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong" />}>
         <Suspense fallback={<HotelPageSkeleton />}>
           <ScrollToTop />

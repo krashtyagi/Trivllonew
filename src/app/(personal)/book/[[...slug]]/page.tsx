@@ -8,11 +8,11 @@ import { MessageModal } from "@/components/messagemodal";
 
 
 
-const page = async ({ className, params }: { className?: string, params: Promise<{ slug: string[] }> }) => {
+const page = async ({ params }: { params: Promise<{ slug: string[] }> }) => {
   const { slug } = await params
 
   return (
-    <div className={cn(" w-full", className)}>
+    <div className=" w-full">
       <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong" />}>
         <Suspense fallback={<PageSkeleton />}>
           <PaymentsContextProvider>

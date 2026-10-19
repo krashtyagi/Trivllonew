@@ -49,13 +49,9 @@ const ContentFrame = dynamic(
   }
 );
 
-type FindHotelProps = {
-  className?: string;
-};
-
-const FindHotels: React.FC<FindHotelProps> = (props) => {
+const FindHotels = () => {
   return (
-    <div className={cn(props.className, "relative w-full min-h-screen overflow-x-hidden")}>
+    <div className="relative w-full min-h-screen overflow-x-hidden">
       {/* Scenic Atmospheric Background with Soft Ambient Gradient */}
       <div
         className="absolute inset-0 pointer-events-none z-0 bg-cover bg-no-repeat"
