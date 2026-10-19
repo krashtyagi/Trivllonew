@@ -30,9 +30,8 @@ const MapLocation = ({ address, cordinates }: LocationProps) => {
         </p>
       </CardHeader>
       <CardContent className="p-0 -mx-2 sm:mx-0">
-        {/* Ensure this container has a height! aspect-video handles this. */}
-        <div className="overflow-hidden rounded-md sm:rounded-2xl  w-full relative group">
-          <div className="w-full h-[400px] relative z-0">
+        <div className="overflow-hidden rounded-md sm:rounded-2xl w-full relative group">
+          <div className="w-full aspect-video md:aspect-auto md:h-[400px] relative z-0">
             <Suspense
               fallback={
                 <div className="h-full w-full bg-muted animate-pulse" />
@@ -45,7 +44,7 @@ const MapLocation = ({ address, cordinates }: LocationProps) => {
               />
             </Suspense>
           </div>
-          <div className="absolute top-4 right-4 flex flex-col gap-2 items-end">
+          <div className="absolute  top-4 right-4 flex flex-col gap-2 items-end">
             <HotelFilterBar
               renderContent={(isOpen) =>
                 isOpen ? (

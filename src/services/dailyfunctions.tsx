@@ -6,6 +6,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { dotoggleLike } from "./hotel/hotel.service";
+import { useRouter } from "next/navigation";
+import { RouterPush } from "@/components/RouterPush";
+import { userAccessToken } from "@/types/auth";
 
 
 export const handleRefresh = (queryClient: any, queryKey: string[]) => {
@@ -16,15 +19,20 @@ export const handleRefresh = (queryClient: any, queryKey: string[]) => {
   });
 };
 export const LikeIcon = ({ _id, className, isFavourite, name, serviceType }: { _id: string; className?: string, isFavourite: boolean, name: string, serviceType: string }) => {
-  const [liked, setLiked] = useState(isFavourite);
-  const [loading, setLoading] = useState(false);
+  const router = useRouter();
   const queryClient = useQueryClient();
   const hasToken =
-    typeof window !== "undefined" && localStorage.getItem(userAccessToken);
+    typeof window !== "undefined" && Boolean(localStorage.getItem(userAccessToken));
+  const [liked, setLiked] = useState(() => (hasToken ? Boolean(isFavourite) : false));
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    setLiked(isFavourite);
-  }, [isFavourite]);
+    if (!hasToken) {
+      setLiked(false);
+    } else {
+      setLiked(Boolean(isFavourite));
+    }
+  }, [isFavourite, hasToken]);
 
   const { mutate, isPending } = useMutation({
     mutationFn: toggleLike,
@@ -119,15 +127,6 @@ export const LikeIcon = ({ _id, className, isFavourite, name, serviceType }: { _
             }),
           };
         });
-        try {
-          const map = JSON.parse(
-            localStorage.getItem("trivllo_user_wishlist") || "{}"
-          );
-          map[_id.toString()] = data.liked;
-          localStorage.setItem("trivllo_user_wishlist", JSON.stringify(map));
-        } catch {
-          // ignore
-        }
       } else if (serviceType === "tour") {
         queryClient.setQueryData(["getTourDetails", _id], (oldData: any) => {
           if (!oldData) return oldData;
@@ -152,7 +151,8 @@ export const LikeIcon = ({ _id, className, isFavourite, name, serviceType }: { _
 
   const handleClick = () => {
     if (!hasToken) {
-      toast.error("Please log in first!");
+      toast.info("Please log in to save to your wishlist");
+      RouterPush(router, "/login");
       return;
     }
 
@@ -163,36 +163,22 @@ export const LikeIcon = ({ _id, className, isFavourite, name, serviceType }: { _
     <button
       className={cn(className)}
       onClick={(e) => {
-        e.stopPropagation()
-        e.preventDefault()
-        handleClick()
+        e.stopPropagation();
+        e.preventDefault();
+        handleClick();
       }}
       disabled={isPending}
+      aria-label="Save to wishlist"
     >
-      {!hasToken ? (
-        <Sign_in_hover
-          tag="Log-in"
-          forLike={{
-            content: (
-              <IconHeart
-                className="text-muted-foreground transition-colors"
-                size={24}
-              />
-            ),
-            type: "like",
-            do: _id,
-            id: _id,
-          }}
-        />
-      ) : liked ? (
-        <IconHeartFilled
-          className="text-destructive transition-colors h-5 w-5 md:h-6 md:w-6"
-          size={16}
-        />
-      ) : (
+      {!hasToken || !liked ? (
         <IconHeart
           className="text-muted-foreground hover:text-destructive transition-colors h-5 w-5 md:h-6 md:w-6"
           size={24}
+        />
+      ) : (
+        <IconHeartFilled
+          className="text-destructive transition-colors h-5 w-5 md:h-6 md:w-6"
+          size={16}
         />
       )}
     </button>
@@ -205,6 +191,7 @@ export const useLogout = () => {
 
     const logout = () => {
       localStorage.removeItem(userAccessToken);
+      localStorage.removeItem("trivllo_user_wishlist");
       queryClient.removeQueries({ queryKey: ["current_user"] });
     };
     logout();
@@ -250,7 +237,6 @@ export const handleCopy = async () => {
   }
 };
 import { useParams } from "next/navigation";
-import { userAccessToken } from "@/types/auth";
 export const validimage = (s: string | undefined, dummy: string) => {
   if (s && s.length > 50) {
     return s;
