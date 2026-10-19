@@ -11,6 +11,7 @@ import {
   Landmark,
   Navigation,
   Hotel,
+  ChevronRight,
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import React, { useEffect, useRef, useState } from "react";
@@ -129,7 +130,7 @@ const AddressSearch = ({
 
   return (
     <div
-      className={cn("w-full max-w-full relative", className)}
+      className={cn("w-full max-w-full", className)}
       ref={searchRef}
     >
       {/* Backdrop */}
@@ -157,7 +158,7 @@ const AddressSearch = ({
             setIsOpen(true);
           }}
           onFocus={() => setIsOpen(true)}
-          className="h-9 md:h-11 w-full rounded-xl border-none px-2 outline-none bg-transparent text-sm md:text-base font-semibold text-foreground focus-visible:ring-0 focus-visible:ring-offset-0 shadow-none"
+          className="h-7.5 md:h-11 w-full rounded-xl border-none px-1.5 outline-none bg-transparent text-xs sm:text-sm md:text-base font-semibold text-foreground focus-visible:ring-0 focus-visible:ring-offset-0 shadow-none"
         />
         {loading && (
           <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
@@ -173,7 +174,7 @@ const AddressSearch = ({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 5 }}
             transition={{ duration: 0.15 }}
-            className="mt-1.5 bg-background p-2 rounded-2xl absolute z-[100] w-[90vw] sm:w-[380px] md:w-[420px] left-0 shadow-2xl border border-border/80 max-h-[260px] sm:max-h-[290px] overflow-y-auto scrollbar-thin"
+            className="mt-1.5 bg-white dark:bg-zinc-900 p-2 rounded-2xl absolute z-[999] left-0 right-0 w-full md:w-[420px] md:right-auto shadow-2xl border border-gray-200 dark:border-zinc-700 max-h-[260px] sm:max-h-[290px] overflow-y-auto scrollbar-thin opacity-100"
           >
             {/* DB Results — real properties */}
             {dbResults.length > 0 && (
@@ -285,21 +286,24 @@ const SearchInput = ({
   return (
     <div
       className={cn(
-        "flex items-center bg-[#ebf2ee] dark:bg-zinc-800/90 rounded-xl px-3 sm:px-4 py-1 sm:py-1.5 border border-transparent hover:border-emerald-700/20 transition-colors w-full",
+        "relative z-50 flex items-center justify-between bg-[#ebf2ee] dark:bg-zinc-800/90 rounded-xl px-2.5 sm:px-4 py-0.5 sm:py-1.5 border border-transparent hover:border-emerald-700/20 transition-colors w-full",
         className,
       )}
     >
-      {Icon ? (
-        <Icon className="w-5 h-5 text-emerald-800 dark:text-emerald-400 shrink-0" />
-      ) : (
-        <MapPin className="w-5 h-5 text-emerald-800 dark:text-emerald-400 shrink-0" />
-      )}
-      <AddressSearch
-        label={label}
-        placeholder={placeholder}
-        setCity={setCity}
-        value={value}
-      />
+      <div className="flex items-center gap-2 flex-1 min-w-0">
+        {Icon ? (
+          <Icon className="w-4 h-4 md:w-5 md:h-5 text-emerald-800 dark:text-emerald-400 shrink-0" />
+        ) : (
+          <MapPin className="w-4 h-4 md:w-5 md:h-5 text-emerald-800 dark:text-emerald-400 shrink-0" />
+        )}
+        <AddressSearch
+          label={label}
+          placeholder={placeholder}
+          setCity={setCity}
+          value={value}
+        />
+      </div>
+      <ChevronRight className="w-3.5 h-3.5 text-muted-foreground shrink-0 md:hidden ml-1" />
     </div>
   );
 };

@@ -148,13 +148,10 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
       <main
         className={cn(
           "flex-1 bg-card relative",
-          isMobile ? "pt-1" : "",
         )}
       >
         <div className="relative z-10">
-          {!shouldShowNavbar && ismobile && (
-            <TabsNav mobile={false} tabs={pages} />
-          )}
+
           {/* {!shouldShowNavbar && (
             <div className="mb-3 ">
               <FilterBarLayout pages={pages} />

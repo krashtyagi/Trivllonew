@@ -54,7 +54,7 @@ const HotelDetails = ({ className }: { className?: string }) => {
 
 
   return (
-    <div className={cn("w-full  ", className)}>
+    <div className={cn("w-full overflow-x-clip", className)}>
       <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong" />}>
         <Suspense fallback={<HotelPageSkeleton />}>
           <ScrollToTop />

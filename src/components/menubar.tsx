@@ -9,6 +9,7 @@ import {
   Home,
   ChevronRight,
   Logs,
+  Menu,
   CircleQuestionMark
 } from "lucide-react";
 
@@ -197,7 +198,8 @@ export function AppPrefrence() {
           variant="ghost"
           className="relative h-8 w-8 sm:h-8 sm:w-8 md:h-10 md:w-10 rounded-full border border-transparent hover:bg-accent/50 hover:border-border transition-all duration-300 p-0"
         >
-          <Logs className="h-4 w-4 md:h-5 md:w-5 text-foreground/80" />
+          <Menu className="h-4 w-4 md:hidden text-foreground/80" />
+          <Logs className="hidden md:block md:h-5 md:w-5 text-foreground/80" />
         </Button>
       </DropdownMenuTrigger>
 

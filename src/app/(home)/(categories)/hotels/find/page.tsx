@@ -92,14 +92,27 @@ type FindHotelProps = {
 
 const FindHotels: React.FC<FindHotelProps> = (props) => {
   return (
-    <div className={cn(props.className, "w-full bg-background sm:px-0")}>
-      <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong" />}>
-        <Suspense fallback={<PageSkeleton />}>
-          <HotelContextProvider>
-            <FindHotelsContent />
-          </HotelContextProvider>
-        </Suspense>
-      </ErrorBoundary>
+    <div className={cn(props.className, "relative w-full min-h-screen overflow-x-hidden")}>
+      {/* Scenic Atmospheric Background with Soft Ambient Gradient */}
+      <div
+        className="absolute inset-0 pointer-events-none z-0 bg-cover bg-no-repeat"
+        style={{
+          backgroundImage: `url('/hotels/main_page_bg.png')`,
+          backgroundPosition: "center 18%",
+        }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-b from-white/65 via-white/85 to-white/95 dark:from-zinc-950/75 dark:via-zinc-950/90 dark:to-zinc-950/98 backdrop-blur-[2px]" />
+      </div>
+
+      <div className="relative z-10 w-full sm:px-0">
+        <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong" />}>
+          <Suspense fallback={<PageSkeleton />}>
+            <HotelContextProvider>
+              <FindHotelsContent />
+            </HotelContextProvider>
+          </Suspense>
+        </ErrorBoundary>
+      </div>
     </div>
   );
 };

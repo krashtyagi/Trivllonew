@@ -2,6 +2,7 @@
 
 import { SearchBoxValuesProps } from "@/constants/constants";
 import React, { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -23,6 +24,8 @@ import {
   Sparkles,
   ArrowRight,
   ChevronDown,
+  Building2,
+  Mountain,
 } from "lucide-react";
 
 const FilterBox = ({
@@ -129,8 +132,8 @@ const FilterBox = ({
     date?.from && date?.to
       ? `${format(new Date(date.from), "dd MMM")} - ${format(new Date(date.to), "dd MMM")}`
       : date?.from
-      ? `${format(new Date(date.from), "dd MMM")}`
-      : "Add dates";
+        ? `${format(new Date(date.from), "dd MMM")}`
+        : "Add dates";
   const displayGuests =
     guests?.adults || guests?.children
       ? `${guests.adults || 1} Adult${(guests.adults || 1) > 1 ? "s" : ""}${
@@ -160,92 +163,246 @@ const FilterBox = ({
 
   return (
     <>
-      {/* MOBILE VIEW */}
-      <div className="md:hidden w-full px-3 pt-0.5 pb-1 bg-background">
-        <div className="bg-white dark:bg-zinc-900 rounded-xl p-2.5 shadow-sm border border-gray-100/90 dark:border-zinc-800 relative">
-          <div className="w-full relative z-30">{directions}</div>
+      {/* MOBILE VIEW (Matching Image 2) */}
+      {/* MOBILE VIEW (Matching Image 2) */}
+      <div className="md:hidden w-full">
+        {/* Scenic Background Hero Area */}
+        <div
+          className="w-full relative z-30 bg-cover bg-center pt-2.5 pb-2.5 px-3"
+          style={{
+            backgroundImage: `url('/hotels/main_page_bg.png')`,
+            backgroundPosition: "center 28%",
+          }}
+        >
+          {/* Subtle gradient to ensure clear contrast */}
+          <div className="absolute inset-0 bg-gradient-to-b from-white/30 via-white/5 to-white/70 pointer-events-none" />
 
-          <div className="grid gap-1.5 mt-1.5 grid-cols-2">
-            <div
-              onClick={() => setActiveIdx(0)}
-              className="border border-gray-200/90 dark:border-zinc-700/80 rounded-lg py-1.5 px-1 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
-            >
-              <Calendar className="w-3.5 h-3.5 text-[#0c3926] dark:text-emerald-400" />
-              <span className="text-[8px] font-bold tracking-wider text-muted-foreground uppercase mt-0.5 truncate max-w-full px-1">
-                {isTour ? "BOOKING DATE" : "CHECK-IN - CHECK-OUT"}
-              </span>
-              <span className="text-[10px] font-semibold text-foreground truncate max-w-full px-1">
-                {displayDateRange}
-              </span>
-            </div>
-
-            <div
-              onClick={() => setActiveIdx(1)}
-              className="border border-gray-200/90 dark:border-zinc-700/80 rounded-lg py-1.5 px-1 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
-            >
-              <User className="w-3.5 h-3.5 text-[#0c3926] dark:text-emerald-400" />
-              <span className="text-[8px] font-bold tracking-wider text-muted-foreground uppercase mt-0.5">
-                GUESTS
-              </span>
-              <span className="text-[10px] font-semibold text-foreground truncate">
-                {displayGuests}
-              </span>
-            </div>
+          <div className="relative z-10 max-w-sm mb-1.5">
+            <h1 className="text-lg sm:text-xl font-black tracking-tight text-slate-900 leading-[1.12]">
+              {isTour ? "Find Your Next Adventure" : "Find Your Perfect Stay"}
+            </h1>
+            <p className="text-[10px] sm:text-[11px] text-slate-700 font-medium leading-tight mt-0.5 max-w-[280px]">
+              {isTour
+                ? "Discover guided treks, rafting, and bespoke expeditions across India."
+                : "Discover handpicked hotels, from cozy stays to luxury escapes, across India."}
+            </p>
           </div>
 
-          <div className="flex justify-center -mb-4 mt-2">
-            <Button
-              onClick={handleSearchClick}
-              disabled={loading}
-              className="bg-[#0c3926] hover:bg-[#072619] text-white font-bold text-[11px] h-8 px-5 rounded-full shadow-md border-2 border-white dark:border-zinc-900 cursor-pointer active:scale-95 transition-all"
-            >
-              {loading ? (
-                <Spinner />
-              ) : (
-                <span>
-                  {city && date?.from
-                    ? isTour
-                      ? "Search Tours"
-                      : "Search Hotels"
-                    : "Select city and date"}
+          {/* Integrated Squircle Tab + Search Card sharing common boundary with aesthetic inverted curves */}
+          <div className="relative z-40 w-full mt-2 filter drop-shadow-[0_8px_18px_rgba(0,0,0,0.08)]">
+            {/* Top Tab for Hotels / Tours seamlessly joined with search card via inverted curves */}
+            <div className="relative flex justify-center">
+              <div className="relative bg-white dark:bg-zinc-900 px-1 pt-1 pb-1.5 rounded-t-[18px] border-t border-x border-black/[0.06] dark:border-white/[0.08] flex items-center -mb-[1px] z-20">
+                {/* Left Inverted Curve (Concave scoop fillet) */}
+                <svg
+                  className="absolute -left-4 bottom-0 w-4 h-4 text-white dark:text-zinc-900 pointer-events-none"
+                  viewBox="0 0 16 16"
+                >
+                  <path
+                    d="M16 0 C16 8.836 8.836 16 0 16 L16 16 Z"
+                    fill="currentColor"
+                  />
+                  <path
+                    d="M16 0 C16 8.836 8.836 16 0 16"
+                    fill="none"
+                    stroke="rgba(0,0,0,0.06)"
+                    className="dark:stroke-white/10"
+                    strokeWidth="1"
+                  />
+                </svg>
+
+                {/* Right Inverted Curve (Concave scoop fillet) */}
+                <svg
+                  className="absolute -right-4 bottom-0 w-4 h-4 text-white dark:text-zinc-900 pointer-events-none"
+                  viewBox="0 0 16 16"
+                >
+                  <path
+                    d="M0 0 C0 8.836 7.164 16 16 16 L0 16 Z"
+                    fill="currentColor"
+                  />
+                  <path
+                    d="M0 0 C0 8.836 7.164 16 16 16"
+                    fill="none"
+                    stroke="rgba(0,0,0,0.06)"
+                    className="dark:stroke-white/10"
+                    strokeWidth="1"
+                  />
+                </svg>
+
+                {/* Sliding Category Toggle */}
+                <div className="relative flex items-center bg-[#f0f4f1] dark:bg-zinc-800/90 rounded-full p-0.5 w-[172px]">
+                  {/* Sliding pill indicator */}
+                  <motion.div
+                    layout
+                    transition={{ type: "spring", stiffness: 450, damping: 32 }}
+                    className={cn(
+                      "absolute top-0.5 bottom-0.5 w-[calc(50%-2px)] rounded-full bg-[#0c3926] shadow-sm",
+                      isTour ? "left-[calc(50%+1px)]" : "left-0.5",
+                    )}
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (isTour) RouterPush(router, "/hotels");
+                    }}
+                    className={cn(
+                      "relative z-10 flex-1 flex items-center justify-center gap-1.5 py-1 rounded-full text-[11px] font-bold transition-colors cursor-pointer select-none",
+                      !isTour
+                        ? "text-white"
+                        : "text-slate-600 dark:text-zinc-400 hover:text-black dark:hover:text-white",
+                    )}
+                  >
+                    <Building2 className="w-3.5 h-3.5" />
+                    <span>Hotels</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!isTour) RouterPush(router, "/tours");
+                    }}
+                    className={cn(
+                      "relative z-10 flex-1 flex items-center justify-center gap-1.5 py-1 rounded-full text-[11px] font-bold transition-colors cursor-pointer select-none",
+                      isTour
+                        ? "text-white"
+                        : "text-slate-600 dark:text-zinc-400 hover:text-black dark:hover:text-white",
+                    )}
+                  >
+                    <Mountain className="w-3.5 h-3.5" />
+                    <span>Tours</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Search Card Body (Short height & compact) */}
+            <div className="relative z-40 bg-white dark:bg-zinc-900 rounded-[22px] p-2.5 pt-2.5 sm:p-3 sm:pt-3 shadow-sm border border-black/[0.06] dark:border-white/[0.08]">
+              <div className="w-full relative z-50">{directions}</div>
+
+              <div className="grid gap-1 mt-1.5 grid-cols-2">
+                <div
+                  onClick={() => setActiveIdx(0)}
+                  className="border border-gray-200/90 dark:border-zinc-700/80 rounded-xl px-1.5 py-1 min-[360px]:px-2 flex items-center justify-between cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/60 transition-colors"
+                >
+                  <div className="flex items-center gap-1 min-w-0 flex-1">
+                    <Calendar className="w-3 h-3 min-[360px]:w-3.5 min-[360px]:h-3.5 text-[#0c3926] dark:text-emerald-400 shrink-0" />
+                    <div className="flex flex-col min-w-0 flex-1">
+                      <span className="text-[6.5px] min-[280px]:text-[7px] min-[360px]:text-[8px] font-bold tracking-tight text-muted-foreground uppercase leading-none whitespace-nowrap block truncate">
+                        {isTour ? "BOOKING DATE" : "CHECK-IN - CHECK-OUT"}
+                      </span>
+                      <span className="text-[9.5px] min-[360px]:text-[11px] font-bold text-foreground truncate mt-0.5 leading-none">
+                        {displayDateRange}
+                      </span>
+                    </div>
+                  </div>
+                  <ChevronDown className="w-2.5 h-2.5 min-[360px]:w-3 min-[360px]:h-3 text-muted-foreground shrink-0 ml-0.5" />
+                </div>
+
+                <div
+                  onClick={() => setActiveIdx(1)}
+                  className="border border-gray-200/90 dark:border-zinc-700/80 rounded-xl px-1.5 py-1 min-[360px]:px-2 flex items-center justify-between cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/60 transition-colors"
+                >
+                  <div className="flex items-center gap-1 min-w-0 flex-1">
+                    <User className="w-3 h-3 min-[360px]:w-3.5 min-[360px]:h-3.5 text-[#0c3926] dark:text-emerald-400 shrink-0" />
+                    <div className="flex flex-col min-w-0 flex-1">
+                      <span className="text-[6.5px] min-[280px]:text-[7px] min-[360px]:text-[8px] font-bold tracking-tight text-muted-foreground uppercase leading-none whitespace-nowrap block truncate">
+                        GUESTS
+                      </span>
+                      <span className="text-[9.5px] min-[360px]:text-[11px] font-bold text-foreground truncate mt-0.5 leading-none">
+                        {displayGuests}
+                      </span>
+                    </div>
+                  </div>
+                  <ChevronDown className="w-2.5 h-2.5 min-[360px]:w-3 min-[360px]:h-3 text-muted-foreground shrink-0 ml-0.5" />
+                </div>
+              </div>
+
+              {/* Search Button */}
+              <Button
+                onClick={handleSearchClick}
+                disabled={loading}
+                className="mt-1.5 w-full bg-[#0c3926] hover:bg-[#072619] text-white font-bold text-xs h-7.5 sm:h-8 rounded-full shadow-md flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.98] transition-all"
+              >
+                {loading ? (
+                  <Spinner />
+                ) : (
+                  <>
+                    <Search className="w-3.5 h-3.5 shrink-0" />
+                    <span>{isTour ? "Search Tours" : "Search Hotels"}</span>
+                    <ArrowRight className="w-3.5 h-3.5 shrink-0" />
+                  </>
+                )}
+              </Button>
+
+              {/* Trust Badges */}
+              <div className="mt-1.5 pt-1 border-t border-gray-100 dark:border-zinc-800/80 flex items-center justify-between text-[7.5px] min-[360px]:text-[8.5px] text-muted-foreground font-medium px-0.5">
+                <span className="flex items-center gap-1">
+                  <CheckCircle2 className="w-3 h-3 text-emerald-700 dark:text-emerald-400 shrink-0" />
+                  <span>Best Prices</span>
                 </span>
-              )}
-            </Button>
+                <span className="text-gray-300 dark:text-zinc-700">•</span>
+                <span className="flex items-center gap-1">
+                  <CheckCircle2 className="w-3 h-3 text-emerald-700 dark:text-emerald-400 shrink-0" />
+                  <span>Verified Properties</span>
+                </span>
+                <span className="text-gray-300 dark:text-zinc-700">•</span>
+                <span className="flex items-center gap-1">
+                  <Headphones className="w-3 h-3 text-emerald-700 dark:text-emerald-400 shrink-0" />
+                  <span>24/7 Support</span>
+                </span>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div
-          onClick={handleSearchClick}
-          className="mt-5 mb-1 w-full rounded-xl overflow-hidden relative shadow-sm h-[140px] cursor-pointer group"
-        >
-          <video
-            key={activeVideo.link}
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+        {/* Featured Card (Explore Manali banner matching Image 2) */}
+        <div className="px-3 pt-2 pb-0.5 relative z-0">
+          <div
+            onClick={() => handleFeaturedClick(currentFeatured.city)}
+            className="w-full h-[125px] sm:h-[140px] rounded-2xl overflow-hidden relative z-0 shadow-md group cursor-pointer border border-white/20 flex flex-col justify-between p-3 sm:p-3.5"
+            style={{
+              backgroundImage: `url(${currentFeatured.image})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
           >
-            <source src={activeVideo.link} type="video/mp4" />
-          </video>
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
-          <div className="relative z-10 h-full p-3 flex flex-col justify-end">
-            <h3 className="text-base font-extrabold text-white drop-shadow leading-tight">
-              {activeVideo.title}
-            </h3>
-            <p className="text-[10px] text-white/90 drop-shadow line-clamp-2 max-w-[260px] font-medium">
-              {activeVideo.description}
-            </p>
-            <div className="flex items-center gap-1 mt-1.5">
-              {videoList.map((_, i) => (
-                <span
-                  key={i}
-                  className={cn(
-                    "h-1 rounded-full transition-all duration-300",
-                    videoIndex === i ? "w-4 bg-white" : "w-1 bg-white/50",
-                  )}
-                />
-              ))}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/15 group-hover:from-black/90 transition-colors" />
+
+            <div className="relative z-0 flex justify-between items-center">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/95 text-emerald-950 font-bold text-[9px] shadow-sm">
+                <Sparkles className="w-2.5 h-2.5 text-emerald-700" />
+                Featured
+              </span>
+            </div>
+
+            <div className="relative z-0 space-y-0.5">
+              <h3 className="text-sm sm:text-base font-extrabold text-white drop-shadow">
+                Explore {currentFeatured.city}
+              </h3>
+              <p className="text-[10px] text-white/90 drop-shadow line-clamp-1 max-w-xs font-medium leading-snug">
+                {currentFeatured.tagline}
+              </p>
+              <div className="pt-1 flex items-center justify-between">
+                <button className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-black/45 hover:bg-black/70 backdrop-blur-md text-white border border-white/30 text-[10px] font-semibold shadow transition-all active:scale-95 cursor-pointer">
+                  <span>{isTour ? "Explore Tours" : "Explore Hotels"}</span>
+                  <ArrowRight className="w-2.5 h-2.5" />
+                </button>
+
+                <div className="flex items-center gap-1">
+                  {featuredSpots.map((_, i) => (
+                    <span
+                      key={i}
+                      className={cn(
+                        "h-1 rounded-full transition-all duration-300",
+                        featuredIndex === i
+                          ? "w-3 bg-white"
+                          : "w-1 bg-white/50",
+                      )}
+                    />
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -400,7 +557,7 @@ const FilterBox = ({
               >
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-black/10 group-hover:from-black/90 transition-colors" />
 
-                <div className="relative z-10 flex justify-between items-center">
+                <div className="relative  flex justify-between items-center">
                   <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100/90 text-emerald-950 font-bold text-[10px] shadow">
                     <Sparkles className="w-3 h-3 text-emerald-800" />
                     Featured

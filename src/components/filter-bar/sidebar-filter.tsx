@@ -4,12 +4,12 @@ import dynamic from "next/dynamic";
 import { AcordionItemType } from "@/constants/filter-constants";
 import { cn } from "@/lib/utils";
 import { HotelContext } from "@/context/hotel/HotelContextProvider";
-import { MapPin, Compass } from "lucide-react";
+import { MapPin, Compass, SlidersHorizontal, Sparkles } from "lucide-react";
 // Dynamically import MapLeaf with SSR disabled
 const MapLeaf = dynamic(() => import("@/components/map/leaf-map"), {
   ssr: false,
   loading: () => (
-    <div className="w-full h-full min-h-[160px] rounded-xl bg-zinc-200 dark:bg-zinc-800 animate-pulse flex items-center justify-center">
+    <div className="w-full h-full min-h-[160px] rounded-3xl bg-zinc-200 dark:bg-zinc-800 animate-pulse flex items-center justify-center">
       <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
         <MapPin className="w-4 h-4 text-emerald-500 animate-bounce" />
         <span>Loading map...</span>
@@ -48,12 +48,12 @@ export const SideBarFilter = ({
   };
 
   return (
-    <div className="flex flex-col gap-2 p-1 xl:min-w-[270px] w-full">
+    <div className="flex flex-col gap-3 p-1 xl:min-w-[270px] w-full">
       <div className="relative group">
         <div
           onClick={() => handleOpenFullMap()}
           className={cn(
-            "relative w-full h-40 rounded-xl overflow-hidden group cursor-pointer border border-border shadow-sm hover:shadow-md transition-all duration-300",
+            "relative w-full h-40 rounded-3xl overflow-hidden group cursor-pointer shadow-md hover:shadow-xl transition-all duration-300 bg-zinc-100 dark:bg-zinc-800",
             className,
           )}
         >
@@ -70,24 +70,24 @@ export const SideBarFilter = ({
 
           {/* Gradient Mask & Text Overlay */}
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 group-hover:bg-black/55 transition-colors duration-300 backdrop-blur-[1px] p-3 text-center">
-            <span className="flex items-center gap-1.5 text-white text-xs sm:text-sm font-semibold tracking-wide px-3.5 py-1.5 border border-white/40 rounded-xl bg-black/50 backdrop-blur-md shadow-xl group-hover:bg-zinc-900 group-hover:border-zinc-700 group-hover:scale-105 transition-all">
-              <MapPin className="w-3.5 h-3.5 text-white/90" />
-              {overlayTitle}
+            <span className="flex items-center gap-1.5 text-white text-xs sm:text-sm font-semibold tracking-wide px-4 py-2 rounded-full bg-black/50 backdrop-blur-md shadow-xl group-hover:bg-zinc-900 group-hover:scale-105 transition-all">
+              <MapPin className="w-3.5 h-3.5 text-emerald-400" />
+              <span>{overlayTitle}</span>
             </span>
 
-            <span className="text-[10px] text-white/80 font-medium mt-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-              Click to open full page map
+            <span className="font-cursive text-sm text-white/95 font-medium mt-1.5 opacity-90 transition-opacity">
+              Explore on live map
             </span>
           </div>
         </div>
 
-        {/* Quick Action Button */}
+        {/* Quick Action Button - Smooth Gradient Pill, No Border */}
         <button
           type="button"
           onClick={() => handleOpenFullMap()}
-          className="mt-2 w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 active:scale-[0.99] text-white dark:bg-zinc-100 dark:hover:bg-zinc-200 dark:text-zinc-900 text-xs font-semibold shadow-sm transition-all cursor-pointer"
+          className="mt-2.5 w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-full bg-gradient-to-r from-[#0c3926] to-emerald-800 hover:from-[#08291b] hover:to-emerald-900 text-white text-xs font-bold shadow-md transition-all active:scale-[0.98] cursor-pointer"
         >
-          <Compass className="w-3.5 h-3.5 text-zinc-300 dark:text-zinc-600" />
+          <Compass className="w-3.5 h-3.5 text-emerald-300" />
           <span>Explore Stays on Full Map</span>
         </button>
       </div>
@@ -133,23 +133,39 @@ export function FilterAccordion({ items }: { items: AcordionItemType[] }) {
   };
 
   return (
-    <div className="w-full max-w-sm rounded-2xl border bg-zinc-50 dark:bg-zinc-900">
-      <div className="flex items-center justify-between px-4 py-3 border-b">
-        <p className="text-sm font-medium">Filter by</p>
-        <Button variant="ghost" size="sm" onClick={handleClear}>
-          Clear
-        </Button>
+    <div className="w-full max-w-sm rounded-3xl bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md shadow-[0_4px_24px_rgba(0,0,0,0.04)] dark:shadow-[0_4px_24px_rgba(0,0,0,0.25)] p-2.5 space-y-1.5">
+      <div className="flex items-center justify-between px-3.5 py-2.5 bg-slate-50/80 dark:bg-zinc-800/60 rounded-2xl mb-1.5">
+        <div className="flex items-center gap-2">
+          <SlidersHorizontal className="w-3.5 h-3.5 text-[#0c3926] dark:text-emerald-400" />
+          <span className="font-cursive text-lg font-bold text-foreground">Filter by</span>
+        </div>
+        <button
+          type="button"
+          onClick={handleClear}
+          className="text-[11px] font-bold text-emerald-800 dark:text-emerald-400 hover:text-emerald-950 px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/50 transition-colors cursor-pointer"
+        >
+          Clear all
+        </button>
       </div>
 
       <Accordion
         type="multiple"
         value={openValues}
         onValueChange={setOpenValues}
+        className="space-y-1"
       >
         {items.map((item) => (
-          <AccordionItem value={item.value} key={item.value}>
-            <AccordionTrigger className="px-4">{item.trigger}</AccordionTrigger>
-            <AccordionContent className="px-4">{item.content}</AccordionContent>
+          <AccordionItem
+            value={item.value}
+            key={item.value}
+            className="border-none bg-slate-50/40 dark:bg-zinc-800/30 hover:bg-slate-50/80 dark:hover:bg-zinc-800/60 rounded-2xl mb-1 transition-colors overflow-hidden"
+          >
+            <AccordionTrigger className="px-3.5 py-2.5 hover:no-underline font-semibold text-xs text-foreground [&[data-state=open]]:text-[#0c3926] dark:[&[data-state=open]]:text-emerald-400 border-none">
+              {item.trigger}
+            </AccordionTrigger>
+            <AccordionContent className="px-3.5 pb-3 pt-1 border-none">
+              {item.content}
+            </AccordionContent>
           </AccordionItem>
         ))}
       </Accordion>

@@ -26,7 +26,7 @@ const LOGO = (props: Props) => {
           className="h-full w-auto object-contain shrink-0"
         />
       </div>
-      <span className="text-[10px] md:text-[11px] font-medium text-muted-foreground tracking-tight whitespace-nowrap hidden xl:block -mt-0.5">
+      <span className="text-[9px] md:text-[11px] font-medium text-muted-foreground tracking-tight whitespace-nowrap block sm:hidden xl:block -mt-0.5">
         Book Hotels & Tours in India
       </span>
     </div>

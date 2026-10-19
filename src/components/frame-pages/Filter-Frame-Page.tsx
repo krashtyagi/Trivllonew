@@ -13,7 +13,7 @@ type FilterFrameProps = {
 const FilterFramePages = ({ content, filterClassname, filterSidebar }: FilterFrameProps) => {
   const ismobile = useIsMobile()
   return (
-    <div className={cn(CommonPagesStyles, " md:flex-col  flex gap-4 w-full bg-background py-4 ")}>
+    <div className={cn(CommonPagesStyles, " md:flex-col  flex gap-6 w-full bg-transparent py-4 ")}>
 
       <div className={filterClassname}>
         <div className='hidden xl:block'>
