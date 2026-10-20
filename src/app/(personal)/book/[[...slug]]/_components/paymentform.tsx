@@ -35,7 +35,6 @@ import { handleRefresh } from "@/services/dailyfunctions";
 
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/auth.store";
-import { userAccessToken } from "@/types/auth";
 
 export const BookingForm = ({ slug }: { slug: string[] }) => {
   const { setPayments, payments, date, guests, selectedRoom } = useHotelStore();
@@ -102,13 +101,6 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
   }, [date, methods]);
 
   const onSubmit = async (data: PaymentProps) => {
-    const token = typeof window !== "undefined" ? localStorage.getItem(userAccessToken) : null;
-    if (!token || token === "null" || token === "undefined") {
-      toast.error("Please log in to proceed with payment.");
-      useAuthStore.getState().setLoginBoxOpen(true);
-      return;
-    }
-
     try {
       setLoading(true);
       const bookingData = {
@@ -137,24 +129,24 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
 
       if (result?.success) {
         const { razorpayOrder, booking } = result.data;
-        setPayments({
-          ...result.data, // assuming spread for basic fields
+        const initialPaymentData: any = {
+          ...result.data,
           razorpay_order_id: razorpayOrder.id,
           razorpay_payment_id: razorpayOrder.id,
           razorpay_signature: razorpayOrder.receipt,
           amount: razorpayOrder.amount,
           currency: razorpayOrder.currency,
           status: razorpayOrder.status,
-          firstname: booking.primaryGuest.firstName,
-          lastname: booking.primaryGuest.lastName,
-          email: booking.primaryGuest.email,
-          phone: booking.primaryGuest.phoneNumber,
+          firstname: booking.primaryGuest?.firstName || data.guestInformation[0]?.firstname || "",
+          lastname: booking.primaryGuest?.lastName || data.guestInformation[0]?.lastname || "",
+          email: booking.primaryGuest?.email || data.guestInformation[0]?.email || "",
+          phone: booking.primaryGuest?.phoneNumber || data.guestInformation[0]?.phone || "",
           createdAt: booking.createdAt,
-          bookingId: booking._id
-        });
+          bookingId: booking._id,
+          bookingReference: booking.bookingReference,
+        };
 
-
-
+        setPayments(initialPaymentData);
 
         const options = {
           key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
@@ -167,8 +159,23 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
             try {
               setLoading(true);
               const verifyResult = await verifyPayment(response);
-              if (verifyResult.success) {
+              if (verifyResult?.success !== false) {
                 toast.success("Payment successful! Booking confirmed.");
+                const verifiedBooking = verifyResult?.data;
+                setPayments({
+                  ...initialPaymentData,
+                  status: "confirmed",
+                  razorpay_payment_id: response.razorpay_payment_id || initialPaymentData.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature || initialPaymentData.razorpay_signature,
+                  razorpay_order_id: response.razorpay_order_id || initialPaymentData.razorpay_order_id,
+                  bookingId: verifiedBooking?._id || initialPaymentData.bookingId,
+                  bookingReference: verifiedBooking?.bookingReference || initialPaymentData.bookingReference,
+                  firstname: verifiedBooking?.primaryGuest?.firstName || initialPaymentData.firstname,
+                  lastname: verifiedBooking?.primaryGuest?.lastName || initialPaymentData.lastname,
+                  email: verifiedBooking?.primaryGuest?.email || initialPaymentData.email,
+                  phone: verifiedBooking?.primaryGuest?.phoneNumber || initialPaymentData.phone,
+                  amount: razorpayOrder.amount,
+                });
                 setCurrentStep((val) => val + 1);
                 handleRefresh(queryClient, ["hotel_details", "hotel_availability"]);
               } else {
@@ -201,23 +208,28 @@ export const BookingForm = ({ slug }: { slug: string[] }) => {
         setLoading(false);
       }
     } catch (error: any) {
-      console.error("Booking submission error:", error.response?.data || error);
-      if (error?.response?.status === 401) {
-        toast.error("Session expired or not authorized. Please log in again.");
-        useAuthStore.getState().setLoginBoxOpen(true);
-      } else {
-        toast.error(error.response?.data?.message || "An error occurred.");
-      }
+      console.error(
+        "Booking submission error:",
+        error.response?.data?.message || error.response?.data || error.message || error,
+      );
+      toast.error(
+        error.response?.data?.message || error.message || "An error occurred.",
+      );
       setLoading(false);
     }
   };
   const ismobile = useIsMobile();
+
+  if (currentstep === 3) {
+    return <FinalStep />;
+  }
+
   return (
     <Form {...methods}>
       <form onSubmit={methods.handleSubmit(onSubmit)} className={cn("container max-w-7xl mx-auto px-4", ismobile && "pb-32")}>
         <StepsView />
         {!loading ? (
-          <div className={cn("grid grid-cols-1 lg:grid-cols-12 gap-8 mt-8 w-full", currentstep === 3 && "grid-cols-1 lg:grid-cols-1")}>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-8 w-full">
             <div className="lg:col-span-8">
               <PaymentForm methods={methods} />
             </div>
@@ -319,27 +331,12 @@ export const PaymentForm = ({ methods }: { methods: UseFormReturn<PaymentProps> 
 };
 
 export const FinalStep = () => {
-  const { payments } = useHotelStore();
+  const { payments, selectedRoom } = useHotelStore();
   if (!payments) return null;
   return (
     <>
       <ScrollToTop />
-      <div className="w-full flex items-center justify-center relative">
-        <ScrollToTop />
-        <PaymentSuccess payment={payments} />
-
-        <div className="h-[1200px] flex justify-center hidden md:block ">
-          <div className="sticky top-10 right-0 h-[600px]  self-start">
-            <img
-              src="/story/payment-done.png"
-              alt="Thankyou for payment"
-              className="w-full h-full object-contain hover:scale-105 transition-all duration-300 hover:drop-shadow-2xl hover:shadow-primary/20"
-            />
-          </div>
-        </div>
-      </div>
-
-
+      <PaymentSuccess payment={payments} selectedRoom={selectedRoom} />
     </>
   );
 };

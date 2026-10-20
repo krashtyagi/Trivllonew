@@ -24,8 +24,13 @@ export type {
 
 const TourServiceDetailsPage = () => {
   const [isBookingMode] = React.useState(false);
-  localStorage.removeItem("nextRoute");
-  localStorage.removeItem("like");
+
+  React.useEffect(() => {
+    try {
+      localStorage.removeItem("nextRoute");
+      localStorage.removeItem("like");
+    } catch {}
+  }, []);
   const serviceId = useParam("serviceid");
 
   const { data: tourDetailsData, isLoading } =

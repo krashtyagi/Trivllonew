@@ -19,8 +19,13 @@ import { useTourDetailsQuery } from "@/services/tours/tours.queries";
 const HotelDetails = () => {
   const [isBookingMode, setIsBookingMode] = React.useState(false);
   const ismobile = useIsMobile();
-  localStorage.removeItem("nextRoute")
-  localStorage.removeItem("like")
+
+  React.useEffect(() => {
+    try {
+      localStorage.removeItem("nextRoute");
+      localStorage.removeItem("like");
+    } catch {}
+  }, []);
   const { hotel: hotelIdParam } = useParams();
 
   const hotelId = useParam('tourid');

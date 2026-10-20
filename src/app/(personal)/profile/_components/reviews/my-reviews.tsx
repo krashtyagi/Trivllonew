@@ -115,13 +115,33 @@ export function ReviewList() {
 
 function PendingReviewCard({ booking }: { booking: any }) {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
+  const [breakdown, setBreakdown] = useState({
+    facilities: 0,
+    cleanliness: 0,
+    services: 0,
+    comfort: 0,
+    location: 0,
+  });
   const createMutation = useCreateReviewMutation();
 
+  const categories = [
+    { key: "facilities" as const, label: "Facilities" },
+    { key: "cleanliness" as const, label: "Cleanliness" },
+    { key: "services" as const, label: "Services" },
+    { key: "comfort" as const, label: "Comfort" },
+    { key: "location" as const, label: "Location" },
+  ];
+
+  const filledCategories = Object.values(breakdown).filter((v) => v > 0);
+  const overallRating = filledCategories.length > 0
+    ? Math.round((filledCategories.reduce((a, b) => a + b, 0) / filledCategories.length) * 10) / 10
+    : 0;
+
   const handleSubmit = () => {
-    if (rating === 0) {
-      toast.error("Please select a star rating");
+    const allFilled = Object.values(breakdown).every((v) => v > 0);
+    if (!allFilled) {
+      toast.error("Please rate all categories");
       return;
     }
     if (!comment.trim()) {
@@ -132,14 +152,15 @@ function PendingReviewCard({ booking }: { booking: any }) {
     createMutation.mutate(
       {
         bookingId: booking.bookingId,
-        rating,
+        rating: Math.round(overallRating),
         comment: comment.trim(),
+        breakdown,
       } as any,
       {
         onSuccess: () => {
           toast.success("Review submitted successfully!");
           setDialogOpen(false);
-          setRating(0);
+          setBreakdown({ facilities: 0, cleanliness: 0, services: 0, comfort: 0, location: 0 });
           setComment("");
         },
         onError: (err: any) => {
@@ -176,7 +197,7 @@ function PendingReviewCard({ booking }: { booking: any }) {
                 Write Review
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[450px]">
+            <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Write a Review</DialogTitle>
               </DialogHeader>
@@ -185,28 +206,46 @@ function PendingReviewCard({ booking }: { booking: any }) {
                   For: <span className="text-foreground">{booking.companyName || booking.companyType}</span>
                 </p>
 
-                {/* Rating */}
-                <div className="space-y-2">
-                  <label className="text-sm font-semibold">Overall Rating</label>
-                  <div className="flex gap-1.5">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <button
-                        key={star}
-                        type="button"
-                        className="transition-transform hover:scale-110"
-                        onClick={() => setRating(star)}
-                      >
-                        <Star
-                          className={`h-8 w-8 ${
-                            star <= rating
-                              ? "fill-yellow-400 text-yellow-400"
-                              : "fill-muted/20 text-muted-foreground/30"
-                          } transition-colors`}
-                        />
-                      </button>
-                    ))}
-                  </div>
+                {/* Category Ratings */}
+                <div className="space-y-4">
+                  <label className="text-sm font-semibold">Rate each category</label>
+                  {categories.map(({ key, label }) => (
+                    <div key={key} className="flex items-center justify-between gap-3">
+                      <span className="text-sm text-muted-foreground font-medium w-24 shrink-0">{label}</span>
+                      <div className="flex gap-1">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <button
+                            key={star}
+                            type="button"
+                            className="transition-transform hover:scale-110"
+                            onClick={() => setBreakdown((prev) => ({ ...prev, [key]: star }))}
+                          >
+                            <Star
+                              className={`h-6 w-6 ${
+                                star <= breakdown[key]
+                                  ? "fill-yellow-400 text-yellow-400"
+                                  : "fill-muted/20 text-muted-foreground/30"
+                              } transition-colors`}
+                            />
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
                 </div>
+
+                {/* Overall Rating Display */}
+                {overallRating > 0 && (
+                  <div className="flex items-center gap-3 p-3 bg-primary/5 rounded-lg border border-primary/10">
+                    <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                      <span className="text-sm font-bold text-primary">{overallRating.toFixed(1)}</span>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-foreground">Overall Rating</p>
+                      <p className="text-[10px] text-muted-foreground">Average of all categories</p>
+                    </div>
+                  </div>
+                )}
 
                 {/* Comment */}
                 <div className="space-y-2">
@@ -215,7 +254,7 @@ function PendingReviewCard({ booking }: { booking: any }) {
                     placeholder="Tell us about your experience..."
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
-                    className="min-h-[120px] resize-none"
+                    className="min-h-[100px] resize-none"
                   />
                 </div>
 
@@ -245,15 +284,30 @@ function PendingReviewCard({ booking }: { booking: any }) {
 
 function SubmittedReviewCard({ review }: { review: any }) {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [rating, setRating] = useState(review.rating);
   const [comment, setComment] = useState(review.comment);
+  const [breakdown, setBreakdown] = useState({
+    facilities: review.breakdown?.facilities || review.rating || 5,
+    cleanliness: review.breakdown?.cleanliness || review.rating || 5,
+    services: review.breakdown?.services || review.rating || 5,
+    comfort: review.breakdown?.comfort || review.rating || 5,
+    location: review.breakdown?.location || review.rating || 5,
+  });
   const updateMutation = useUpdateReviewMutation();
 
+  const categories = [
+    { key: "facilities" as const, label: "Facilities" },
+    { key: "cleanliness" as const, label: "Cleanliness" },
+    { key: "services" as const, label: "Services" },
+    { key: "comfort" as const, label: "Comfort" },
+    { key: "location" as const, label: "Location" },
+  ];
+
+  const filledCategories = Object.values(breakdown).filter((v) => v > 0);
+  const overallRating = filledCategories.length > 0
+    ? Math.round((filledCategories.reduce((a, b) => a + b, 0) / filledCategories.length) * 10) / 10
+    : review.rating;
+
   const handleUpdate = () => {
-    if (rating === 0) {
-      toast.error("Please select a star rating");
-      return;
-    }
     if (!comment.trim()) {
       toast.error("Please write a comment");
       return;
@@ -263,8 +317,9 @@ function SubmittedReviewCard({ review }: { review: any }) {
       {
         reviewId: review._id,
         data: {
-          rating,
+          rating: Math.round(overallRating),
           comment: comment.trim(),
+          breakdown,
         } as any,
       },
       {
@@ -310,6 +365,31 @@ function SubmittedReviewCard({ review }: { review: any }) {
           &quot;{review.comment}&quot;
         </p>
 
+        {review.breakdown && (
+          <div className="grid grid-cols-5 gap-1.5 py-2 px-2.5 bg-muted/30 rounded-lg text-center text-xs">
+            <div>
+              <span className="block text-[10px] text-muted-foreground">Facilities</span>
+              <span className="font-semibold">{review.breakdown.facilities || "—"}</span>
+            </div>
+            <div>
+              <span className="block text-[10px] text-muted-foreground">Cleanliness</span>
+              <span className="font-semibold">{review.breakdown.cleanliness || "—"}</span>
+            </div>
+            <div>
+              <span className="block text-[10px] text-muted-foreground">Services</span>
+              <span className="font-semibold">{review.breakdown.services || "—"}</span>
+            </div>
+            <div>
+              <span className="block text-[10px] text-muted-foreground">Comfort</span>
+              <span className="font-semibold">{review.breakdown.comfort || "—"}</span>
+            </div>
+            <div>
+              <span className="block text-[10px] text-muted-foreground">Location</span>
+              <span className="font-semibold">{review.breakdown.location || "—"}</span>
+            </div>
+          </div>
+        )}
+
         {review.vendorReply?.message && (
           <div className="pl-3 border-l-2 border-primary/40 bg-muted/40 p-3 rounded-r-xl space-y-1">
             <div className="flex items-center gap-1.5 text-xs font-bold text-primary">
@@ -331,7 +411,7 @@ function SubmittedReviewCard({ review }: { review: any }) {
                   Edit Review
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-[450px]">
+              <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>Edit Your Review</DialogTitle>
                 </DialogHeader>
@@ -340,28 +420,46 @@ function SubmittedReviewCard({ review }: { review: any }) {
                     For: <span className="text-foreground">{review.companyName}</span>
                   </p>
 
-                  {/* Rating */}
-                  <div className="space-y-2">
-                    <label className="text-sm font-semibold">Overall Rating</label>
-                    <div className="flex gap-1.5">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <button
-                          key={star}
-                          type="button"
-                          className="transition-transform hover:scale-110"
-                          onClick={() => setRating(star)}
-                        >
-                          <Star
-                            className={`h-8 w-8 ${
-                              star <= rating
-                                ? "fill-yellow-400 text-yellow-400"
-                                : "fill-muted/20 text-muted-foreground/30"
-                            } transition-colors`}
-                          />
-                        </button>
-                      ))}
-                    </div>
+                  {/* Category Ratings */}
+                  <div className="space-y-4">
+                    <label className="text-sm font-semibold">Rate each category</label>
+                    {categories.map(({ key, label }) => (
+                      <div key={key} className="flex items-center justify-between gap-3">
+                        <span className="text-sm text-muted-foreground font-medium w-24 shrink-0">{label}</span>
+                        <div className="flex gap-1">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <button
+                              key={star}
+                              type="button"
+                              className="transition-transform hover:scale-110"
+                              onClick={() => setBreakdown((prev) => ({ ...prev, [key]: star }))}
+                            >
+                              <Star
+                                className={`h-6 w-6 ${
+                                  star <= breakdown[key]
+                                    ? "fill-yellow-400 text-yellow-400"
+                                    : "fill-muted/20 text-muted-foreground/30"
+                                } transition-colors`}
+                              />
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
                   </div>
+
+                  {/* Overall Rating Display */}
+                  {overallRating > 0 && (
+                    <div className="flex items-center gap-3 p-3 bg-primary/5 rounded-lg border border-primary/10">
+                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                        <span className="text-sm font-bold text-primary">{overallRating.toFixed(1)}</span>
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold text-foreground">Overall Rating</p>
+                        <p className="text-[10px] text-muted-foreground">Average of all categories</p>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Comment */}
                   <div className="space-y-2">
@@ -370,7 +468,7 @@ function SubmittedReviewCard({ review }: { review: any }) {
                       placeholder="Tell us about your experience..."
                       value={comment}
                       onChange={(e) => setComment(e.target.value)}
-                      className="min-h-[120px] resize-none"
+                      className="min-h-[100px] resize-none"
                     />
                   </div>
 

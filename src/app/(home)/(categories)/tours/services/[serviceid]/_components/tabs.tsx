@@ -366,9 +366,11 @@ const TourBookingCard = ({ data }: { data?: TourServiceData }) => {
           onClick={() => {
             if (!data) return;
             setLoading(true);
+            const targetRoute = `/booknow/${data.service.serviceId}/${data.company.companyId}`;
+            localStorage.setItem("nextRoute", targetRoute);
             RouterPush(
               router,
-              `/booknow/${data.service.serviceId}/${data.company.companyId}`,
+              targetRoute,
               {
                 date: `${date?.from ? format(date.from, "dd/MM/yyyy") : "Add date"}-${date?.to ? format(date.to, "dd/MM/yyyy") : "Add date"}`,
                 guests: `${totalGuests} Guests`,

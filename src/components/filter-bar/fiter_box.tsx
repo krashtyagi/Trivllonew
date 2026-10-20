@@ -100,10 +100,32 @@ const FilterBox = ({
   const currentFeatured = featuredSpots[featuredIndex];
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setFeaturedIndex((prev) => (prev + 1) % featuredSpots.length);
-    }, 6000);
-    return () => clearInterval(timer);
+    let timer: NodeJS.Timeout | null = null;
+    const startTimer = () => {
+      if (typeof document !== "undefined" && document.hidden) return;
+      if (!timer) {
+        timer = setInterval(() => {
+          setFeaturedIndex((prev) => (prev + 1) % featuredSpots.length);
+        }, 6000);
+      }
+    };
+    const stopTimer = () => {
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      }
+    };
+    const handleVisibility = () => {
+      if (document.hidden) stopTimer();
+      else startTimer();
+    };
+
+    startTimer();
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => {
+      stopTimer();
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
   }, [featuredSpots.length]);
 
   const handleSearchClick = () => {

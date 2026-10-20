@@ -6,7 +6,6 @@ import { BookingForm } from "./_components/paymentform";
 import { PageSkeleton } from "@/components/loader/skeleton";
 import { MessageModal } from "@/components/messagemodal";
 import { hooksSupplier } from "@/components/navbar/filter-nav-bar/calander05";
-import NotAuthorise from "./notAuthorise";
 
 // Map plural URL category names → singular API serviceType
 const serviceTypeMap: Record<string, string> = {
@@ -34,18 +33,15 @@ const page = async ({
         <div className="w-full">
             <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong" />}>
                 <Suspense fallback={<PageSkeleton />}>
-                    <NotAuthorise title="Not Authorised" description="You are not authorised to access this page">
-
-                        <PaymentsContextProvider>
-                            <BookingForm
-                                slug={slug}
-                                hookname={hookname}
-                                serviceType={serviceType}
-                                initialDate={date}
-                                initialGuests={guests}
-                            />
-                        </PaymentsContextProvider>
-                    </NotAuthorise>
+                    <PaymentsContextProvider>
+                        <BookingForm
+                            slug={slug}
+                            hookname={hookname}
+                            serviceType={serviceType}
+                            initialDate={date}
+                            initialGuests={guests}
+                        />
+                    </PaymentsContextProvider>
                 </Suspense>
             </ErrorBoundary>
         </div>
@@ -53,5 +49,3 @@ const page = async ({
 };
 
 export default page;
-
-

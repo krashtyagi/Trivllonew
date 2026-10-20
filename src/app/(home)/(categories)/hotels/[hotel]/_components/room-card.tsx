@@ -7,13 +7,13 @@ import { amenityIconMap } from "@/components/ui/icons";
 import { useRouter } from "next/navigation";
 import { useHotelStore } from "@/store/hotel.store";
 import { cn } from "@/lib/utils";
-import { Sign_in_hover } from "@/components/auth/_components/sign-in-hover";
 import { toast } from "sonner";
 import { useSliderIfNotChooseDate } from "../_providers_context/SliderIfNotChooseDate";
 import { motion } from "framer-motion"; // fixed typo: motion/react → framer-motion
 import { useState, useCallback } from "react";
 import { Spinner } from "@/components/spinner";
 import { Skeleton } from "@/components/ui/skeleton";
+import { optimizeCloudinaryUrl, IMAGE_PRESETS } from "@/lib/image-optimizer";
 
 export interface RoomCardProps {
   hotelId: string;
@@ -43,7 +43,6 @@ export interface RoomCardProps {
 }
 import NProgress from "nprogress";
 import { RouterPush } from "@/components/RouterPush";
-import { userAccessToken } from "@/types/auth";
 import { formatLabel } from "@/components/side-bar-filter/pillGroup";
 export function HotelRoomCard({
   hotelId,
@@ -128,29 +127,6 @@ export function HotelRoomCard({
   };
 
   const handleReserve = () => {
-    localStorage.removeItem("like");
-    if (bothdate) {
-      const route = `/book/${hotelId}/${id}`;
-      localStorage.setItem("nextRoute", route);
-    } else {
-      localStorage.removeItem("nextRoute");
-    }
-    if (isBookingMode && roomsLeft === 0) return;
-    setSelectedRoom({
-      hotelId,
-      roomTypeId: id,
-      title,
-      image: imageUrl,
-      pricePerNight: discountedPrice,
-      totalPrice: totalPrice || discountedPrice,
-      taxPercentage,
-      totalTax,
-      totalPriceWithTax,
-      nights,
-    });
-  };
-
-  const handleReserve_with_Alrady_Login = () => {
     if (!bothdate) {
       handleClick();
       toast.message("Please select date first");
@@ -172,20 +148,8 @@ export function HotelRoomCard({
       totalPriceWithTax,
       nights,
     });
-    const nextRoute = localStorage.getItem("nextRoute");
-    RouterPush(router, nextRoute || "/");
+    RouterPush(router, route);
   };
-
-  const rawToken =
-    typeof window !== "undefined"
-      ? localStorage.getItem(userAccessToken)
-      : null;
-  const isAuthenticated =
-    (!!rawToken &&
-      rawToken !== "null" &&
-      rawToken !== "undefined" &&
-      rawToken.trim().length > 0) ||
-    false;
   return (
     <Card
       className={cn(
@@ -206,12 +170,14 @@ export function HotelRoomCard({
         <div className="relative w-full aspect-[4/3] md:aspect-auto md:h-full overflow-hidden flex-shrink-0 p-2 md:p-3 group/slider">
           <motion.div
             layoutId={`image-${id}`}
-            className="w-full h-full"
+            className="w-full h-full bg-muted rounded-xl md:rounded-2xl overflow-hidden"
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
           >
             <img
-              src={slides[imgIdx]?.url || "/hotels/img1.png"}
+              src={optimizeCloudinaryUrl(slides[imgIdx]?.url || "/hotels/img1.png", IMAGE_PRESETS.roomCardThumb)}
               alt={title}
+              loading="lazy"
+              decoding="async"
               className="w-full h-full object-cover rounded-xl md:rounded-2xl transition-opacity duration-300"
             />
           </motion.div>
@@ -270,7 +236,7 @@ export function HotelRoomCard({
                 >
                   {title}
                 </h3>
-                {isBookingMode && roomsLeft > 0 && (
+                {isBookingMode && (
                   <p
                     className={cn(
                       "text-[11px] md:text-xs font-semibold mt-0.5",
@@ -279,7 +245,9 @@ export function HotelRoomCard({
                         : "text-muted-foreground",
                     )}
                   >
-                    {roomsLeft} room{roomsLeft !== 1 ? "s" : ""} left
+                    {roomsLeft > 0
+                      ? `${roomsLeft} room${roomsLeft !== 1 ? "s" : ""} left`
+                      : "Not available for selected dates"}
                   </p>
                 )}
               </div>
@@ -378,62 +346,30 @@ export function HotelRoomCard({
 
           {showReserveButton && (
             <div className="w-full mt-4 md:mt-5">
-              {!isAuthenticated ? (
-                <Sign_in_hover
-                  tag="Log-in"
-                  variant="ghost"
-                  forLike={{
-                    content: (
-                      <Button
-                        disabled={isBookingMode && roomsLeft === 0}
-                        size="sm"
-                        className={cn(
-                          "w-full h-9 md:h-11 lg:h-12 font-semibold rounded-xl text-sm md:text-base",
-                          isBookingMode && roomsLeft === 0
-                            ? "bg-muted text-muted-foreground"
-                            : "bg-primary hover:bg-primary/90 shadow-sm",
-                        )}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleReserve();
-                        }}
-                      >
-                        {isBookingMode && roomsLeft === 0
-                          ? "Not Available"
-                          : "Reserve"}
-                      </Button>
-                    ),
-                    type: "nextRoute",
-                    do: bothdate ? `/book/${hotelId}/${id}` : "",
-                    id: `reserve-button-${id}`,
-                  }}
-                />
-              ) : (
-                <Button
-                  disabled={(isBookingMode && roomsLeft === 0) || loading}
-                  size="sm"
-                  className={cn(
-                    "w-full h-9 md:h-11 lg:h-12 font-semibold rounded-xl text-sm md:text-base",
-                    isBookingMode && roomsLeft === 0
-                      ? "bg-muted text-muted-foreground"
-                      : "bg-primary hover:bg-primary/90 shadow-sm",
-                  )}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleReserve_with_Alrady_Login();
-                  }}
-                >
-                  {isBookingMode && bothdate && roomsLeft === 0 ? (
-                    "Not Available"
-                  ) : loading ? (
-                    <Spinner />
-                  ) : bothdate ? (
-                    "Reserve"
-                  ) : (
-                    "Select Dates"
-                  )}
-                </Button>
-              )}
+              <Button
+                disabled={(isBookingMode && roomsLeft === 0) || loading}
+                size="sm"
+                className={cn(
+                  "w-full h-9 md:h-11 lg:h-12 font-semibold rounded-xl text-sm md:text-base",
+                  isBookingMode && roomsLeft === 0
+                    ? "bg-muted text-muted-foreground"
+                    : "bg-primary hover:bg-primary/90 shadow-sm",
+                )}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleReserve();
+                }}
+              >
+                {isBookingMode && bothdate && roomsLeft === 0 ? (
+                  "Not Available"
+                ) : loading ? (
+                  <Spinner />
+                ) : bothdate ? (
+                  "Reserve"
+                ) : (
+                  "Select Dates"
+                )}
+              </Button>
             </div>
           )}
         </div>

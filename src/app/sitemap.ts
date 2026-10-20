@@ -1,12 +1,10 @@
 import type { MetadataRoute } from "next";
 import { SITE_URL } from "@/lib/seo.config";
+import { getAllBlogPosts } from "@/lib/blog-data";
 
 /**
  * Dynamic sitemap.xml generation via Next.js Metadata API.
  * Lists all public, crawlable routes with priorities and change frequencies.
- *
- * NOTE: For dynamic hotel/tour detail pages, you should extend this
- *       to fetch IDs from your API and generate entries at build time.
  */
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
@@ -43,6 +41,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: `${SITE_URL}/tours/find`,
       lastModified: now,
       changeFrequency: "daily",
+      priority: 0.8,
+    },
+
+    // ── Blog Hub ──
+    {
+      url: `${SITE_URL}/blog`,
+      lastModified: now,
+      changeFrequency: "weekly",
       priority: 0.8,
     },
 
@@ -103,18 +109,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
-  // ── TODO: Dynamic hotel/tour detail pages ──
-  // When ready, fetch hotel/tour IDs from your API and map them:
-  //
-  // const hotelIds = await fetchAllHotelIds();
-  // const hotelPages = hotelIds.map((id) => ({
-  //   url: `${SITE_URL}/hotels/${id}`,
-  //   lastModified: now,
-  //   changeFrequency: "weekly" as const,
-  //   priority: 0.6,
-  // }));
-  //
-  // return [...staticPages, ...hotelPages, ...tourPages];
+  // ── Dynamic Blog Article Pages ──
+  const blogPosts = getAllBlogPosts();
+  const blogPages: MetadataRoute.Sitemap = blogPosts.map((post) => ({
+    url: `${SITE_URL}/blog/${post.slug}`,
+    lastModified: new Date(post.updatedAt || post.publishedAt),
+    changeFrequency: "weekly",
+    priority: 0.8,
+  }));
 
-  return staticPages;
+  return [...staticPages, ...blogPages];
 }

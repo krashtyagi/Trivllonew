@@ -147,18 +147,22 @@ type SelectedRoom = {
   nights: number;
 } | null;
 export interface Payment {
-  razorpay_payment_id: string;
-  razorpay_order_id: string;
-  razorpay_signature: string;
-  amount: number;
-  currency: string;
-  status: string;
-  firstname: string;
-  lastname: string;
-  email: string;
-  contact: string;
-  phone: string;
-  createdAt: string;
+  razorpay_payment_id?: string;
+  razorpay_order_id?: string;
+  razorpay_signature?: string;
+  amount?: number;
+  currency?: string;
+  status?: string;
+  firstname?: string;
+  lastname?: string;
+  email?: string;
+  contact?: string;
+  phone?: string;
+  createdAt?: string;
+  bookingId?: string;
+  bookingReference?: string;
+  _id?: string;
+  [key: string]: any;
 }
 
 type Guests = {
@@ -207,7 +211,8 @@ export const useHotelStore = create<HotelStoreProps>()(
 
       setWrap: (wrap) => set({ wrap }),
       setCity: (city) => set({ city }),
-      setPayments: (payments: Payment) => set({ payments }),
+      setPayments: (payments: Payment) =>
+        set((state) => ({ payments: { ...state.payments, ...payments } })),
 
       setDate: (date) =>
         set(() => ({

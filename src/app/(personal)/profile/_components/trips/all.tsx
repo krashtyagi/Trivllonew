@@ -104,20 +104,20 @@ export function AllReservations({
         <EmptyBookings variant={variant} />
       ) : (
         <div className="space-y-6">
-          {tripsdata.map((val: ReservationCardProps) => (
+          {tripsdata.map((val: any) => (
             <div key={val._id} className="space-y-6">
               <ReservationCard
-                hotelId={val.hotelId}
+                hotelId={val.hotelId || val._id}
                 _id={val._id}
-                hotelName={val.hotelName}
-                thumbnail={val.thumbnail}
-                checkIn={val.checkIn}
-                checkOut={val.checkOut}
+                hotelName={val.hotelName || val.title || "Reservation"}
+                thumbnail={val.thumbnail || "/room1.png"}
+                checkIn={val.checkIn || val.bookingDate}
+                checkOut={val.checkOut || val.bookingDate}
                 guests={{
-                  adults: val.guests?.adults,
-                  children: val.guests?.children,
+                  adults: val.guests?.adults ?? 1,
+                  children: val.guests?.children ?? 0,
                 }}
-                bookingId={val.bookingId}
+                bookingId={val.bookingId || val.bookingReference}
                 status={val.status}
                 onCheckDetails={() => setDetails({ id: val._id, open: true })}
               />
@@ -164,6 +164,8 @@ export function ReservationCard({
   const { t } = useTranslation();
   const isConfirmed = status === "confirmed";
 
+  const totalGuests = (Number(guests?.adults) || 1) + (Number(guests?.children) || 0);
+
   return (
     <Card className="rounded-xl bg-background shadow-sm border border-border/40 hover:shadow-md transition-all duration-300">
       <CardContent className="p-5 sm:p-6">
@@ -194,26 +196,30 @@ export function ReservationCard({
               <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs md:text-sm text-muted-foreground">
                 <p>
                   <span className="font-medium text-foreground">{t("trips.checkIn")}</span>{" "}
-                  {new Date(checkIn).toLocaleDateString("en-IN", {
-                    day: "numeric",
-                    month: "short",
-                    year: "numeric",
-                  })}
+                  {checkIn && !isNaN(new Date(checkIn).getTime())
+                    ? new Date(checkIn).toLocaleDateString("en-IN", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      })
+                    : "—"}
                 </p>
                 <span className="text-border hidden sm:inline">•</span>
                 <p>
                   <span className="font-medium text-foreground">{t("trips.checkOut")}</span>{" "}
-                  {new Date(checkOut).toLocaleDateString("en-IN", {
-                    day: "numeric",
-                    month: "short",
-                    year: "numeric",
-                  })}
+                  {checkOut && !isNaN(new Date(checkOut).getTime())
+                    ? new Date(checkOut).toLocaleDateString("en-IN", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      })
+                    : "—"}
                 </p>
                 <span className="text-border hidden sm:inline">•</span>
                 <p>
                   <span className="font-medium text-foreground">{t("trips.guests")}</span>{" "}
-                  {guests.adults + guests.children}
-                  {guests.adults + guests.children === 1 ? ` ${t("trips.person")}` : ` ${t("trips.people")}`}
+                  {totalGuests}
+                  {totalGuests === 1 ? ` ${t("trips.person")}` : ` ${t("trips.people")}`}
                 </p>
               </div>
             </div>

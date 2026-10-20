@@ -7,6 +7,7 @@
 //     id: string
 // }
 export interface BookingDetails {
+    _id: string,
     bookingReference: string,
     checkIn: string,
     checkOut: string,

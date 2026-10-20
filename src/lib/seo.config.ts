@@ -292,6 +292,23 @@ export const PAGE_SEO: Record<string, PageSEO> = {
     canonical: "/trusted-host-policy",
     ogType: "article",
   },
+
+  // ── Blog ──
+  blog: {
+    title: `Travel Blog, Destination Guides & Hotel Tips | ${SITE_NAME}`,
+    description: `Explore insider travel guides, luxury & budget hotel recommendations, 7-day tour itineraries, and smart booking secrets across India on ${SITE_NAME}.`,
+    canonical: "/blog",
+    keywords: [
+      ...DEFAULT_KEYWORDS,
+      "travel blog India",
+      "best hotel guides",
+      "tour itineraries India",
+      "Indore travel guide",
+      "Rajasthan tour guide",
+      "weekend getaways Delhi",
+      "smart hotel booking tips",
+    ],
+  },
 };
 
 // ─── JSON-LD Structured Data Generators ────────────────────────────────────────
@@ -495,6 +512,69 @@ export function generateFAQJsonLd(
         text: faq.answer,
       },
     })),
+  };
+}
+
+/** BlogPosting schema — enables Google rich snippets for articles */
+export function generateBlogPostingJsonLd(post: {
+  slug: string;
+  title: string;
+  excerpt: string;
+  coverImage: string;
+  publishedAt: string;
+  updatedAt?: string;
+  author: { name: string };
+  tags?: string[];
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "@id": `${SITE_URL}/blog/${post.slug}#article`,
+    headline: post.title,
+    description: post.excerpt,
+    image: [post.coverImage],
+    datePublished: post.publishedAt,
+    dateModified: post.updatedAt || post.publishedAt,
+    author: {
+      "@type": "Person",
+      name: post.author.name,
+    },
+    publisher: {
+      "@type": "Organization",
+      "@id": `${SITE_URL}/#organization`,
+      name: SITE_NAME,
+      logo: {
+        "@type": "ImageObject",
+        url: `${SITE_URL}${LOGO_URL}`,
+      },
+    },
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": `${SITE_URL}/blog/${post.slug}`,
+    },
+    keywords: (post.tags || []).join(", "),
+    inLanguage: "en-IN",
+  };
+}
+
+/** Blog collection schema (ItemList) */
+export function generateBlogCollectionJsonLd(
+  posts: { slug: string; title: string }[],
+) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: `Travel Blog & Guides — ${SITE_NAME}`,
+    url: `${SITE_URL}/blog`,
+    mainEntity: {
+      "@type": "ItemList",
+      itemListElement: posts.map((post, idx) => ({
+        "@type": "ListItem",
+        position: idx + 1,
+        url: `${SITE_URL}/blog/${post.slug}`,
+        name: post.title,
+      })),
+    },
   };
 }
 

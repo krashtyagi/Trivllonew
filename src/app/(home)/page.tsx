@@ -67,9 +67,13 @@ const Hotel = () => {
     const { city, setCity, setDate, date, guests } = useHotelStore();
     // const [city1, setCity1] = useState("")
 
-    localStorage.removeItem("nextRoute")
-    localStorage.removeItem("like")
-    const ismobile = useIsMobile()
+    useEffect(() => {
+        try {
+            localStorage.removeItem("nextRoute");
+            localStorage.removeItem("like");
+        } catch {}
+    }, []);
+    const ismobile = useIsMobile();
 
 
     return (
