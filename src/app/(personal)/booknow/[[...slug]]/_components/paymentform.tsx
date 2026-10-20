@@ -36,6 +36,7 @@ import {
 import { PaymentSuccess } from "./PaymentSuccess";
 
 import { useTourServiceDetails } from "@/services/tours/tours.queries";
+import { useAuthStore } from "@/store/auth.store";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type ServiceType = "tour" | "bike" | "adventure" | "cab";
@@ -55,7 +56,7 @@ export const BookingForm = ({
   initialGuests?: string;
 }) => {
   const store = hooksSupplier[hookname]();
-  const { date, guests, setPayments } = store;
+  const { date, guests, setPayments, payments } = store;
 
   const { setCurrentStep, currentstep } = usePaymentsContext();
   const [loading, setLoading] = useState<boolean>(false);
@@ -67,6 +68,29 @@ export const BookingForm = ({
     serviceType === "tour" ? slug[0] : "",
   );
 
+  const { currUser } = useAuthStore();
+
+  const parseInitialDate = (raw?: string) => {
+    if (!raw || raw.includes("Add date")) return { checkin: "", checkout: "" };
+    const parts = raw.split("-");
+    const parsePart = (p?: string) => {
+      if (!p) return "";
+      const dmy = p.trim().split("/");
+      if (dmy.length === 3) {
+        return `${dmy[2]}-${dmy[1]}-${dmy[0]}`; // dd/MM/yyyy -> yyyy-MM-dd
+      }
+      return p.trim();
+    };
+    return {
+      checkin: parsePart(parts[0]),
+      checkout: parsePart(parts[1]) || parsePart(parts[0]),
+    };
+  };
+
+  const parsedDates = parseInitialDate(initialDate);
+  const checkinDefault = date?.from ? format(date.from, "yyyy-MM-dd") : parsedDates.checkin;
+  const checkoutDefault = date?.to ? format(date.to, "yyyy-MM-dd") : parsedDates.checkout;
+
   const parsedGuests = parseInt(initialGuests || "") || 0;
   const initialAdults = Math.max(1, guests?.adults || parsedGuests || 1);
   const initialChildren = guests?.children || 0;
@@ -76,8 +100,8 @@ export const BookingForm = ({
     resolver: zodResolver(PaymentSchema),
     defaultValues: {
       dates: {
-        checkin: date?.from ? format(date.from, "yyyy-MM-dd") : "",
-        checkout: date?.to ? format(date.to, "yyyy-MM-dd") : "",
+        checkin: checkinDefault,
+        checkout: checkoutDefault,
       },
       guests: {
         adults: initialAdults,
@@ -86,10 +110,10 @@ export const BookingForm = ({
       guestInformation: Array(initialTotal)
         .fill(null)
         .map(() => ({
-          firstname: "",
-          lastname: "",
-          email: "",
-          phone: "",
+          firstname: currUser?.firstName || "",
+          lastname: currUser?.lastName || "",
+          email: currUser?.email || "",
+          phone: currUser?.phoneNumber || "",
         })),
       specialRequest: "",
       rooms: [],
@@ -98,13 +122,34 @@ export const BookingForm = ({
   });
 
   React.useEffect(() => {
+    if (currUser) {
+      if (!methods.getValues("guestInformation.0.firstname") && currUser.firstName) {
+        methods.setValue("guestInformation.0.firstname", currUser.firstName);
+      }
+      if (!methods.getValues("guestInformation.0.lastname") && currUser.lastName) {
+        methods.setValue("guestInformation.0.lastname", currUser.lastName);
+      }
+      if (!methods.getValues("guestInformation.0.email") && currUser.email) {
+        methods.setValue("guestInformation.0.email", currUser.email);
+      }
+      if (!methods.getValues("guestInformation.0.phone") && currUser.phoneNumber) {
+        methods.setValue("guestInformation.0.phone", currUser.phoneNumber);
+      }
+    }
+  }, [currUser, methods]);
+
+  React.useEffect(() => {
     if (date?.from) {
       methods.setValue("dates.checkin", format(date.from, "yyyy-MM-dd"));
+    } else if (parsedDates.checkin && !methods.getValues("dates.checkin")) {
+      methods.setValue("dates.checkin", parsedDates.checkin);
     }
     if (date?.to) {
       methods.setValue("dates.checkout", format(date.to, "yyyy-MM-dd"));
+    } else if (parsedDates.checkout && !methods.getValues("dates.checkout")) {
+      methods.setValue("dates.checkout", parsedDates.checkout);
     }
-  }, [date, methods]);
+  }, [date, parsedDates.checkin, parsedDates.checkout, methods]);
 
   // Dynamically sync guest count and guestInformation form fields
   const handleGuestsChange = (newAdults: number, newChildren: number) => {
@@ -213,7 +258,7 @@ export const BookingForm = ({
       if (result?.success !== false) {
         const { razorpayOrder, booking } = result.data || result;
 
-        setPayments({
+        const initialPaymentData: any = {
           ...result.data,
           razorpay_order_id: razorpayOrder.id,
           razorpay_payment_id: razorpayOrder.id,
@@ -221,13 +266,16 @@ export const BookingForm = ({
           amount: razorpayOrder.amount,
           currency: razorpayOrder.currency,
           status: razorpayOrder.status,
-          firstname: booking.primaryCustomer.firstName,
-          lastname: booking.primaryCustomer.lastName,
-          email: booking.primaryCustomer.email,
-          phone: booking.primaryCustomer.phoneNumber,
+          firstname: booking.primaryCustomer?.firstName || data.guestInformation[0]?.firstname || "",
+          lastname: booking.primaryCustomer?.lastName || data.guestInformation[0]?.lastname || "",
+          email: booking.primaryCustomer?.email || data.guestInformation[0]?.email || "",
+          phone: booking.primaryCustomer?.phoneNumber || data.guestInformation[0]?.phone || "",
           createdAt: booking.createdAt,
           bookingId: booking._id,
-        });
+          bookingReference: booking.bookingReference,
+        };
+
+        setPayments(initialPaymentData);
 
         const options = {
           key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
@@ -241,6 +289,13 @@ export const BookingForm = ({
               const verifyResult = await verifyServicePayment(response);
               if (verifyResult.success !== false) {
                 toast.success("Payment successful! Booking confirmed.");
+                setPayments({
+                  ...initialPaymentData,
+                  status: "confirmed",
+                  razorpay_payment_id: response.razorpay_payment_id || initialPaymentData.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature || initialPaymentData.razorpay_signature,
+                  razorpay_order_id: response.razorpay_order_id || initialPaymentData.razorpay_order_id,
+                });
                 setCurrentStep((val) => val + 1);
                 handleRefresh(queryClient, ["bookings"]);
                 setLoading(false);
@@ -282,6 +337,10 @@ export const BookingForm = ({
 
   const tourMaxPeople = tourServiceData?.data?.service?.maxPeople;
 
+  if (currentstep === 3) {
+    return <FinalStep />;
+  }
+
   return (
     <Form {...methods}>
       <form
@@ -294,12 +353,7 @@ export const BookingForm = ({
         </div>
 
         {!loading ? (
-          <div
-            className={cn(
-              "grid grid-cols-1 lg:grid-cols-12 gap-8 mt-8 w-full",
-              currentstep === 3 && "grid-cols-1 lg:grid-cols-1",
-            )}
-          >
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-8 w-full">
             <div className="lg:col-span-8">
               <PaymentFormContent
                 methods={methods}
@@ -391,18 +445,7 @@ export const FinalStep = () => {
   return (
     <>
       <ScrollToTop />
-      <div className="w-full flex items-center justify-center relative">
-        <PaymentSuccess payment={payments} />
-        <div className="h-[1200px] hidden md:flex justify-center">
-          <div className="sticky top-10 right-0 h-[600px] self-start">
-            <img
-              src="/story/payment-done.png"
-              alt="Thank you for payment"
-              className="w-full h-full object-contain hover:scale-105 transition-all duration-300"
-            />
-          </div>
-        </div>
-      </div>
+      <PaymentSuccess payment={payments} />
     </>
   );
 };

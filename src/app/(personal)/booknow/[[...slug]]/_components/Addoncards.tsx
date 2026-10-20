@@ -1,10 +1,11 @@
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { PaymentProps } from "@/schema/payment.schema";
-import { Info, Plus, Users } from "lucide-react";
+import { Info, Plus, Users, Calendar, Edit2 } from "lucide-react";
 import { useFieldArray, UseFormReturn } from "react-hook-form";
 import { format } from "date-fns";
 import { PhoneInput } from "./phoneinput";
@@ -67,6 +68,21 @@ export function TripSummaryCard({
     const children = methods.watch("guests.children") || 0;
     const totalGuests = adults + children;
     const maxLimit = maxPeople || 20;
+    const [isEditingDate, setIsEditingDate] = useState(false);
+
+    const safeFormat = (dateStr?: string) => {
+        if (!dateStr || dateStr.toLowerCase().includes("add date")) return null;
+        const d = new Date(dateStr);
+        if (isNaN(d.getTime())) return null;
+        try {
+            return format(d, "MMM dd, yyyy");
+        } catch {
+            return null;
+        }
+    };
+
+    const formattedCheckin = safeFormat(checkin);
+    const formattedCheckout = safeFormat(checkout);
 
     // Category-aware labels
     const dateLabels: Record<string, string> = {
@@ -87,11 +103,39 @@ export function TripSummaryCard({
             </CardHeader>
             <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="p-3 bg-muted/50 rounded-lg">
-                    <p className="text-xs font-bold uppercase text-muted-foreground">{dateLabel}</p>
-                    <p className="text-sm font-medium mt-1">
-                        {checkin ? format(new Date(checkin), "MMM dd, yyyy") : "—"}
-                        {checkout && checkout !== checkin ? ` - ${format(new Date(checkout), "MMM dd, yyyy")}` : ""}
-                    </p>
+                    <div className="flex items-center justify-between">
+                        <p className="text-xs font-bold uppercase text-muted-foreground">{dateLabel}</p>
+                        {formattedCheckin && (
+                            <button
+                                type="button"
+                                onClick={() => setIsEditingDate(!isEditingDate)}
+                                className="text-[11px] text-primary hover:underline font-semibold"
+                            >
+                                {isEditingDate ? "Done" : "Change"}
+                            </button>
+                        )}
+                    </div>
+                    {!formattedCheckin || isEditingDate ? (
+                        <div className="mt-2 space-y-2">
+                            <Input
+                                type="date"
+                                min={format(new Date(), "yyyy-MM-dd")}
+                                value={checkin && !checkin.includes("Add date") ? checkin : ""}
+                                onChange={(e) => {
+                                    methods.setValue("dates.checkin", e.target.value, { shouldValidate: true });
+                                    if (!checkout || checkout === checkin) {
+                                        methods.setValue("dates.checkout", e.target.value, { shouldValidate: true });
+                                    }
+                                }}
+                                className="h-8 text-xs bg-background"
+                            />
+                        </div>
+                    ) : (
+                        <p className="text-sm font-medium mt-1">
+                            {formattedCheckin}
+                            {formattedCheckout && formattedCheckout !== formattedCheckin ? ` - ${formattedCheckout}` : ""}
+                        </p>
+                    )}
                 </div>
                 <div className="p-3 bg-muted/50 rounded-lg flex items-center justify-between">
                     <div>

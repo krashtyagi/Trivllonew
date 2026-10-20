@@ -61,13 +61,19 @@ const MainFramePage = ({ className, type, popularTrends }: HotelFramePageProps) 
     }, {} as Record<string, hoteldata[]>);
   }, [data?.data]);
 
-  const sectionItems = useMemo(() => {
+  const activeSectionsWithItems = useMemo(() => {
+    if (isLoading) {
+      // Render 2 clean skeleton carousels while loading
+      return POPULAR_SECTIONS.slice(0, 2).map((section) => ({
+        section,
+        items: [] as Item[],
+      }));
+    }
+
     return POPULAR_SECTIONS.map((section) => {
       const hotelsInCity = groupedByCity[section.city.toLowerCase()] || [];
-
       const sliced = section.limit ? hotelsInCity.slice(0, section.limit) : hotelsInCity;
-
-      return sliced.map((hotel: hoteldata): Item => ({
+      const items: Item[] = sliced.map((hotel: hoteldata): Item => ({
         id: hotel._id,
         _id: hotel._id,
         title: hotel.name,
@@ -80,14 +86,15 @@ const MainFramePage = ({ className, type, popularTrends }: HotelFramePageProps) 
         amenities: (hotel as any).amenities,
         isFavorite: (hotel as any).isFavorite,
       }));
-    });
-  }, [groupedByCity]);
+      return { section, items };
+    }).filter(({ items }) => items.length > 0);
+  }, [isLoading, groupedByCity]);
 
   return (
     <FrameColursals className={cn(className, "w-full ")}>
-      {POPULAR_SECTIONS.map((section, i) => {
-        const items = sectionItems[i] || [];
-        const bannerRank = BANNER_POSITIONS[i];
+      {activeSectionsWithItems.map(({ section, items }, i) => {
+        // Place banners cleanly after first and subsequent active carousels
+        const bannerRank = i === 0 ? "A" : i === 2 ? "B" : i === 4 ? "C" : null;
 
         return (
           <React.Fragment key={section.tagline}>
@@ -100,13 +107,17 @@ const MainFramePage = ({ className, type, popularTrends }: HotelFramePageProps) 
               icon={<MapPin className="h-3 w-3 shrink-0" />}
             />
 
-            {/* Ranked Banner after specific carousel positions */}
+            {/* Ranked Banner between active carousels */}
             {bannerRank && (
               <RankedBanner rank={bannerRank} entityType="hotel" />
             )}
           </React.Fragment>
         );
       })}
+
+      {!isLoading && activeSectionsWithItems.length === 1 && (
+        <RankedBanner rank="B" entityType="hotel" />
+      )}
 
       {error && (
         <p className="text-red-500 text-center">Failed to load hotels: {error.message}</p>

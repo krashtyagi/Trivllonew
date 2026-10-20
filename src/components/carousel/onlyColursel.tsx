@@ -40,6 +40,7 @@ import { userAccessToken } from "@/types/auth";
 import { dotoggleLike } from "@/services/hotel/hotel.service";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
+import { optimizeCloudinaryUrl, IMAGE_PRESETS } from "@/lib/image-optimizer";
 
 export type Item = {
   id?: string;
@@ -447,8 +448,9 @@ const Card = React.memo(
           <Image
             width={300}
             height={210}
-            src={item.image}
+            src={optimizeCloudinaryUrl(item.image, IMAGE_PRESETS.carouselCard)}
             alt={item.title}
+            loading="lazy"
             className="h-full w-full object-cover transition-transform duration-500 group-hover/card:scale-105"
           />
         </div>
@@ -567,6 +569,8 @@ export function MoreStaysCard({
   const [order, setOrder] = useState<number[]>([0, 1, 2, 3, 4]);
   const [isPaused, setIsPaused] = useState(false);
   const [isSm, setIsSm] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [isInView, setIsInView] = useState(false);
 
   useEffect(() => {
     const mql = window.matchMedia("(min-width: 640px)");
@@ -576,15 +580,63 @@ export function MoreStaysCard({
     return () => mql.removeEventListener("change", handler);
   }, []);
 
-  // Automatic swapping animation: cyclic shift every 3.2 seconds
+  // Viewport intersection observer: only animate when visible on screen
   useEffect(() => {
-    if (isPaused) return;
-    const timer = setInterval(() => {
-      setOrder((prev) => [prev[1], prev[2], prev[3], prev[4], prev[0]]);
-    }, 3200);
+    const el = cardRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") {
+      setIsInView(true);
+      return;
+    }
 
-    return () => clearInterval(timer);
-  }, [isPaused]);
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsInView(entry.isIntersecting);
+      },
+      { rootMargin: "100px" }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  // Automatic swapping animation: only when visible in viewport, not paused, and browser tab is active
+  useEffect(() => {
+    if (isPaused || !isInView) return;
+
+    let timer: NodeJS.Timeout | null = null;
+
+    const startTimer = () => {
+      if (typeof document !== "undefined" && document.hidden) return;
+      if (!timer) {
+        timer = setInterval(() => {
+          setOrder((prev) => [prev[1], prev[2], prev[3], prev[4], prev[0]]);
+        }, 3400);
+      }
+    };
+
+    const stopTimer = () => {
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        stopTimer();
+      } else {
+        startTimer();
+      }
+    };
+
+    startTimer();
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      stopTimer();
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [isPaused, isInView]);
 
   // The Top image is the photo currently at Slot 0
   const topPhotoIndex = order[0] ?? 0;
@@ -619,6 +671,7 @@ export function MoreStaysCard({
 
   return (
     <div
+      ref={cardRef}
       onClick={onClick}
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
@@ -636,10 +689,10 @@ export function MoreStaysCard({
             className="absolute inset-0"
           >
             <Image
-              src={activeBgPhoto}
+              src={optimizeCloudinaryUrl(activeBgPhoto, IMAGE_PRESETS.cardBackground)}
               alt="Stay background"
               fill
-              priority
+              loading="lazy"
               unoptimized
               className="object-cover object-center"
             />
@@ -743,9 +796,10 @@ export function MoreStaysCard({
               title="Click to feature this stay"
             >
               <Image
-                src={photo.src}
+                src={optimizeCloudinaryUrl(photo.src, IMAGE_PRESETS.miniThumb)}
                 alt="Stay preview"
                 fill
+                loading="lazy"
                 unoptimized
                 className="object-cover"
                 sizes="100px"

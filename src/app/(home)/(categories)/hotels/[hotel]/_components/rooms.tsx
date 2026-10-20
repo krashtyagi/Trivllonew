@@ -84,6 +84,8 @@ export function RoomsBedTabs({
           <img
             src="/hotels/rooms_header_bg.jpg"
             alt="Scenic hotel bedroom view"
+            loading="lazy"
+            decoding="async"
             className="w-full h-full object-cover object-right sm:object-center brightness-[0.85] md:brightness-100"
           />
           {/* Mobile dark scrim overlay so text is clearly visible */}

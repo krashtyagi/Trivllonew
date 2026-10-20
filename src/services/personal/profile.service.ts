@@ -33,15 +33,16 @@ export const getUserReviewBookings = async () => {
 };
 
 export interface CreateReviewData {
-  hotelId: string;
+  bookingId: string;
   rating: number;
-  breakdown: {
-    cleanliness: number;
-    communication: number;
-    location: number;
-    value: number;
-  };
   comment: string;
+  breakdown?: {
+    facilities: number;
+    cleanliness: number;
+    services: number;
+    comfort: number;
+    location: number;
+  };
 }
 
 export const createReview = async (data: CreateReviewData) => {

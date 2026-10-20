@@ -25,6 +25,7 @@ import { validimage } from "@/services/dailyfunctions";
 import { RouterPush } from "@/components/RouterPush";
 import { TourService } from "../_providers_context/TourDetailsContextProvider";
 import { DetailsPageCardWrapperUI } from "../../../_componentsRoot_categories/CardWrapper";
+import { optimizeCloudinaryUrl, IMAGE_PRESETS } from "@/lib/image-optimizer";
 
 function ImageOverlay({ slides, initialIndex, onClose }: { slides: { url: string }[]; initialIndex: number; onClose: () => void }) {
   const [idx, setIdx] = useState(initialIndex);
@@ -53,7 +54,13 @@ function ImageOverlay({ slides, initialIndex, onClose }: { slides: { url: string
           <button className="absolute top-4 right-4 text-white/80 hover:text-white z-10" onClick={(e) => { e.stopPropagation(); onClose(); }}><X className="h-7 w-7" /></button>
           <button className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur rounded-full p-2 z-10" onClick={(e) => { e.stopPropagation(); prev(); }}><ChevronLeft className="h-6 w-6 text-white" /></button>
           <button className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur rounded-full p-2 z-10" onClick={(e) => { e.stopPropagation(); next(); }}><ChevronRight className="h-6 w-6 text-white" /></button>
-          <img src={slides[idx]?.url} alt="" className="max-h-[85vh] max-w-[90vw] object-contain rounded-lg shadow-2xl" onClick={(e) => e.stopPropagation()} />
+          <img
+            src={optimizeCloudinaryUrl(slides[idx]?.url, IMAGE_PRESETS.detailZoomHighRes)}
+            alt="Tour view"
+            decoding="async"
+            className="max-h-[85vh] max-w-[90vw] object-contain rounded-lg shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          />
           <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">
             {slides.map((_, i) => <span key={i} onClick={(e) => { e.stopPropagation(); setIdx(i); }} className={cn("h-2 rounded-full cursor-pointer transition-all", i === idx ? "w-6 bg-white" : "w-2 bg-white/40 hover:bg-white/60")} />)}
           </div>
@@ -130,10 +137,15 @@ export function TourDetailsCard({
 
 
       {/* IMAGE SECTION */}
-      <div className="relative overflow-hidden h-42 md:h-auto group/slider min-h-[180px]">
+      <div className="relative overflow-hidden h-42 md:h-auto group/slider min-h-[180px] bg-muted rounded-md">
         <img
-          src={validimage(slides[imgIdx]?.url, "/tours/tour.png")}
+          src={optimizeCloudinaryUrl(
+            validimage(slides[imgIdx]?.url, "/tours/tour.png"),
+            IMAGE_PRESETS.roomCardThumb
+          )}
           alt={title}
+          loading="lazy"
+          decoding="async"
           onClick={(e) => {
             e.stopPropagation();
             setOverlayOpen(true);

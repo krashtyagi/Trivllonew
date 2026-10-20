@@ -97,8 +97,8 @@ export const useBookingByIdQuery = ({ id }: { id: string }) => {
     queryKey: ["booking_by_id", id],
     queryFn: () => getBookingById(id),
     staleTime: 10000,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
     refetchOnReconnect: true,
     retry: false,
   });
@@ -108,8 +108,8 @@ export const useMyBookingsQuery = () => {
     queryKey: ["my_bookings"],
     queryFn: () => getMyBookings(),
     staleTime: 200000,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
     refetchOnReconnect: true,
     retry: false,
   });
@@ -216,10 +216,10 @@ export const useHotelDetailsQuery = (hotelId: string) => {
     queryKey: ["hotel_details", hotelId],
     queryFn: () => getHotelDetails(hotelId),
     enabled: !!hotelId,
-    refetchOnMount: true,
+    refetchOnMount: false,
     refetchOnWindowFocus: false,
     refetchOnReconnect: true,
-    staleTime: 60 * 1000,
+    staleTime: 5 * 60 * 1000,
   });
 };
 

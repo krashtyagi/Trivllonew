@@ -76,12 +76,19 @@ export default function ReservationDetailsPage({
           <Button className="gap-2 w-full sm:w-auto"
             onClick={() => {
               handelDownload()
-
             }}>
             <Download size={16} />
             Download Invoice
           </Button>
         </div>
+
+        {/* Review Section - shows after checkout/completion */}
+        {(booking.status === "checked_out" || booking.status === "completed") && (
+          <>
+            <Separator />
+            <WriteReviewSection bookingId={booking._id} hotelName={booking.hotel?.name} />
+          </>
+        )}
       </div>
     </div>
   );
@@ -90,6 +97,18 @@ import NProgress from 'nprogress'
 import { RouterPush } from "@/components/RouterPush";
 import Rupee from "@/components/Rupee";
 import { downloadBookings } from "@/app/(personal)/book/[[...slug]]/_components/book.service";
+import { Star } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { useCreateReviewMutation } from "@/services/personal/queryes";
+import { toast } from "sonner";
 export function PropertyHeaderCard({ booking }: { booking: BookingDetails }) {
   const { hotel, checkIn, checkOut, status, roomsBooked } = booking;
   const checkInDate = new Date(checkIn);
@@ -309,6 +328,186 @@ export function TripsDetailsSkeleton() {
           <Skeleton className="h-10 w-full sm:w-32 rounded-md" />
           <Skeleton className="h-10 w-full sm:w-40 rounded-md" />
         </div>
+      </div>
+    </div>
+  );
+}
+
+function WriteReviewSection({ bookingId, hotelName }: { bookingId: string; hotelName?: string }) {
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [comment, setComment] = useState("");
+  const [breakdown, setBreakdown] = useState({
+    facilities: 0,
+    cleanliness: 0,
+    services: 0,
+    comfort: 0,
+    location: 0,
+  });
+  const [submitted, setSubmitted] = useState(false);
+  const createMutation = useCreateReviewMutation();
+
+  const categories = [
+    { key: "facilities" as const, label: "Facilities" },
+    { key: "cleanliness" as const, label: "Cleanliness" },
+    { key: "services" as const, label: "Services" },
+    { key: "comfort" as const, label: "Comfort" },
+    { key: "location" as const, label: "Location" },
+  ];
+
+  const filledCategories = Object.values(breakdown).filter((v) => v > 0);
+  const overallRating = filledCategories.length > 0
+    ? Math.round((filledCategories.reduce((a, b) => a + b, 0) / filledCategories.length) * 10) / 10
+    : 0;
+
+  const handleSubmit = () => {
+    const allFilled = Object.values(breakdown).every((v) => v > 0);
+    if (!allFilled) {
+      toast.error("Please rate all 5 categories");
+      return;
+    }
+    if (!comment.trim()) {
+      toast.error("Please write a comment");
+      return;
+    }
+
+    createMutation.mutate(
+      {
+        bookingId,
+        rating: Math.round(overallRating),
+        comment: comment.trim(),
+        breakdown,
+      } as any,
+      {
+        onSuccess: () => {
+          toast.success("Review submitted successfully!");
+          setDialogOpen(false);
+          setSubmitted(true);
+        },
+        onError: (err: any) => {
+          const msg = err?.response?.data?.message || "Failed to submit review";
+          if (msg.includes("already submitted")) {
+            setSubmitted(true);
+            setDialogOpen(false);
+          }
+          toast.error(msg);
+        },
+      }
+    );
+  };
+
+  if (submitted) {
+    return (
+      <div className="rounded-xl bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800 p-4 flex items-center gap-3">
+        <div className="h-10 w-10 rounded-full bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center shrink-0">
+          <Star className="h-5 w-5 fill-emerald-500 text-emerald-500" />
+        </div>
+        <div>
+          <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">Thank you for your review!</p>
+          <p className="text-xs text-emerald-600/70 dark:text-emerald-500/70">Your feedback helps other travelers</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 border border-amber-200 dark:border-amber-800 p-4 md:p-5">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center shrink-0">
+            <Star className="h-5 w-5 fill-amber-500 text-amber-500" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">How was your stay?</p>
+            <p className="text-xs text-amber-600/80 dark:text-amber-500/70">Share your experience across all amenities</p>
+          </div>
+        </div>
+
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <DialogTrigger asChild>
+            <Button size="sm" className="bg-amber-600 hover:bg-amber-700 text-white gap-1.5 self-stretch sm:self-auto">
+              <Star className="h-4 w-4 fill-white" />
+              Write a Review
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Write a Review</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-5 py-2">
+              <p className="text-sm font-medium text-muted-foreground">
+                For: <span className="text-foreground font-semibold">{hotelName || "Your Stay"}</span>
+              </p>
+
+              {/* Category Ratings */}
+              <div className="space-y-3">
+                <label className="text-sm font-semibold">Rate each category</label>
+                {categories.map(({ key, label }) => (
+                  <div key={key} className="flex items-center justify-between gap-3">
+                    <span className="text-sm text-muted-foreground font-medium w-24 shrink-0">{label}</span>
+                    <div className="flex gap-1">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          key={star}
+                          type="button"
+                          className="transition-transform hover:scale-110"
+                          onClick={() => setBreakdown((prev) => ({ ...prev, [key]: star }))}
+                        >
+                          <Star
+                            className={`h-6 w-6 ${
+                              star <= breakdown[key]
+                                ? "fill-yellow-400 text-yellow-400"
+                                : "fill-muted/20 text-muted-foreground/30"
+                            } transition-colors`}
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Overall Rating Display */}
+              {overallRating > 0 && (
+                <div className="flex items-center gap-3 p-3 bg-amber-50 dark:bg-amber-950/30 rounded-lg border border-amber-200 dark:border-amber-800">
+                  <div className="h-10 w-10 rounded-full bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center">
+                    <span className="text-sm font-bold text-amber-700 dark:text-amber-400">{overallRating.toFixed(1)}</span>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-foreground">Overall Rating</p>
+                    <p className="text-[10px] text-muted-foreground">Average of all 5 categories</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Comment */}
+              <div className="space-y-2">
+                <label className="text-sm font-semibold">Your Review</label>
+                <Textarea
+                  placeholder="Tell us about your experience..."
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  className="min-h-[100px] resize-none"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2">
+                <DialogClose asChild>
+                  <Button variant="outline" size="sm">
+                    Cancel
+                  </Button>
+                </DialogClose>
+                <Button
+                  size="sm"
+                  className="bg-amber-600 hover:bg-amber-700"
+                  onClick={handleSubmit}
+                  disabled={createMutation.isPending}
+                >
+                  {createMutation.isPending ? "Submitting..." : "Submit Review"}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

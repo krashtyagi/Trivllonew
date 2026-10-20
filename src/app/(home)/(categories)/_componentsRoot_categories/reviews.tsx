@@ -69,15 +69,21 @@ const ReviewsMain = ({ companyId, CompanyType }: ReviewsMainProps) => {
             </CardHeader>
 
             <CardContent className="space-y-10 px-0 pt-4">
-                <ReviewsRanges comments={comments} averageRating={averageRating} />
+                <ReviewsRanges comments={comments} averageRating={averageRating} breakdown={summary.breakdown} />
                 <ReviewsComments comments={comments} />
             </CardContent>
         </Card>
     );
 };
 
-export const ReviewsRanges = ({ comments = [], averageRating = 0.0 }: { comments: any[]; averageRating: number }) => {
-    const categories = ["Cleanliness", "Communication", "Location", "Value"];
+export const ReviewsRanges = ({ comments = [], averageRating = 0.0, breakdown }: { comments: any[]; averageRating: number; breakdown?: any }) => {
+    const categories = [
+        { key: "facilities", label: "Facilities" },
+        { key: "cleanliness", label: "Cleanliness" },
+        { key: "services", label: "Services" },
+        { key: "comfort", label: "Comfort" },
+        { key: "location", label: "Location" },
+    ];
 
     // Count star distributions (5, 4, 3, 2, 1)
     const starCounts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
@@ -88,13 +94,6 @@ export const ReviewsRanges = ({ comments = [], averageRating = 0.0 }: { comments
             starCounts[r]++;
         }
     });
-
-    const averages = {
-        Cleanliness: averageRating ? averageRating.toFixed(1) : "0.0",
-        Communication: averageRating ? averageRating.toFixed(1) : "0.0",
-        Location: averageRating ? averageRating.toFixed(1) : "0.0",
-        Value: averageRating ? averageRating.toFixed(1) : "0.0",
-    };
 
     const totalCount = comments.length || 1; // avoid division by zero
 
@@ -120,13 +119,16 @@ export const ReviewsRanges = ({ comments = [], averageRating = 0.0 }: { comments
             <Separator orientation="vertical" className="h-32 hidden lg:block" />
 
             <div className="w-full overflow-x-auto no-scrollbar pb-2">
-                <div className="flex lg:grid lg:grid-cols-2 xl:grid-cols-4 gap-4">
-                    {categories.map((item) => (
-                        <div key={item} className="flex flex-col items-center lg:items-start p-3 bg-muted/30 rounded-xl min-w-[120px] lg:min-w-0">
-                            <span className="text-[11px] uppercase tracking-wider font-bold text-muted-foreground">{item}</span>
-                            <span className="text-lg font-bold">{averages[item as keyof typeof averages] || "0.0"}</span>
-                        </div>
-                    ))}
+                <div className="flex lg:grid lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                    {categories.map((item) => {
+                        const score = breakdown?.[item.key] || 0;
+                        return (
+                            <div key={item.key} className="flex flex-col items-center lg:items-start p-3 bg-muted/30 rounded-xl min-w-[120px] lg:min-w-0">
+                                <span className="text-[11px] uppercase tracking-wider font-bold text-muted-foreground">{item.label}</span>
+                                <span className="text-lg font-bold">{score > 0 ? score.toFixed(1) : "—"}</span>
+                            </div>
+                        );
+                    })}
                 </div>
             </div>
         </div>
@@ -196,6 +198,31 @@ const ReviewCard = ({ comment }: { comment: any }) => {
                 <p className="text-sm text-zinc-600 leading-relaxed line-clamp-4">
                     {comment.comment || "No comment left."}
                 </p>
+
+                {comment.breakdown && (
+                    <div className="grid grid-cols-5 gap-1 py-1.5 px-2 bg-muted/40 rounded-lg text-center text-xs">
+                        <div>
+                            <span className="block text-[9px] text-muted-foreground">Facilities</span>
+                            <span className="font-semibold text-xs">{comment.breakdown.facilities || "—"}</span>
+                        </div>
+                        <div>
+                            <span className="block text-[9px] text-muted-foreground">Clean</span>
+                            <span className="font-semibold text-xs">{comment.breakdown.cleanliness || "—"}</span>
+                        </div>
+                        <div>
+                            <span className="block text-[9px] text-muted-foreground">Services</span>
+                            <span className="font-semibold text-xs">{comment.breakdown.services || "—"}</span>
+                        </div>
+                        <div>
+                            <span className="block text-[9px] text-muted-foreground">Comfort</span>
+                            <span className="font-semibold text-xs">{comment.breakdown.comfort || "—"}</span>
+                        </div>
+                        <div>
+                            <span className="block text-[9px] text-muted-foreground">Location</span>
+                            <span className="font-semibold text-xs">{comment.breakdown.location || "—"}</span>
+                        </div>
+                    </div>
+                )}
 
                 {comment.vendorReply?.message && (
                     <div className="mt-2 pl-3 border-l-2 border-primary/40 bg-zinc-50/50 p-2.5 rounded-r-xl space-y-1">

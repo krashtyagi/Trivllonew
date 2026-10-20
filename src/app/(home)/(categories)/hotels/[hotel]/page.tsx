@@ -1,4 +1,3 @@
-
 "use client";
 
 import { cn } from "@/lib/utils";
@@ -10,9 +9,7 @@ import { useParams } from "next/navigation";
 import HotelItems from "./_components/HotelItems";
 import { useHotelStore } from "@/store/hotel.store";
 import { HotelPageSkeleton, Skeleton } from "@/components/ui/skeleton";
-import {
-  useHotelDetailsQuery,
-} from "@/services/hotel/querys";
+import { useHotelDetailsQuery } from "@/services/hotel/querys";
 import HotelContextProvider from "./_providers_context/hotel-contextProvider";
 import { MessageModal } from "@/components/messagemodal";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -21,10 +18,13 @@ const HotelDetails = () => {
   const { date, guests } = useHotelStore();
   const isBookingMode = !!date?.from && !!date?.to;
   const ismobile = useIsMobile();
-  localStorage.removeItem("nextRoute")
-  localStorage.removeItem("like")
 
   React.useEffect(() => {
+    try {
+      localStorage.removeItem("nextRoute");
+      localStorage.removeItem("like");
+    } catch {}
+
     if (typeof window !== "undefined" && !(window as any).__hasLoadedApp) {
       useHotelStore.getState().setDate(undefined);
     }
@@ -36,9 +36,7 @@ const HotelDetails = () => {
     ? hotelIdParam[0]
     : hotelIdParam || "";
 
-  const { data: hotelDetailsData } =
-    useHotelDetailsQuery(hotelId);
-
+  const { data: hotelDetailsData } = useHotelDetailsQuery(hotelId);
 
   if (!hotelDetailsData || !hotelDetailsData.name) {
     return (
@@ -49,13 +47,13 @@ const HotelDetails = () => {
     );
   }
 
-
-
-
-
   return (
     <div className="w-full">
-      <ErrorBoundary fallback={<MessageModal title="Error" description="Something went wrong" />}>
+      <ErrorBoundary
+        fallback={
+          <MessageModal title="Error" description="Something went wrong" />
+        }
+      >
         <Suspense fallback={<HotelPageSkeleton />}>
           <ScrollToTop />
           <HotelContextProvider hotelId={hotelId}>
@@ -70,7 +68,5 @@ const HotelDetails = () => {
     </div>
   );
 };
-
-
 
 export default HotelDetails;
