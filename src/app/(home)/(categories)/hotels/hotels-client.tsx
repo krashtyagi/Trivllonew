@@ -30,12 +30,12 @@ export type hoteldata = {
   _id: string;
   name: string;
   city: string;
+  country: string;
   image: string;
   startingPrice?: number | null;
   rating?: number;
   numReviews?: number;
   amenities?: string[];
-  images?: string[];
 };
 
 export default function HotelsClientPage({ className }: HotelFramePageProps) {

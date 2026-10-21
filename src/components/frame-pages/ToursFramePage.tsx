@@ -629,16 +629,30 @@ const MainFramePage = ({
       const cityCompanies = companiesByCity[city] || [];
       const items: Item[] = cityCompanies.map((comp) => {
         const logoImg =
+          comp.thumbnail ||
+          comp.image ||
           comp.logo ||
           (comp.images && comp.images[0]?.url) ||
+          (typeof comp.images?.[0] === "string" ? comp.images[0] : null) ||
           `https://api.dicebear.com/10.x/initials/svg?seed=${encodeURIComponent(comp.name)}`;
+
+        const ratingVal =
+          typeof (comp as any).rating?.average === "number"
+            ? (comp as any).rating.average
+            : typeof (comp as any).rating === "number"
+              ? (comp as any).rating
+              : 0;
+        const reviewsCountVal =
+          typeof (comp as any).numReviews === "number"
+            ? (comp as any).numReviews
+            : ((comp as any).rating?.count ?? 0);
 
         return {
           title: comp.name,
           location: `${city}, India`,
           price: comp.startingPrice || 999,
-          rating: (comp as any).rating?.average || 4.8,
-          numReviews: (comp as any).rating?.count || 140,
+          rating: ratingVal,
+          numReviews: reviewsCountVal,
           amenities: (comp as any).features?.length
             ? (comp as any).features.slice(0, 3)
             : ["Guided Tour", "Safety Gear", "Expert Guides"],
@@ -662,16 +676,30 @@ const MainFramePage = ({
     if (!companies || companies.length === 0) return null;
     const items: Item[] = companies.map((comp) => {
       const logoImg =
+        comp.thumbnail ||
+        comp.image ||
         comp.logo ||
         (comp.images && comp.images[0]?.url) ||
+        (typeof comp.images?.[0] === "string" ? comp.images[0] : null) ||
         `https://api.dicebear.com/10.x/initials/svg?seed=${encodeURIComponent(comp.name)}`;
+
+      const ratingVal =
+        typeof (comp as any).rating?.average === "number"
+          ? (comp as any).rating.average
+          : typeof (comp as any).rating === "number"
+            ? (comp as any).rating
+            : 0;
+      const reviewsCountVal =
+        typeof (comp as any).numReviews === "number"
+          ? (comp as any).numReviews
+          : ((comp as any).rating?.count ?? 0);
 
       return {
         title: comp.name,
         location: `${comp.city || comp.location?.city || "India"}`,
         price: comp.startingPrice || 1499,
-        rating: (comp as any).rating?.average || 4.9,
-        numReviews: (comp as any).rating?.count || 185,
+        rating: ratingVal,
+        numReviews: reviewsCountVal,
         amenities: (comp as any).features?.length
           ? (comp as any).features.slice(0, 3)
           : ["Guided Tour", "Safety Gear", "Expert Guides"],

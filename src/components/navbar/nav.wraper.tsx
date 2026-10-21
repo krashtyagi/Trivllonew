@@ -133,7 +133,7 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
           isMobile ? "h-14 px-3" : "h-16 px-3 md:px-6",
         )}
       >
-        <div className="w-full max-w-7xl mx-auto flex items-center justify-between h-full gap-2 sm:gap-4">
+        <div className="w-full max-w-full mx-auto flex items-center justify-between h-full gap-2 sm:gap-4">
           <LOGO />
           <div className="hidden md:flex items-center justify-center flex-1 mx-2 lg:mx-4 min-w-0">
             {shouldShowNavbar ? (
@@ -148,13 +148,8 @@ const NavWrapper = ({ children }: { children: React.ReactNode }) => {
         </div>
       </div>
 
-      <main
-        className={cn(
-          "flex-1 bg-card relative",
-        )}
-      >
+      <main className={cn("flex-1 bg-card relative")}>
         <div className="relative z-10">
-
           {/* {!shouldShowNavbar && (
             <div className="mb-3 ">
               <FilterBarLayout pages={pages} />

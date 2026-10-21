@@ -269,7 +269,7 @@ export const RoomCardItem = ({
       imageUrl={
         typeof room.images?.[0] === "string"
           ? room.images[0]
-          : room.images?.[0]?.url || "/hotels/img1.png"
+          : (room.images?.[0] as any)?.url || "/hotels/img1.png"
       }
       roomImages={room.images}
       originalPrice={originalPrice}

@@ -87,7 +87,7 @@ const TourServicesDetails = ({
 }: TourServicesDetailsProps) => {
   // const { availabilityLoading } = useBikeDetailsContext();
   return (
-    <div className="flex flex-col gap-6 w-full md:py-8">
+    <div className="flex flex-col gap-6 w-full py-4 md:py-8">
       <div className="flex flex-col gap-4 px-4 md:px-10 max-w-screen-2xl mx-auto w-full">
 
         <div className="flex justify-between items-start gap-4">

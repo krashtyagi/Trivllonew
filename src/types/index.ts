@@ -6,12 +6,14 @@ export interface Tabs {
   value?: string;
   content?: string | React.ReactNode;
 }
-export interface HotelImage {
+/** Hotel / Tour images can be plain optimized URL strings or objects with url */
+export type HotelImage = string | {
   url: string;
-  public_id: string;
+  public_id?: string;
   resource_type?: string;
   _id?: string;
-}
+  [key: string]: any;
+};
 
 export interface RoomType {
   _id: string;
@@ -38,7 +40,7 @@ export interface RoomType {
   roomSizeSqm: number;
   viewType: string;
   amenities: string[];
-  images: (string | { url: string })[];
+  images: string[];
   totalRooms: number;
   isActive: boolean;
   availableRooms: number;
@@ -73,35 +75,21 @@ export interface HotelAddress {
 }
 
 export interface Hotel {
-  thumbnail?: string;
   _id: string;
-  vendorId?: string;
   name: string;
   description: string;
   address: string | HotelAddress;
   city: string;
-  guests: {
-    adults: number;
-    children: number;
-  };
-  date: {
-    from: string;
-    to: string;
-  };
   location: {
     type: string;
     coordinates: [number, number];
   };
+  thumbnail?: string;
   images: HotelImage[];
   amenities: string[];
   rating: number;
   numReviews: number;
-  isFeatured: boolean;
-  isActive?: boolean;
-  distanceFromCenter?: string;
   roomTypes: RoomType[];
-  createdAt?: string;
-  updatedAt?: string;
   isFavorite: boolean;
 }
 

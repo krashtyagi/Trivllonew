@@ -19,6 +19,7 @@ import {
   Crown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useQueryClient } from "@tanstack/react-query";
 import { useGetRankedHotels } from "@/services/hotel/querys";
 import { useGetRankedTourCompanies } from "@/services/tours/tours.queries";
 import { RouterPush } from "../RouterPush";
@@ -101,6 +102,35 @@ const SlideCard = ({
   const description =
     item.description ||
     `Experience royal comfort with modern luxury in the heart of ${city}.`;
+
+  const queryClient = useQueryClient();
+
+  const handlePrefetch = useCallback(() => {
+    if (!item._id) return;
+    if (linkPrefix.includes("tour")) {
+      queryClient.prefetchQuery({
+        queryKey: ["getTourDetails", item._id],
+        queryFn: async () => {
+          const { axiosApi } = await import("@/lib/axios");
+          const res = await axiosApi.get(`/tour-services/company/${item._id}`);
+          return res.data;
+        },
+        staleTime: 5 * 60 * 1000,
+      });
+    } else {
+      queryClient.prefetchQuery({
+        queryKey: ["hotel_details", item._id],
+        queryFn: async () => {
+          const { getHotelDetails } = await import(
+            "@/services/hotel/hotel.service"
+          );
+          return getHotelDetails(item._id);
+        },
+        staleTime: 5 * 60 * 1000,
+      });
+    }
+    router.prefetch(`${linkPrefix}/${item._id}`);
+  }, [item._id, linkPrefix, queryClient, router]);
 
   return (
     <div className="relative w-full h-full overflow-hidden rounded-3xl bg-zinc-950 group/card">
@@ -187,7 +217,13 @@ const SlideCard = ({
         <motion.button
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.97 }}
-          onClick={() => RouterPush(router, `${linkPrefix}/${item._id}`)}
+          onMouseEnter={handlePrefetch}
+          onPointerDown={handlePrefetch}
+          onFocus={handlePrefetch}
+          onClick={() => {
+            handlePrefetch();
+            RouterPush(router, `${linkPrefix}/${item._id}`);
+          }}
           className="group relative inline-flex items-center gap-2 px-7 py-3 rounded-full bg-gradient-to-r from-[#ffd369] via-[#f7b733] to-[#e89b27] hover:brightness-105 active:scale-95 text-stone-950 font-bold text-xs sm:text-sm shadow-xl shadow-amber-500/20 transition-all cursor-pointer"
         >
           <span>Explore Details</span>
@@ -204,6 +240,10 @@ export default function RankedBanner({ rank, entityType }: RankedBannerProps) {
   const linkPrefix = isHotel ? "/hotels" : "/tours";
   const rankConfig = RANK_CONFIG[rank];
 
+  const containerRef = useRef<HTMLDivElement>(null);
+  // Viewport lazy loading: only triggers TanStack Query when scrolled within 300px
+  const isInView = useInView(containerRef, { once: true, margin: "300px 0px" });
+
   const hotelQuery = useGetRankedHotels(isHotel ? rank : "");
   const tourQuery = useGetRankedTourCompanies(isHotel ? "" : rank);
   const query = isHotel ? hotelQuery : tourQuery;
@@ -218,8 +258,6 @@ export default function RankedBanner({ rank, entityType }: RankedBannerProps) {
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const isInView = useInView(containerRef, { once: true, margin: "-50px" });
 
   const effectiveLength = allItems.length;
 

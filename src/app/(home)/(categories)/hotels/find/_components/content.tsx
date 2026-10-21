@@ -215,7 +215,7 @@ export const Content = ({ className }: { className: string }) => {
             hotel.thumbnail.length > 0
               ? hotel.thumbnail
               : (hotel as any).hotelImages?.[0]?.url ||
-                hotel.images?.[0]?.url ||
+                (typeof hotel.images?.[0] === "string" ? hotel.images[0] : (hotel.images?.[0] as any)?.url) ||
                 "/hotels/hotel-temp.png";
 
           return (

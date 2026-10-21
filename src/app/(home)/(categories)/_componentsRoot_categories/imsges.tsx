@@ -5,7 +5,7 @@ import { HotelImage } from "@/types";
 import React, { Suspense } from "react";
 
 
-export function LayoutGridDemo({ images: imagelist, v = "default" }: { images: HotelImage[], v?: "base4" | "default" }) {
+export function LayoutGridDemo({ images: imagelist, v = "default" }: { images?: (HotelImage | any)[], v?: "base4" | "default" }) {
   if (!imagelist || imagelist.length === 0) {
     return (
       <div className="w-full py-8 text-center text-muted-foreground">
@@ -15,7 +15,7 @@ export function LayoutGridDemo({ images: imagelist, v = "default" }: { images: H
   }
 
   const imageUrls = imagelist
-    ?.map((img) => img?.url)
+    ?.map((img) => (typeof img === "string" ? img : (img as any)?.url))
     ?.filter(Boolean);
 
   const featuredImage = imageUrls[0];

@@ -19,6 +19,8 @@ export type TourCompanyItem = {
   };
   city?: string;
   address?: string;
+  thumbnail?: string;
+  image?: string;
   logo?: string;
   images?: { url: string; public_id?: string; resource_type?: string }[];
   description?: string;
