@@ -77,7 +77,7 @@ const MainFramePage = ({ className, type, popularTrends }: HotelFramePageProps) 
         id: hotel._id,
         _id: hotel._id,
         title: hotel.name,
-        location: `${hotel.city}, India`,
+        location: `${hotel.city}, ${hotel.country || 'India'}`,
         image: hotel.image,
         href: `/hotels/${hotel._id}`,
         price: hotel.startingPrice ?? null,

@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import React, { Suspense, useEffect } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { ScrollToTop } from "../../../../../../scrolltoto";
-import { useParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 
 import HotelItems from "./_components/HotelItems";
 import { useHotelStore } from "@/store/hotel.store";
@@ -18,6 +18,8 @@ const HotelDetails = () => {
   const { date, guests } = useHotelStore();
   const isBookingMode = !!date?.from && !!date?.to;
   const ismobile = useIsMobile();
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   React.useEffect(() => {
     try {
@@ -35,6 +37,19 @@ const HotelDetails = () => {
   const hotelId = Array.isArray(hotelIdParam)
     ? hotelIdParam[0]
     : hotelIdParam || "";
+
+  React.useEffect(() => {
+    if (hotelId) {
+      if (
+        searchParams.get("amenities") === "true" ||
+        searchParams.get("features") === "true"
+      ) {
+        router.replace(`/hotels/${hotelId}/amenities`);
+      } else if (searchParams.get("description") === "true") {
+        router.replace(`/hotels/${hotelId}/description`);
+      }
+    }
+  }, [searchParams, hotelId, router]);
 
   const { data: hotelDetailsData } = useHotelDetailsQuery(hotelId);
 

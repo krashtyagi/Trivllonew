@@ -2,6 +2,8 @@
 
 import { cn } from '@/lib/utils';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import Link from 'next/link';
+import { useQueryClient } from '@tanstack/react-query';
 import { MapContainer, Marker, TileLayer, useMap, Circle, Popup, ZoomControl } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
@@ -331,6 +333,21 @@ const HotelMarker = ({
   const targetHref =
     hotel.href || (hotel._id || hotel.id ? `/hotels/${hotel._id || hotel.id}` : undefined);
 
+  const queryClient = useQueryClient();
+  const hotelId = (hotel._id || hotel.id)?.toString();
+
+  const handlePrefetch = useCallback(() => {
+    if (!hotelId) return;
+    queryClient.prefetchQuery({
+      queryKey: ["hotel_details", hotelId],
+      queryFn: async () => {
+        const { getHotelDetails } = await import("@/services/hotel/hotel.service");
+        return getHotelDetails(hotelId);
+      },
+      staleTime: 5 * 60 * 1000,
+    });
+  }, [hotelId, queryClient]);
+
   return (
     <Marker
       ref={markerRef}
@@ -398,12 +415,15 @@ const HotelMarker = ({
           </div>
 
           {targetHref && (
-            <a
+            <Link
               href={targetHref}
+              onMouseEnter={handlePrefetch}
+              onPointerDown={handlePrefetch}
+              onClick={handlePrefetch}
               className="mt-1.5 flex items-center justify-center w-full h-6 bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-zinc-100 dark:hover:bg-zinc-200 dark:text-zinc-900 rounded-md text-[10px] font-medium transition-colors"
             >
               View Details
-            </a>
+            </Link>
           )}
         </div>
       </Popup>

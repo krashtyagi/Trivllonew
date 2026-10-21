@@ -34,8 +34,6 @@ import { cn } from "@/lib/utils";
 import { Decription } from "../../../_componentsRoot_categories/description";
 import { LayoutGridDemo } from "../../../_componentsRoot_categories/imsges";
 import { useTranslation } from "@/hooks/useTranslation";
-import { HotelDescription } from "./HotelDescription";
-import { HotelAmenities } from "./HotelAmenities";
 import { useScrollDirection } from "@/hooks/useScrollDirection";
 
 type TabKey =
@@ -67,11 +65,13 @@ export function TabsLine({
   const content: Record<TabKey, React.ReactNode> = {
     overview: <LayoutGridDemo images={hotel.images} />,
     description: (
-      <HotelDescription
-        hotelName={hotel.name}
-        description={hotel.description}
-        city={hotel.city}
-        address={formatAddress(hotel.address)}
+      <Decription
+        data={{
+          name: hotel.name,
+          description: hotel.description,
+          city: hotel.city,
+          address: formatAddress(hotel.address),
+        }}
       />
     ),
     location: (
@@ -82,7 +82,7 @@ export function TabsLine({
       />
     ),
     amenities: (
-      <HotelAmenities
+      <AmenitiesValues
         amenities={hotel.amenities}
         hotelName={hotel.name}
         title={t("hotel.amenities")}

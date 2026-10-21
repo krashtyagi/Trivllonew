@@ -28,7 +28,7 @@ import {
   Building2,
   Hotel,
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useInView } from "framer-motion";
 import Image, { StaticImageData } from "next/image";
 import { useRouter } from "next/navigation";
 import { RouterPush } from "../RouterPush";
@@ -105,6 +105,8 @@ export const OnlyCarousel = ({
 }: Props) => {
   const router = useRouter();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const isInView = useInView(sectionRef, { once: true, margin: "350px 0px" });
   const [canLeft, setCanLeft] = useState(false);
   const [canRight, setCanRight] = useState(false);
   const { setCity: setHotelCity } = useHotelStore();
@@ -160,7 +162,10 @@ export const OnlyCarousel = ({
   if (!isLoading && items.length === 0) return null;
 
   return (
-    <div className="relative group bg-transparent max-w-screen">
+    <div
+      ref={sectionRef}
+      className="relative group bg-transparent max-w-screen"
+    >
       {/* Header row */}
       <div className="mb-2 sm:mb-3.5 flex items-center justify-between px-2 md:px-0">
         <div>
@@ -296,7 +301,10 @@ const Card = React.memo(
     };
 
     const getInitialLiked = () => {
-      if (typeof window !== "undefined" && !localStorage.getItem(userAccessToken)) {
+      if (
+        typeof window !== "undefined" &&
+        !localStorage.getItem(userAccessToken)
+      ) {
         return false;
       }
       return Boolean(item.isFavorite);
@@ -406,9 +414,47 @@ const Card = React.memo(
       }
     };
 
+    const handlePrefetch = useCallback(() => {
+      if (!targetId) return;
+
+      if (type === "tours") {
+        queryClient.prefetchQuery({
+          queryKey: ["getTourDetails", targetId],
+          queryFn: async () => {
+            const { axiosApi } = await import("@/lib/axios");
+            const res = await axiosApi.get(
+              `/tour-services/company/${targetId}`,
+            );
+            return res.data;
+          },
+          staleTime: 5 * 60 * 1000,
+        });
+      } else {
+        queryClient.prefetchQuery({
+          queryKey: ["hotel_details", targetId],
+          queryFn: async () => {
+            const { getHotelDetails } =
+              await import("@/services/hotel/hotel.service");
+            return getHotelDetails(targetId);
+          },
+          staleTime: 5 * 60 * 1000,
+        });
+      }
+
+      if (item.href) {
+        router.prefetch(item.href);
+      }
+    }, [targetId, type, item.href, queryClient, router]);
+
     return (
       <div
-        onClick={onClick}
+        onClick={() => {
+          handlePrefetch();
+          onClick();
+        }}
+        // onMouseEnter={handlePrefetch}
+        // onPointerDown={handlePrefetch}
+        // onFocus={handlePrefetch}
         className="w-[205px] sm:w-[245px] md:w-[265px] flex-none snap-start cursor-pointer group/card flex flex-col rounded-2xl bg-card border border-border/70 hover:shadow-xl hover:border-emerald-600/40 transition-all duration-300 overflow-hidden"
       >
         {/* Image container */}
@@ -592,7 +638,7 @@ export function MoreStaysCard({
       ([entry]) => {
         setIsInView(entry.isIntersecting);
       },
-      { rootMargin: "100px" }
+      { rootMargin: "100px" },
     );
 
     observer.observe(el);
@@ -689,7 +735,10 @@ export function MoreStaysCard({
             className="absolute inset-0"
           >
             <Image
-              src={optimizeCloudinaryUrl(activeBgPhoto, IMAGE_PRESETS.cardBackground)}
+              src={optimizeCloudinaryUrl(
+                activeBgPhoto,
+                IMAGE_PRESETS.cardBackground,
+              )}
               alt="Stay background"
               fill
               loading="lazy"

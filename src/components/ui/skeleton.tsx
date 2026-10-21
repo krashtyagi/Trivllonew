@@ -14,9 +14,9 @@ function Skeleton({ className, ...props }: React.ComponentProps<"div">) {
 }
 export function HotelPageSkeleton() {
   return (
-    <div className="flex flex-col gap-6 w-full md:py-8 px-4 md:px-0">
+    <div className="flex flex-col gap-6 w-full py-4 md:py-8">
       {/* Top Header Section */}
-      <div className="flex flex-col gap-4 md:px-10">
+      <div className="flex flex-col gap-4 px-4 md:px-10 max-w-screen-2xl mx-auto w-full">
         <div className="flex justify-between items-start gap-4">
           <div className="flex flex-col gap-2 min-w-0 flex-1">
             <Skeleton className="h-6 sm:h-7 md:h-8 w-[80%] max-w-[600px] rounded-md" />

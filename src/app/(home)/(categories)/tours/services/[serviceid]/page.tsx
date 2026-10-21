@@ -6,6 +6,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import { HotelPageSkeleton } from "@/components/ui/skeleton";
 import { MessageModal } from "@/components/messagemodal";
 import { ScrollToTop } from "../../../../../../../scrolltoto";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useParam } from "@/services/dailyfunctions";
 import { useTourServiceDetails } from "@/services/tours/tours.queries";
 import TourServicesDetails, {
@@ -24,6 +25,8 @@ export type {
 
 const TourServiceDetailsPage = () => {
   const [isBookingMode] = React.useState(false);
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   React.useEffect(() => {
     try {
@@ -32,6 +35,19 @@ const TourServiceDetailsPage = () => {
     } catch {}
   }, []);
   const serviceId = useParam("serviceid");
+
+  React.useEffect(() => {
+    if (serviceId) {
+      if (
+        searchParams.get("amenities") === "true" ||
+        searchParams.get("features") === "true"
+      ) {
+        router.replace(`/tours/services/${serviceId}/amenities`);
+      } else if (searchParams.get("description") === "true") {
+        router.replace(`/tours/services/${serviceId}/description`);
+      }
+    }
+  }, [searchParams, serviceId, router]);
 
   const { data: tourDetailsData, isLoading } =
     useTourServiceDetails(serviceId);

@@ -89,9 +89,10 @@ export function TourDetailsCard({
   const [imgIdx, setImgIdx] = useState(0);
   const [overlayOpen, setOverlayOpen] = useState(false);
 
-  const slides = thumbnails && thumbnails.length > 0
-    ? thumbnails
-    : [{ url: t.url || "/tours/tour.png" }];
+  const tUrl = typeof t === "string" ? t : (t as any)?.url;
+  const slides: { url: string }[] = (thumbnails && thumbnails.length > 0
+    ? thumbnails.map((s: any) => (typeof s === "string" ? { url: s } : { url: s?.url || "/tours/tour.png" }))
+    : [{ url: tUrl || "/tours/tour.png" }]);
 
   const prevImg = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
@@ -131,7 +132,7 @@ export function TourDetailsCard({
   const bothDateSelected = !!date?.to && !!date?.from;
   const discountLabel = taxPercentage > 0 ? `${taxPercentage}% TAX INCL.` : "BEST PRICE";
   const router = useRouter();
-  const thumbnail = t.url || "/tours/tour.png";
+  const thumbnail = tUrl || "/tours/tour.png";
   return (
     <DetailsPageCardWrapperUI>
 

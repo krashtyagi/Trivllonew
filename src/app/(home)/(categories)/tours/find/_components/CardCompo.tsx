@@ -90,14 +90,15 @@ export const ToursCard = ({ tour, wrap, favourite }: ToursCardProps) => {
   const [imgIdx, setImgIdx] = useState(0);
   const [overlayOpen, setOverlayOpen] = useState(false);
 
-  const rawSlides = (tour.thumbnails && tour.thumbnails.length > 0 ? tour.thumbnails : (thumbnail?.url ? [{ url: thumbnail.url }] : []))
+  const thumbUrl = typeof thumbnail === "string" ? thumbnail : (thumbnail as any)?.url;
+  const rawSlides = (tour.thumbnails && tour.thumbnails.length > 0 ? tour.thumbnails : (thumbUrl ? [{ url: thumbUrl }] : []))
     .map((item: any) => (typeof item === "string" ? { url: item } : item))
     .filter((item: any) => Boolean(item?.url));
 
   const slides = rawSlides.length > 1
     ? rawSlides
     : [
-        ...(rawSlides.length > 0 ? rawSlides : [{ url: thumbnail?.url || "/tours/tour.png" }]),
+        ...(rawSlides.length > 0 ? rawSlides : [{ url: thumbUrl || "/tours/tour.png" }]),
         { url: "/adventures/ads1.jpg" },
         { url: "/adventures/ads2.jpg" },
       ];

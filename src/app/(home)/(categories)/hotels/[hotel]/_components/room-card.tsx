@@ -39,7 +39,7 @@ export interface RoomCardProps {
   taxPercentage: number;
   totalTax: number;
   totalPriceWithTax: number;
-  roomImages?: (string | { url: string })[];
+  roomImages?: string[];
 }
 import NProgress from "nprogress";
 import { RouterPush } from "@/components/RouterPush";
