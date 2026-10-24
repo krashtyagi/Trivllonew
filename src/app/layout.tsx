@@ -17,6 +17,7 @@ import {
   generateTravelAgencyJsonLd,
   DEFAULT_KEYWORDS,
 } from "@/lib/seo.config";
+import { GoogleAnalytics } from "@next/third-parties/google";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -48,8 +49,7 @@ export const metadata: Metadata = {
     template: `%s | ${trivlloData.company_name}`,
   },
 
-  description:
-    `${trivlloData.company_name} (trivllo.com) is India's trusted travel platform. Book premium hotels, resorts, homestays, and curated tour packages across India. Best prices, instant confirmation, and 24/7 support.`,
+  description: `${trivlloData.company_name} (trivllo.com) is India's trusted travel platform. Book premium hotels, resorts, homestays, and curated tour packages across India. Best prices, instant confirmation, and 24/7 support.`,
 
   keywords: [
     "Trivllo",
@@ -97,8 +97,7 @@ export const metadata: Metadata = {
   verification: {
     google: "mAolt6T5n34w8waxM3GpXPl6IRDs28mD-f7y7WnID7w",
     other: {
-      "facebook-domain-verification":
-        "kthtqxpp6w141r75p1d6q8y6jgsymo",
+      "facebook-domain-verification": "kthtqxpp6w141r75p1d6q8y6jgsymo",
     },
   },
 
@@ -114,11 +113,9 @@ export const metadata: Metadata = {
     url: trivlloData.contact.website,
     siteName: trivlloData.company_name,
 
-    title:
-      `${trivlloData.company_name} — Book Hotels & Tours in India | trivllo.com`,
+    title: `${trivlloData.company_name} — Book Hotels & Tours in India | trivllo.com`,
 
-    description:
-      `${trivlloData.company_name} is India's trusted platform for booking hotels, resorts, homestays, and curated tour packages. Best prices guaranteed.`,
+    description: `${trivlloData.company_name} is India's trusted platform for booking hotels, resorts, homestays, and curated tour packages. Best prices guaranteed.`,
 
     images: [
       {
@@ -133,15 +130,11 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
 
-    title:
-      `${trivlloData.company_name} — Book Hotels & Tours in India`,
+    title: `${trivlloData.company_name} — Book Hotels & Tours in India`,
 
-    description:
-      `India's trusted platform for booking hotels and curated tour packages. Best prices, instant confirmation.`,
+    description: `India's trusted platform for booking hotels and curated tour packages. Best prices, instant confirmation.`,
 
-    images: [
-      `/og-main-preview.png`,
-    ],
+    images: [`/og-main-preview.png`],
   },
 };
 
@@ -173,11 +166,9 @@ export default function RootLayout({
 
           {children}
 
-          <Toaster
-            position="bottom-left"
-            expand
-          />
+          <Toaster position="bottom-left" expand />
         </MainProvider>
+        <GoogleAnalytics gaId="G-STD90HX4DQ" />
 
         <Script
           src="https://checkout.razorpay.com/v1/checkout.js"
