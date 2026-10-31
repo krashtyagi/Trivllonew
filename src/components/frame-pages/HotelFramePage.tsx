@@ -1,14 +1,16 @@
-'use client'
+"use client";
 import { cn } from "@/lib/utils";
 import React, { useMemo } from "react";
 import { PopularDestinationCarousel } from "../carousel/tabs-carousel";
 import { useGetNewHotels } from "@/services/hotel/querys";
 import type { Item } from "../carousel/onlyColursel";
-import { hoteldata, HotelFramePageProps } from "@/app/(home)/(categories)/hotels/page";
+import {
+  hoteldata,
+  HotelFramePageProps,
+} from "@/app/(home)/(categories)/hotels/page";
 import { MapPin } from "lucide-react";
 import FrameColursals from "./frame_coloursals";
 import RankedBanner from "../addimage/RankedBanner";
-
 
 type SectionConfig = {
   tagline: string;
@@ -18,7 +20,10 @@ type SectionConfig = {
 
 const POPULAR_SECTIONS: SectionConfig[] = [
   { tagline: "Popular Stays in Manali", city: "Manali" },
+  { tagline: "Popular Stays in Shimla", city: "Shimla" },
+  { tagline: "Popular Stays in Srinagar", city: "Srinagar" },
   { tagline: "Luxury in Indore", city: "Indore" },
+
   { tagline: "Popular Homes In South Goa", city: "Goa" },
   { tagline: "Best in Delhi", city: "Delhi" },
   { tagline: "Popular Stays In Bengaluru", city: "Bengaluru" },
@@ -29,10 +34,9 @@ const POPULAR_SECTIONS: SectionConfig[] = [
   { tagline: "Villas & Resorts in Udaipur", city: "Udaipur" },
   { tagline: "Stays in Jaipur", city: "Jaipur" },
   { tagline: "Luxury Rentals in Lonavala", city: "Lonavala" },
-  
+
   { tagline: "Heritage Homes in Mysore", city: "Mysore" },
   { tagline: "Coastal Villas in Kochi", city: "Kochi" },
-  { tagline: "Stays in Shimla", city: "Shimla" },
   { tagline: "Hospitality Hub of Hyderabad", city: "Hyderabad" },
   { tagline: "Beachfront Stays in Pondicherry", city: "Pondicherry" },
   { tagline: "Villas in Alibaug", city: "Alibaug" },
@@ -45,20 +49,27 @@ const BANNER_POSITIONS: Record<number, "A" | "B" | "C"> = {
   8: "C",
 };
 
-const MainFramePage = ({ className, type, popularTrends }: HotelFramePageProps) => {
+const MainFramePage = ({
+  className,
+  type,
+  popularTrends,
+}: HotelFramePageProps) => {
   const { data, isLoading, error } = useGetNewHotels();
 
   const groupedByCity = useMemo(() => {
     if (!data?.data) return {};
 
-    return data.data.reduce((acc: Record<string, hoteldata[]>, hotel: hoteldata) => {
-      const city = hotel.city?.trim();
-      if (!city) return acc;
-      const key = city.toLowerCase();
-      acc[key] = acc[key] || [];
-      acc[key].push(hotel);
-      return acc;
-    }, {} as Record<string, hoteldata[]>);
+    return data.data.reduce(
+      (acc: Record<string, hoteldata[]>, hotel: hoteldata) => {
+        const city = hotel.city?.trim();
+        if (!city) return acc;
+        const key = city.toLowerCase();
+        acc[key] = acc[key] || [];
+        acc[key].push(hotel);
+        return acc;
+      },
+      {} as Record<string, hoteldata[]>,
+    );
   }, [data?.data]);
 
   const activeSectionsWithItems = useMemo(() => {
@@ -72,20 +83,24 @@ const MainFramePage = ({ className, type, popularTrends }: HotelFramePageProps) 
 
     return POPULAR_SECTIONS.map((section) => {
       const hotelsInCity = groupedByCity[section.city.toLowerCase()] || [];
-      const sliced = section.limit ? hotelsInCity.slice(0, section.limit) : hotelsInCity;
-      const items: Item[] = sliced.map((hotel: hoteldata): Item => ({
-        id: hotel._id,
-        _id: hotel._id,
-        title: hotel.name,
-        location: `${hotel.city}, ${hotel.country || 'India'}`,
-        image: hotel.image,
-        href: `/hotels/${hotel._id}`,
-        price: hotel.startingPrice ?? null,
-        rating: (hotel as any).rating,
-        numReviews: (hotel as any).numReviews,
-        amenities: (hotel as any).amenities,
-        isFavorite: (hotel as any).isFavorite,
-      }));
+      const sliced = section.limit
+        ? hotelsInCity.slice(0, section.limit)
+        : hotelsInCity;
+      const items: Item[] = sliced.map(
+        (hotel: hoteldata): Item => ({
+          id: hotel._id,
+          _id: hotel._id,
+          title: hotel.name,
+          location: `${hotel.city}, ${hotel.country || "India"}`,
+          image: hotel.image,
+          href: `/hotels/${hotel._id}`,
+          price: hotel.startingPrice ?? null,
+          rating: (hotel as any).rating,
+          numReviews: (hotel as any).numReviews,
+          amenities: (hotel as any).amenities,
+          isFavorite: (hotel as any).isFavorite,
+        }),
+      );
       return { section, items };
     }).filter(({ items }) => items.length > 0);
   }, [isLoading, groupedByCity]);
@@ -120,7 +135,9 @@ const MainFramePage = ({ className, type, popularTrends }: HotelFramePageProps) 
       )}
 
       {error && (
-        <p className="text-red-500 text-center">Failed to load hotels: {error.message}</p>
+        <p className="text-red-500 text-center">
+          Failed to load hotels: {error.message}
+        </p>
       )}
     </FrameColursals>
   );
