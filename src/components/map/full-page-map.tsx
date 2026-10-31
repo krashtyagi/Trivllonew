@@ -246,6 +246,7 @@ export const FullPageMapView = () => {
           showRadius={showRadius && mode === "nearby"}
           radiusMeters={selectedRadius}
           zoom={mode === "nearby" ? 14 : 12}
+          cooperativeGestures={false}
         />
       </div>
     </div>

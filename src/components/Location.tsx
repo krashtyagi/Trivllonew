@@ -55,6 +55,7 @@ const MapLocation = ({ address, cordinates }: LocationProps) => {
                       height="100%"
                       width="100%"
                       showRouting={showRouting}
+                      cooperativeGestures={false}
                     />
 
                     <div className="absolute bottom-8 left-1/2 -translate-x-1/2 md:left-auto md:translate-x-0 md:right-8 z-[1000]">

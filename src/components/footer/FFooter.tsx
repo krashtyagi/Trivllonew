@@ -2,7 +2,18 @@
 
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
+import { motion, type Variants } from "framer-motion";
 import trivlloData from "@/../trivllo.json";
+
+const wordmarkVariants: Variants = {
+  hidden: { opacity: 0, y: 35, filter: "blur(10px)" },
+  visible: {
+    opacity: 1,
+    y: 0,
+    filter: "blur(0px)",
+    transition: { duration: 1.1, ease: [0.16, 1, 0.3, 1] },
+  },
+};
 import {
   Facebook,
   Instagram,
@@ -669,7 +680,51 @@ export function Footer() {
           </div>
         </div>
       </div>
-      {/* <div className="absolute bottom-0 left-0 right-0 h-[20px] bg-gradient-to-t from-white to-[#031c15] pointer-events-none" /> */}
+      {/* =========================================================================
+          WATERMELON UI (FOOTER-16) GIANT "TRIVLLO" BACKGROUND WORDMARK
+          ========================================================================= */}
+      <motion.div
+        variants={wordmarkVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.15 }}
+        className="pointer-events-none absolute bottom-0 left-1/2 z-0 flex w-[125vw] -translate-x-1/2 justify-center overflow-hidden select-none"
+        aria-hidden="true"
+      >
+        <svg
+          className="h-auto w-full select-none"
+          viewBox="0 0 700 135"
+          preserveAspectRatio="xMidYMid meet"
+          aria-label="TRIVLLO"
+        >
+          <defs>
+            <linearGradient
+              id="trivlloWordmarkGrad"
+              x1="0"
+              y1="0"
+              x2="0"
+              y2="1"
+            >
+              <stop offset="0%" stopColor="#ffffff" stopOpacity="0.14" />
+              <stop offset="50%" stopColor="#34d399" stopOpacity="0.08" />
+              <stop offset="100%" stopColor="#031c15" stopOpacity="0.0" />
+            </linearGradient>
+          </defs>
+          <text
+            x="50%"
+            y="76%"
+            dominantBaseline="alphabetic"
+            textAnchor="middle"
+            textLength="90%"
+            lengthAdjust="spacing"
+            className="font-sans font-black tracking-tight uppercase"
+            fill="url(#trivlloWordmarkGrad)"
+            fontSize="125"
+          >
+            TRIVLLO
+          </text>
+        </svg>
+      </motion.div>
     </footer>
   );
 }
@@ -817,9 +872,7 @@ function TrustBenefit({
   description: string;
 }) {
   return (
-    <div
-      className="flex items-center gap-2.5 sm:gap-3 rounded-2xl  p-2.5 sm:p-3 shadow-[0_4px_16px_rgba(0,0,0,0.1)] transition hover:bg-white/[0.05] hover:border-emerald-500/20"
-    >
+    <div className="flex items-center gap-2.5 sm:gap-3 rounded-2xl  p-2.5 sm:p-3 shadow-[0_4px_16px_rgba(0,0,0,0.1)] transition hover:bg-white/[0.05] hover:border-emerald-500/20">
       <div className="flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
         {icon}
       </div>
