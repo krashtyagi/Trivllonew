@@ -1,6 +1,7 @@
 "use client";
+
 import { cn } from "@/lib/utils";
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useEffect, useRef, useCallback } from "react";
 import { PopularDestinationCarousel } from "../carousel/tabs-carousel";
 import { useGetNewHotels } from "@/services/hotel/querys";
 import type { Item } from "../carousel/onlyColursel";
@@ -8,18 +9,25 @@ import {
   hoteldata,
   HotelFramePageProps,
 } from "@/app/(home)/(categories)/hotels/page";
-import { MapPin } from "lucide-react";
+import { MapPin, Loader2 } from "lucide-react";
 import FrameColursals from "./frame_coloursals";
 import RankedBanner from "../addimage/RankedBanner";
 
-type SectionConfig = {
+export type SectionConfig = {
+  _id?: string;
   tagline: string;
   city: string;
   limit?: number;
   aliases?: string[];
+  order?: number;
 };
 
-// Known localities / sub-areas mapped to their parent city
+export type DestinationSectionWithItems = {
+  section: SectionConfig;
+  items: Item[];
+};
+
+// Known localities / sub-areas mapped to their parent city (fallback dictionary)
 const LOCALITY_TO_CITY: Record<string, string> = {
   // Shimla
   sanjauli: "shimla",
@@ -104,7 +112,8 @@ const LOCALITY_TO_CITY: Record<string, string> = {
   rohini: "delhi",
 };
 
-const POPULAR_SECTIONS: SectionConfig[] = [
+// Fallback sections list in case backend sections are not yet populated
+const DEFAULT_POPULAR_SECTIONS: SectionConfig[] = [
   {
     tagline: "Popular Stays in Manali",
     city: "Manali",
@@ -173,11 +182,9 @@ const matchesText = (haystack: string, needle: string): boolean => {
   if (!h || !n) return false;
   if (h === n) return true;
 
-  // Word/delimiter boundary match
   const regex = new RegExp(`(?:^|[\\s,/-])${escapeRegex(n)}(?:$|[\\s,/-])`, "i");
   if (regex.test(h)) return true;
 
-  // Reverse match (e.g. section "South Goa" vs hotel city "Goa")
   const revRegex = new RegExp(`(?:^|[\\s,/-])${escapeRegex(h)}(?:$|[\\s,/-])`, "i");
   if (revRegex.test(n)) return true;
 
@@ -191,7 +198,6 @@ const matchesSectionCity = (
   const targetCity = section.city.toLowerCase().trim();
   const aliases = (section.aliases || []).map((a) => a.toLowerCase().trim());
 
-  // Extract all searchable location texts from hotel
   const locationStrings: string[] = [
     hotel.city,
     (hotel as any).address?.city,
@@ -203,15 +209,12 @@ const matchesSectionCity = (
   ].filter((s): s is string => typeof s === "string" && s.trim().length > 0);
 
   for (const locStr of locationStrings) {
-    // 1. Direct or word-boundary match with section city
     if (matchesText(locStr, targetCity)) return true;
 
-    // 2. Direct or word-boundary match with explicit aliases
     for (const alias of aliases) {
       if (matchesText(locStr, alias)) return true;
     }
 
-    // 3. Token-based locality dictionary lookup
     const tokens = locStr
       .toLowerCase()
       .split(/[,/-]+/)
@@ -224,7 +227,6 @@ const matchesSectionCity = (
       if (aliases.includes(token)) return true;
     }
 
-    // 4. Known localities check within location string
     for (const [locality, parentCity] of Object.entries(LOCALITY_TO_CITY)) {
       if (parentCity === targetCity) {
         const locRegex = new RegExp(
@@ -239,13 +241,89 @@ const matchesSectionCity = (
   return false;
 };
 
-// Banner positions: after index 2, 5, 8 (gap of ~3 carousels between banners)
-const BANNER_POSITIONS: Record<number, "A" | "B" | "C"> = {
-  2: "A",
-  5: "B",
-  8: "C",
-};
+/**
+ * ─────────────────────────────────────────────────────────────────────────────
+ * HotelCarouselManager Design Class
+ * Manages progressive / infinite windowing and rendering for MainFramePage
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
+export class HotelCarouselManager {
+  readonly initialCount: number;
+  readonly increment: number;
+  readonly triggerOffset: number;
 
+  constructor(options?: {
+    initialCount?: number;
+    increment?: number;
+    triggerOffset?: number;
+  }) {
+    // Initial batch: render 8 carousels (covers first 4 viewport screens smoothly)
+    this.initialCount = options?.initialCount ?? 8;
+    // When threshold is hit, render 4 more carousels
+    this.increment = options?.increment ?? 4;
+    // Trigger when user scrolls and reaches the (visibleCount - 2) carousel (i.e. 6th carousel initially)
+    this.triggerOffset = options?.triggerOffset ?? 2;
+  }
+
+  /**
+   * Determine ranked banner placement between carousels
+   */
+  getBannerRank(carouselIndex: number): "A" | "B" | "C" | null {
+    if (carouselIndex === 0) return "A";
+    if (carouselIndex === 2) return "B";
+    if (carouselIndex === 4) return "C";
+    return null;
+  }
+
+  /**
+   * Calculate next visible count
+   */
+  getNextVisibleCount(currentCount: number, totalCount: number): number {
+    return Math.min(totalCount, currentCount + this.increment);
+  }
+
+  /**
+   * Determine the 0-based index that should act as the intersection trigger
+   * e.g. for visibleCount = 8, triggerIndex is (8 - 2 - 1) = 5 (the 6th carousel)
+   */
+  getTriggerIndex(visibleCount: number, totalCount: number): number {
+    if (visibleCount >= totalCount) return -1;
+    return Math.max(0, visibleCount - this.triggerOffset - 1);
+  }
+
+  /**
+   * Format hotels into carousel Item format
+   */
+  formatHotelItems(hotels: hoteldata[]): Item[] {
+    return hotels.map(
+      (hotel: hoteldata): Item => ({
+        id: hotel._id,
+        _id: hotel._id,
+        title: hotel.name,
+        location: `${hotel.city}, ${hotel.country || "India"}`,
+        image: hotel.image,
+        href: `/hotels/${hotel._id}`,
+        price: hotel.startingPrice ?? null,
+        rating: (hotel as any).rating,
+        numReviews: (hotel as any).numReviews,
+        amenities: (hotel as any).amenities,
+        isFavorite: (hotel as any).isFavorite,
+      })
+    );
+  }
+}
+
+// Singleton manager instance for MainFramePage
+const carouselManager = new HotelCarouselManager({
+  initialCount: 8,
+  increment: 4,
+  triggerOffset: 2,
+});
+
+/**
+ * MainFramePage Component
+ * Handles progressive carousel rendering and responsive watermelon UI
+ */
 const MainFramePage = ({
   className,
   type,
@@ -253,63 +331,123 @@ const MainFramePage = ({
 }: HotelFramePageProps) => {
   const { data, isLoading, error } = useGetNewHotels();
 
-  const activeSectionsWithItems = useMemo(() => {
+  // 1. Resolve active sections with items:
+  // Priority 1: Backend pre-calculated sections from MongoDB PopularSection model
+  // Priority 2: Fallback to client-side matching using DEFAULT_POPULAR_SECTIONS
+  const allSectionsWithItems: DestinationSectionWithItems[] = useMemo(() => {
     if (isLoading) {
-      // Render 2 clean skeleton carousels while loading
-      return POPULAR_SECTIONS.slice(0, 2).map((section) => ({
+      return DEFAULT_POPULAR_SECTIONS.slice(0, 2).map((section) => ({
         section,
         items: [] as Item[],
       }));
     }
 
+    // Backend returned pre-calculated sections
+    if ((data as any)?.sections && Array.isArray((data as any).sections) && (data as any).sections.length > 0) {
+      return (data as any).sections as DestinationSectionWithItems[];
+    }
+
+    // Client-side fallback matching
     const allHotels: hoteldata[] = data?.data || [];
-
-    return POPULAR_SECTIONS.map((section) => {
-      const hotelsInCity = allHotels.filter((hotel) =>
-        matchesSectionCity(hotel, section),
+    return DEFAULT_POPULAR_SECTIONS.map((section) => {
+      const matchingHotels = allHotels.filter((hotel) =>
+        matchesSectionCity(hotel, section)
       );
 
-      const sliced = section.limit
-        ? hotelsInCity.slice(0, section.limit)
-        : hotelsInCity;
+      const limit = section.limit || 12;
+      const sliced = matchingHotels.slice(0, limit);
+      const items = carouselManager.formatHotelItems(sliced);
 
-      const items: Item[] = sliced.map(
-        (hotel: hoteldata): Item => ({
-          id: hotel._id,
-          _id: hotel._id,
-          title: hotel.name,
-          location: `${hotel.city}, ${hotel.country || "India"}`,
-          image: hotel.image,
-          href: `/hotels/${hotel._id}`,
-          price: hotel.startingPrice ?? null,
-          rating: (hotel as any).rating,
-          numReviews: (hotel as any).numReviews,
-          amenities: (hotel as any).amenities,
-          isFavorite: (hotel as any).isFavorite,
-        }),
-      );
       return { section, items };
     }).filter(({ items }) => items.length > 0);
-  }, [isLoading, data?.data]);
+  }, [isLoading, data]);
+
+  // 2. Progressive rendering state
+  // Initial count is 8 (or total if less)
+  const [visibleCount, setVisibleCount] = useState<number>(carouselManager.initialCount);
+
+  // Reset or adjust visibleCount when sections change
+  useEffect(() => {
+    if (!isLoading && allSectionsWithItems.length > 0) {
+      setVisibleCount((prev) =>
+        prev > carouselManager.initialCount
+          ? Math.min(allSectionsWithItems.length, prev)
+          : Math.min(allSectionsWithItems.length, carouselManager.initialCount)
+      );
+    }
+  }, [allSectionsWithItems.length, isLoading]);
+
+  // 3. Load more handler
+  const loadMore = useCallback(() => {
+    setVisibleCount((prev) =>
+      carouselManager.getNextVisibleCount(prev, allSectionsWithItems.length)
+    );
+  }, [allSectionsWithItems.length]);
+
+  // 4. Sentinel / Intersection trigger index:
+  // For visibleCount = 8, triggerIndex is index 5 (6th carousel).
+  // When scrolled into view, it loads 4 more!
+  const triggerIndex = carouselManager.getTriggerIndex(
+    visibleCount,
+    allSectionsWithItems.length
+  );
+
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const triggerNodeRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (observerRef.current) observerRef.current.disconnect();
+
+      if (node && triggerIndex >= 0) {
+        observerRef.current = new IntersectionObserver(
+          (entries) => {
+            if (entries[0].isIntersecting) {
+              loadMore();
+            }
+          },
+          {
+            rootMargin: "300px 0px", // Trigger slightly before reaching to ensure ultra-smooth transition
+            threshold: 0.1,
+          }
+        );
+        observerRef.current.observe(node);
+      }
+    },
+    [triggerIndex, loadMore]
+  );
+
+  useEffect(() => {
+    return () => {
+      if (observerRef.current) observerRef.current.disconnect();
+    };
+  }, []);
+
+  // Sliced sections to render
+  const renderedSections = useMemo(() => {
+    return allSectionsWithItems.slice(0, visibleCount);
+  }, [allSectionsWithItems, visibleCount]);
+
+  const hasMoreToLoad = visibleCount < allSectionsWithItems.length;
 
   return (
-    <FrameColursals className={cn(className, "w-full ")}>
-      {activeSectionsWithItems.map(({ section, items }, i) => {
-        // Place banners cleanly after first and subsequent active carousels
-        const bannerRank = i === 0 ? "A" : i === 2 ? "B" : i === 4 ? "C" : null;
+    <FrameColursals className={cn(className, "w-full space-y-6 sm:space-y-8")}>
+      {renderedSections.map(({ section, items }, i) => {
+        const bannerRank = carouselManager.getBannerRank(i);
+        const isTrigger = i === triggerIndex;
 
         return (
-          <React.Fragment key={section.tagline}>
-            <PopularDestinationCarousel
-              tagline={section.tagline}
-              tabs={popularTrends?.[0]?.tabs || undefined}
-              type={type}
-              items={items}
-              isLoading={isLoading}
-              icon={<MapPin className="h-3 w-3 shrink-0" />}
-            />
+          <React.Fragment key={section._id || section.tagline}>
+            <div ref={isTrigger ? triggerNodeRef : undefined} className="w-full">
+              <PopularDestinationCarousel
+                tagline={section.tagline}
+                tabs={popularTrends?.[0]?.tabs || undefined}
+                type={type}
+                items={items}
+                isLoading={isLoading}
+                icon={<MapPin className="h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />}
+              />
+            </div>
 
-            {/* Ranked Banner between active carousels */}
+            {/* Ranked Banner interleaved cleanly */}
             {bannerRank && (
               <RankedBanner rank={bannerRank} entityType="hotel" />
             )}
@@ -317,12 +455,21 @@ const MainFramePage = ({
         );
       })}
 
-      {!isLoading && activeSectionsWithItems.length === 1 && (
+      {/* Fallback banner if only 1 section is rendered */}
+      {!isLoading && renderedSections.length === 1 && (
         <RankedBanner rank="B" entityType="hotel" />
       )}
 
+      {/* Subtle watermelon-themed progressive loading indicator */}
+      {hasMoreToLoad && (
+        <div className="py-4 flex items-center justify-center gap-2 text-xs text-muted-foreground/80">
+          <Loader2 className="h-4 w-4 animate-spin text-emerald-600" />
+          <span>Loading more destinations...</span>
+        </div>
+      )}
+
       {error && (
-        <p className="text-red-500 text-center">
+        <p className="text-red-500 text-center py-4 text-sm">
           Failed to load hotels: {error.message}
         </p>
       )}

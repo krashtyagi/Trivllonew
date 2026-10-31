@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useEffect, useRef, useCallback } from "react";
 import {
   CarouselProps,
   PopularDestinationCarousel,
@@ -17,6 +17,7 @@ import {
   ShieldCheck,
   Award,
   Sparkles,
+  Loader2,
 } from "lucide-react";
 import FrameColursals from "./frame_coloursals";
 import { useGetTourCompanies } from "@/services/tours/tours.queries";
@@ -587,12 +588,51 @@ export const DummyTourDataList: CarouselProps[] = [
   },
 ];
 
-// Banner positions: after index 2, 5, 8 (gap of ~3 carousels between banners)
-const BANNER_POSITIONS: Record<number, "A" | "B" | "C"> = {
-  2: "A",
-  5: "B",
-  8: "C",
-};
+// ─── TourCarouselManager Design Class ──────────────────────────────
+export interface CarouselConfig {
+  initialCount: number;
+  increment: number;
+  triggerOffset: number;
+  bannerPositions: Record<number, "A" | "B" | "C">;
+}
+
+export class TourCarouselManager {
+  readonly initialCount: number;
+  readonly increment: number;
+  readonly triggerOffset: number;
+  readonly bannerPositions: Record<number, "A" | "B" | "C">;
+
+  constructor(config?: Partial<CarouselConfig>) {
+    this.initialCount = config?.initialCount ?? 8;
+    this.increment = config?.increment ?? 4;
+    this.triggerOffset = config?.triggerOffset ?? 2;
+    this.bannerPositions = config?.bannerPositions ?? {
+      2: "A",
+      5: "B",
+      8: "C",
+    };
+  }
+
+  getBannerRank(index: number): "A" | "B" | "C" | undefined {
+    return this.bannerPositions[index];
+  }
+
+  getNextVisibleCount(currentCount: number, totalCount: number): number {
+    return Math.min(totalCount, currentCount + this.increment);
+  }
+
+  getTriggerIndex(visibleCount: number, totalCount: number): number {
+    if (visibleCount >= totalCount) return -1;
+    return Math.max(0, visibleCount - this.triggerOffset - 1);
+  }
+}
+
+// Singleton manager instance for Tours MainFramePage
+const tourCarouselManager = new TourCarouselManager({
+  initialCount: 8,
+  increment: 4,
+  triggerOffset: 2,
+});
 
 const MainFramePage = ({
   className,
@@ -718,7 +758,6 @@ const MainFramePage = ({
   }, [companies, isCompaniesLoading]);
 
   // Build unified carousel list: featured + real city carousels + curated dummy carousels
-  // Guarantees at least 10+ carousels so that banners at 2, 5, 8 have exactly 3 carousels between them
   const allCarousels = useMemo(() => {
     const list: Array<{
       key: string;
@@ -744,7 +783,6 @@ const MainFramePage = ({
     );
 
     DummyTourDataList.forEach((dummy, idx) => {
-      // If dummy is city-specific (e.g. Rishikesh) and we already have real Rishikesh data, avoid duplicate
       const isCitySection =
         dummy.tagline.toLowerCase().includes("rishikesh") &&
         coveredCities.has("rishikesh");
@@ -767,28 +805,102 @@ const MainFramePage = ({
     return list;
   }, [featuredCarousel, cityCarousels, companiesByCity]);
 
+  // ── Progressive Rendering (Watermelon UI Flow) ──────────────────────
+  // Initial count is 8 carousels
+  const [visibleCount, setVisibleCount] = useState<number>(tourCarouselManager.initialCount);
+
+  // Sync / clamp visible count when list size changes
+  useEffect(() => {
+    if (!isCompaniesLoading && allCarousels.length > 0) {
+      setVisibleCount((prev) =>
+        prev > tourCarouselManager.initialCount
+          ? Math.min(allCarousels.length, prev)
+          : Math.min(allCarousels.length, tourCarouselManager.initialCount)
+      );
+    }
+  }, [allCarousels.length, isCompaniesLoading]);
+
+  const loadMore = useCallback(() => {
+    setVisibleCount((prev) =>
+      tourCarouselManager.getNextVisibleCount(prev, allCarousels.length)
+    );
+  }, [allCarousels.length]);
+
+  // Sentinel / Intersection trigger index:
+  // For visibleCount = 8, triggerIndex is index 5 (the 6th carousel).
+  // When scrolled into view, it seamlessly renders 4 more carousels!
+  const triggerIndex = tourCarouselManager.getTriggerIndex(
+    visibleCount,
+    allCarousels.length
+  );
+
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const triggerNodeRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (observerRef.current) observerRef.current.disconnect();
+
+      if (node && triggerIndex >= 0) {
+        observerRef.current = new IntersectionObserver(
+          (entries) => {
+            if (entries[0].isIntersecting) {
+              loadMore();
+            }
+          },
+          {
+            rootMargin: "300px 0px",
+            threshold: 0.1,
+          }
+        );
+        observerRef.current.observe(node);
+      }
+    },
+    [triggerIndex, loadMore]
+  );
+
+  useEffect(() => {
+    return () => {
+      if (observerRef.current) observerRef.current.disconnect();
+    };
+  }, []);
+
+  const renderedCarousels = useMemo(() => {
+    return allCarousels.slice(0, visibleCount);
+  }, [allCarousels, visibleCount]);
+
+  const hasMoreToLoad = visibleCount < allCarousels.length;
+
   return (
-    <FrameColursals className={cn(className, "w-full ")}>
-      {allCarousels.map((carousel, i) => {
-        const bannerRank = BANNER_POSITIONS[i];
+    <FrameColursals className={cn(className, "w-full space-y-6 sm:space-y-8")}>
+      {renderedCarousels.map((carousel, i) => {
+        const bannerRank = tourCarouselManager.getBannerRank(i);
+        const isTrigger = i === triggerIndex;
 
         return (
           <React.Fragment key={carousel.key}>
-            <PopularDestinationCarousel
-              tagline={carousel.tagline}
-              // tabs={popularTrends?.[0]?.tabs || undefined}
-              type={type || "tours"}
-              items={carousel.items}
-              isLoading={carousel.isLoading || false}
-              icon={carousel.icon || <MapPin className="h-3 w-3 shrink-0" />}
-              galleryCardHide={false}
-            />
+            <div ref={isTrigger ? triggerNodeRef : undefined} className="w-full">
+              <PopularDestinationCarousel
+                tagline={carousel.tagline}
+                type={type || "tours"}
+                items={carousel.items}
+                isLoading={carousel.isLoading || false}
+                icon={carousel.icon || <MapPin className="h-3 w-3 shrink-0" />}
+                galleryCardHide={false}
+              />
+            </div>
 
             {/* Ranked Banner after specific carousel positions (gap of 3 carousels) */}
             {bannerRank && <RankedBanner rank={bannerRank} entityType="tour" />}
           </React.Fragment>
         );
       })}
+
+      {/* Subtle progressive loading indicator */}
+      {hasMoreToLoad && (
+        <div className="py-4 flex items-center justify-center gap-2 text-xs text-muted-foreground/80">
+          <Loader2 className="h-4 w-4 animate-spin text-primary" />
+          <span>Loading more adventures...</span>
+        </div>
+      )}
     </FrameColursals>
   );
 };

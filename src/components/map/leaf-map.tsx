@@ -44,6 +44,7 @@ type Props = {
   selectedHotelId?: string | null;
   onSelectHotel?: (id: string) => void;
   fitAllHotels?: boolean;
+  cooperativeGestures?: boolean;
 };
 
 // --- Icons ---
@@ -183,15 +184,25 @@ const ChangeView = ({
 // --- Google Maps Style Cooperative Gesture Controller ---
 const GestureController = ({
   interactive = true,
+  enabled = true,
   onShowWarning,
 }: {
   interactive?: boolean;
+  enabled?: boolean;
   onShowWarning: (msg: string) => void;
 }) => {
   const map = useMap();
 
   useEffect(() => {
     if (!map || !interactive) return;
+
+    if (!enabled) {
+      // In full-page or dedicated map views: allow natural 1-finger drag and scroll wheel zoom
+      map.scrollWheelZoom.enable();
+      map.dragging.enable();
+      return;
+    }
+
     const container = map.getContainer();
 
     // Disable default wheel zoom initially so it requires Ctrl / Cmd
@@ -447,7 +458,9 @@ const MapLeaf = ({
   selectedHotelId,
   onSelectHotel,
   fitAllHotels = true,
+  cooperativeGestures,
 }: Props) => {
+  const isCooperative = cooperativeGestures !== undefined ? cooperativeGestures : height !== '100%';
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [userLocation, setUserLocation] = useState<[number, number] | null>(
     userCoords ? [userCoords[0], userCoords[1]] : null
@@ -641,27 +654,30 @@ const MapLeaf = ({
       )}
 
       {/* Gesture Handling Warning Overlay (Google Maps Style) */}
-      <div
-        className={cn(
-          "absolute inset-0 z-[1100] pointer-events-none flex items-center justify-center bg-black/60 backdrop-blur-[1px] transition-opacity duration-300 rounded-lg",
-          showGestureWarning ? "opacity-100" : "opacity-0"
-        )}
-      >
-        <p className="text-white text-sm sm:text-base md:text-lg font-medium text-center px-6 py-3 drop-shadow-md select-none tracking-wide">
-          {gestureWarningMessage}
-        </p>
-      </div>
+      {isCooperative && (
+        <div
+          className={cn(
+            "absolute inset-0 z-[1100] pointer-events-none flex items-center justify-center bg-black/60 backdrop-blur-[1px] transition-opacity duration-300 rounded-lg",
+            showGestureWarning ? "opacity-100" : "opacity-0"
+          )}
+        >
+          <p className="text-white text-sm sm:text-base md:text-lg font-medium text-center px-6 py-3 drop-shadow-md select-none tracking-wide">
+            {gestureWarningMessage}
+          </p>
+        </div>
+      )}
 
       <MapContainer
         center={mapCenter}
         zoom={zoom}
-        scrollWheelZoom={false}
+        scrollWheelZoom={!isCooperative}
         dragging={interactive}
         zoomControl={false}
         className="h-full w-full rounded-lg"
       >
         <GestureController
           interactive={interactive}
+          enabled={isCooperative}
           onShowWarning={triggerGestureWarning}
         />
         {interactive && <ZoomControl position="bottomright" />}
