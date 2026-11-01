@@ -95,7 +95,7 @@ export const metadata: Metadata = {
   },
   // google-site-verification=
   verification: {
-    google: "mAolt6T5n34w8waxM3GpXPl6IRDs28mD-f7y7WnID7w",
+    google: "185_4dmYsPnC_HqaFGhTqHj2m_YhyptqlcA7JbzhvHA",
     other: {
       "facebook-domain-verification": "kthtqxpp6w141r75p1d6q8y6jgsymo",
     },
@@ -168,7 +168,7 @@ export default function RootLayout({
 
           <Toaster position="bottom-left" expand />
         </MainProvider>
-        <GoogleAnalytics gaId="G-STD90HX4DQ" />
+        <GoogleAnalytics gaId="G-WVD3DDLSLV" />
 
         <Script
           src="https://checkout.razorpay.com/v1/checkout.js"
