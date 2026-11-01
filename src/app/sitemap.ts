@@ -6,7 +6,7 @@ import { getAllBlogPosts } from "@/lib/blog-data";
  * Dynamic sitemap.xml generation via Next.js Metadata API.
  * Lists all public, crawlable routes with priorities and change frequencies.
  */
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
 
   // ── Static pages ──
@@ -110,7 +110,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   ];
 
   // ── Dynamic Blog Article Pages ──
-  const blogPosts = getAllBlogPosts();
+  const blogPosts = await getAllBlogPosts();
   const blogPages: MetadataRoute.Sitemap = blogPosts.map((post) => ({
     url: `${SITE_URL}/blog/${post.slug}`,
     lastModified: new Date(post.updatedAt || post.publishedAt),

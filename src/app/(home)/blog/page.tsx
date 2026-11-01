@@ -7,9 +7,9 @@ import BlogClient from "./blog-client";
 
 export const metadata: Metadata = buildMetadata("blog");
 
-export default function BlogHubPage() {
-  const posts = getAllBlogPosts();
-  const categories = getBlogCategories();
+export default async function BlogHubPage() {
+  const posts = await getAllBlogPosts();
+  const categories = await getBlogCategories();
 
   return (
     <>

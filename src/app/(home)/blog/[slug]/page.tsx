@@ -41,7 +41,7 @@ type PageProps = {
  * so Googlebot and human visitors get instantaneous server-rendered HTML.
  */
 export async function generateStaticParams() {
-  const posts = getAllBlogPosts();
+  const posts = await getAllBlogPosts();
   return posts.map((post) => ({
     slug: post.slug,
   }));
@@ -55,7 +55,7 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const post = getBlogPostBySlug(slug);
+  const post = await getBlogPostBySlug(slug);
 
   if (!post) {
     return {
@@ -121,13 +121,13 @@ export async function generateMetadata({
 
 export default async function BlogPostPage({ params }: PageProps) {
   const { slug } = await params;
-  const post = getBlogPostBySlug(slug);
+  const post = await getBlogPostBySlug(slug);
 
   if (!post) {
     notFound();
   }
 
-  const relatedPosts = getRelatedPosts(post.slug, post.category, 3);
+  const relatedPosts = await getRelatedPosts(post.slug, post.category, 3);
 
   return (
     <>
