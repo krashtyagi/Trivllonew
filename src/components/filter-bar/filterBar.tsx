@@ -10,6 +10,8 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Input } from "../ui/input";
 import { RouterPush } from "../RouterPush";
+import { useHotelStore } from "@/store/hotel.store";
+import { useToursStore } from "@/store/tours.store";
 
 export const PagesFilterBarButtons = ({
   PagesFilterBarValues,
@@ -23,6 +25,8 @@ export const PagesFilterBarButtons = ({
   category?: "hotels" | "bikes" | "cabs" | "tours" | "adventures";
 }) => {
   const navigate = useRouter();
+  const hotelStore = useHotelStore();
+  const toursStore = useToursStore();
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -91,7 +95,14 @@ export const PagesFilterBarButtons = ({
 
         {type === "home" && (
           <Button
-            onClick={() => RouterPush(navigate, link || `/${category}/find`)}
+            onClick={() => {
+              const currentCity = category === "tours" ? toursStore.city : hotelStore.city;
+              const targetPath = link || `/${category || "hotels"}/find`;
+              const finalUrl = currentCity?.trim()
+                ? `${targetPath}?city=${encodeURIComponent(currentCity.trim().toLowerCase())}`
+                : targetPath;
+              RouterPush(navigate, finalUrl);
+            }}
             className="z-40 h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-[#0c3926] hover:bg-[#072619] text-white shadow-md hover:scale-105 transition-transform ml-1 sm:ml-2 flex items-center justify-center shrink-0 cursor-pointer p-0"
           >
             <IconSearch size={18} stroke={2.5} />

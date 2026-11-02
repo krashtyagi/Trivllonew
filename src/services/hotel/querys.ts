@@ -116,16 +116,13 @@ export const useMyBookingsQuery = () => {
 };
 
 export const useCurrentUser = () => {
-  const token =
-    typeof window !== "undefined" && localStorage.getItem(userAccessToken);
   return useQuery({
     queryKey: ["current_user"],
     queryFn: currentUser,
-    staleTime: 2000,
+    staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
+    refetchOnMount: true,
     refetchOnReconnect: true,
-    enabled: !!token,
     retry: false,
   });
 };

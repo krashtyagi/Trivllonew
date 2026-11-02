@@ -439,6 +439,7 @@ const MainFramePage = ({
             <div ref={isTrigger ? triggerNodeRef : undefined} className="w-full">
               <PopularDestinationCarousel
                 tagline={section.tagline}
+                city={section.city}
                 tabs={popularTrends?.[0]?.tabs || undefined}
                 type={type}
                 items={items}

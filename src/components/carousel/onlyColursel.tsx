@@ -60,6 +60,7 @@ export type Item = {
 type Props = {
   type: "cabs" | "adventures" | "tours" | "bikes" | "hotels";
   tagline?: string;
+  city?: string;
   items: Item[];
   isLoading?: boolean;
   icon?: React.ReactNode;
@@ -98,6 +99,7 @@ const renderAmenityIcon = (amenity: string) => {
 export const OnlyCarousel = ({
   type,
   tagline,
+  city,
   items,
   isLoading,
   icon,
@@ -122,17 +124,14 @@ export const OnlyCarousel = ({
   }, []);
 
   const handleSeeAll = () => {
-    if (tagline) {
-      const lastWord = tagline.split(" ").pop() || "Manali";
-      if (type === "tours") {
-        setTourCity(lastWord.toLowerCase());
-        RouterPush(router, "/tours/find");
-      } else {
-        setHotelCity(lastWord.toLowerCase());
-        RouterPush(router, "/hotels/find");
-      }
+    const targetCity = city || (tagline ? tagline.split(" ").pop() || "Manali" : "Manali");
+    const citySlug = encodeURIComponent(targetCity.trim().toLowerCase());
+    if (type === "tours") {
+      setTourCity(targetCity.trim().toLowerCase());
+      RouterPush(router, `/tours/find?city=${citySlug}`);
     } else {
-      RouterPush(router, type === "tours" ? "/tours/find" : "/hotels/find");
+      setHotelCity(targetCity.trim().toLowerCase());
+      RouterPush(router, `/hotels/find?city=${citySlug}`);
     }
   };
 
@@ -243,6 +242,7 @@ export const OnlyCarousel = ({
               <MoreStaysCard
                 items={items}
                 tagline={tagline}
+                city={city}
                 type={type}
                 onClick={handleSeeAll}
               />
@@ -550,16 +550,18 @@ Card.displayName = "Card";
 export function MoreStaysCard({
   items,
   tagline,
+  city: cardCity,
   type,
   onClick,
 }: {
   items?: Item[];
   tagline?: string;
+  city?: string;
   type?: string;
   onClick: () => void;
 }) {
   const isTour = type === "tours";
-  const city = tagline ? tagline.split(" ").pop() || "Manali" : "Manali";
+  const city = cardCity || (tagline ? tagline.split(" ").pop() || "Manali" : "Manali");
 
   // Curated high-res photos matching Image 1 (alpine chalet, panoramic room, luxury dome, cozy lounge, twilight villa)
   const defaultHotelPhotos = [

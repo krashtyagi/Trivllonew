@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react"
 
+import { useSearchParams, useRouter, usePathname } from "next/navigation"
 import { useGetHotelsByFiltersDemo, useHotelSearch } from "@/services/hotel/querys"
 import { Bike, Hotel, HotelImage } from "@/types"
 import { useNuqsContext } from "./NuqsContentProvider"
@@ -66,7 +67,27 @@ export const TourContextProvider = ({
     children: React.ReactNode
 }) => {
     const { filters, setFilters, page, setPage } = useNuqsContext()
-    const { guests, city, date } = useToursStore();
+    const router = useRouter()
+    const pathname = usePathname()
+    const searchParams = useSearchParams()
+    const queryCity = searchParams.get("city")
+    const { guests, city, setCity, date } = useToursStore();
+
+    useEffect(() => {
+        const normQuery = queryCity?.trim().toLowerCase()
+        const normStore = city?.trim().toLowerCase()
+
+        if (normQuery && normQuery !== normStore) {
+            setCity(queryCity!.trim())
+        } else if (!normQuery && normStore && pathname === "/tours/find") {
+            const params = new URLSearchParams(searchParams.toString())
+            params.set("city", normStore)
+            router.replace(`${pathname}?${params.toString()}`, { scroll: false })
+        }
+    }, [queryCity, city, setCity, pathname, router, searchParams])
+
+    const activeCity = queryCity?.trim() || city
+
     function formatDate(dateValue: any) {
         if (!dateValue) return undefined;
         const d = typeof dateValue === "string" ? new Date(dateValue) : dateValue;
@@ -75,14 +96,14 @@ export const TourContextProvider = ({
     }
     const combinedFilters = React.useMemo(() => ({
         ...filters,
-        city: city || (filters as any).city || (filters.location?.length > 0 ? filters.location[0] : ""),
+        city: activeCity || (filters as any).city || (filters.location?.length > 0 ? filters.location[0] : ""),
         adults: guests.adults,
         children: guests.children,
         date: {
             checkIn: formatDate(date?.from),
             checkOut: formatDate(date?.to)
         }
-    }), [filters, guests, city, date]);
+    }), [filters, guests, activeCity, date]);
     const debouncedFilters = useDebounce(combinedFilters, 1500)
     const debouncedPage = useDebounce(page, 1000)
 

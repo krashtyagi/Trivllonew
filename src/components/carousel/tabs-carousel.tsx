@@ -15,6 +15,7 @@ type TabItem = {
 export type CarouselProps = {
   name?: string
   tagline: string
+  city?: string
   tabs?: TabItem[]
   type: "cabs" | "adventures" | "tours" | "bikes" | "hotels"
   items: Item[]
@@ -25,6 +26,7 @@ export type CarouselProps = {
 
 export function PopularDestinationCarousel({
   tagline,
+  city,
   tabs,
   type,
   items,
@@ -56,7 +58,7 @@ export function PopularDestinationCarousel({
 
   if (!tabs) {
     return (
-      <OnlyCarousel type={type} tagline={tagline} items={items} isLoading={isLoading} icon={icon} galleryCardHide={galleryCardHide} />
+      <OnlyCarousel type={type} tagline={tagline} city={city} items={items} isLoading={isLoading} icon={icon} galleryCardHide={galleryCardHide} />
     )
   }
 

@@ -19,7 +19,7 @@ import React, { useEffect, useState } from "react";
 import { useHotelStore } from "@/store/hotel.store";
 import { useToursStore } from "@/store/tours.store";
 import { useAdventureStore } from "@/store/adventure.store";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 const SUGGESTED_CITIES = [
@@ -42,6 +42,8 @@ const TYPE_ICON: Record<string, React.ComponentType<any>> = {
 
 export function NavSearchDestination() {
   const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const hotelStore = useHotelStore();
   const toursStore = useToursStore();
   const adventureStore = useAdventureStore();
@@ -59,9 +61,24 @@ export function NavSearchDestination() {
   })();
 
   const handleSetCity = (city: string) => {
-    if (activeCategory === "tours") toursStore.setCity(city);
-    else if (activeCategory === "adventures") adventureStore.setCity(city);
-    else hotelStore.setCity(city);
+    const trimmed = city.trim();
+    if (activeCategory === "tours") {
+      toursStore.setCity(trimmed);
+      if (pathname.includes("/tours/find")) {
+        const params = new URLSearchParams(searchParams.toString());
+        params.set("city", trimmed.toLowerCase());
+        router.replace(`/tours/find?${params.toString()}`);
+      }
+    } else if (activeCategory === "adventures") {
+      adventureStore.setCity(trimmed);
+    } else {
+      hotelStore.setCity(trimmed);
+      if (pathname.includes("/hotels/find")) {
+        const params = new URLSearchParams(searchParams.toString());
+        params.set("city", trimmed.toLowerCase());
+        router.replace(`/hotels/find?${params.toString()}`);
+      }
+    }
   };
 
   const [query, setQuery] = useState(activeCity || "");
@@ -94,6 +111,11 @@ export function NavSearchDestination() {
           placeholder="Search destinations..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && query.trim()) {
+              handleSetCity(query.trim());
+            }
+          }}
           className="w-full bg-transparent border-none outline-none text-sm md:text-base font-medium placeholder:text-muted-foreground/60"
         />
         {loading && (

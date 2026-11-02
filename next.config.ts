@@ -86,6 +86,24 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+
+  // Proxy BetterAuth requests so cookies are set first-party on frontend origin
+  async rewrites() {
+    const backendUrl =
+      process.env.NEXT_PUBLIC_BACKEND_URL ||
+      process.env.NEXT_PUBLIC_API_URL ||
+      "http://localhost:5000";
+    const cleanBackend = backendUrl
+      .trim()
+      .replace(/\/+$/, "")
+      .replace(/\/api\/v1\/?$/, "");
+    return [
+      {
+        source: "/api/auth/:path*",
+        destination: `${cleanBackend}/api/auth/:path*`,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

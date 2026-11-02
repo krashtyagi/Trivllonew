@@ -129,6 +129,7 @@ const FilterBox = ({
   }, [featuredSpots.length]);
 
   const handleSearchClick = () => {
+    const targetCity = city || "manali";
     if (!city) {
       if (isTour) {
         setTourCity("manali");
@@ -137,16 +138,20 @@ const FilterBox = ({
       }
     }
     setLoading(true);
-    RouterPush(router, `${link}/find`);
+    const searchUrl = isTour
+      ? `/tours/find?city=${encodeURIComponent(targetCity.trim().toLowerCase())}`
+      : `/hotels/find?city=${encodeURIComponent(targetCity.trim().toLowerCase())}`;
+    RouterPush(router, searchUrl);
   };
 
   const handleFeaturedClick = (targetCity: string) => {
+    const citySlug = encodeURIComponent(targetCity.trim().toLowerCase());
     if (isTour) {
       setTourCity(targetCity.toLowerCase());
-      RouterPush(router, `/tours/find`);
+      RouterPush(router, `/tours/find?city=${citySlug}`);
     } else {
       setHotelCity(targetCity.toLowerCase());
-      RouterPush(router, `/hotels/find`);
+      RouterPush(router, `/hotels/find?city=${citySlug}`);
     }
   };
 

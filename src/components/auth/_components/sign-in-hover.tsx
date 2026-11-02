@@ -17,8 +17,8 @@ import {
 import {
   IconBrandAppleFilled,
   IconBrandFacebookFilled,
-  IconBrandGoogleFilled,
 } from "@tabler/icons-react";
+import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import {
@@ -45,6 +45,7 @@ import { ForgotPasswordOTPForm } from "./ForgotPassword";
 import { Eye, EyeOff } from "lucide-react";
 import ForgetPasswordHandeler from "./forgetpasswordhandelser";
 import { userAccessToken } from "@/types/auth";
+import { authClient } from "@/lib/auth-client";
 import trivlloData from "@/../trivllo.json";
 const ConnectWithMedia = [
   {
@@ -54,7 +55,15 @@ const ConnectWithMedia = [
   },
   {
     title: "Google",
-    icon: <IconBrandGoogleFilled />,
+    icon: (
+      <Image
+        src="/icons/icons8-google-logo-48.png"
+        alt="Google"
+        width={20}
+        height={20}
+        className="w-5 h-5 object-contain"
+      />
+    ),
     url: "/auth/google",
   },
   {
@@ -276,22 +285,30 @@ export function SignupForm({ setTag, className, handelClose }: {
                       setCurrentStep={setCurrentStep}
                     />
                   </Field>
-                  {/* <FieldSeparator>Or</FieldSeparator>
-                  <Field className="grid gap-2 sm:grid-cols-1 md:px-10">
-                    {ConnectWithMedia.map((item, i) => (
-                      <Button
-                        variant="outline"
-                        type="button"
-                        key={i}
-                        onClick={() => {
-                          window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/api/v1${item.url}`;
-                        }}
-                      >
-                        {item.icon}
-                        Continue with {item.title}
-                      </Button>
-                    ))}
-                  </Field> */}
+                  <FieldSeparator>Or</FieldSeparator>
+                  <Field className="grid gap-2 sm:grid-cols-1">
+                    <Button
+                      variant="outline"
+                      type="button"
+                      className="w-full flex items-center justify-center gap-2 rounded-full cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                      onClick={async () => {
+                        await authClient.signIn.social({
+                          provider: "google",
+                          callbackURL: `${window.location.origin}/auth-callback`,
+                          errorCallbackURL: `${window.location.origin}/auth-callback`,
+                        });
+                      }}
+                    >
+                      <Image
+                        src="/icons/icons8-google-logo-48.png"
+                        alt="Google"
+                        width={20}
+                        height={20}
+                        className="w-5 h-5 object-contain"
+                      />
+                      Continue with Google
+                    </Button>
+                  </Field>
                 </FieldGroup>
                 {/* <div className="flex flex-col items-center gap-2 text-center  md:hidden">
                   <FieldDescription>
@@ -461,6 +478,30 @@ export const LofinFormFields = ({ handelClose }: { handelClose?: () => void }) =
           </Field>
           <Field>
             <Button type="submit" className={cn("rounded-full ", loading && "cursor-not-allowed")} disabled={loading} >{loading ? "Logging in..." : "Log in"}</Button>
+          </Field>
+          <FieldSeparator>Or</FieldSeparator>
+          <Field className="grid gap-2 sm:grid-cols-1">
+            <Button
+              variant="outline"
+              type="button"
+              className="w-full flex items-center justify-center gap-2 rounded-full cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              onClick={async () => {
+                await authClient.signIn.social({
+                  provider: "google",
+                  callbackURL: `${window.location.origin}/auth-callback`,
+                  errorCallbackURL: `${window.location.origin}/auth-callback`,
+                });
+              }}
+            >
+              <Image
+                src="/icons/icons8-google-logo-48.png"
+                alt="Google"
+                width={20}
+                height={20}
+                className="w-5 h-5 object-contain"
+              />
+              Continue with Google
+            </Button>
           </Field>
 
         </FieldGroup>

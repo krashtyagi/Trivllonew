@@ -3,41 +3,53 @@
 import { useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
-import { RouterPush } from "@/components/RouterPush";
 import { userAccessToken } from "@/types/auth";
 import { clearBookingDates } from "@/store/auth.store";
+import { getSession } from "@/lib/auth-client";
 
 function AuthCallbackHandler() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    const token = searchParams.get("token");
     const error = searchParams.get("error");
-    const nextRoute = localStorage.getItem("nextRoute");
+    const errorDescription = searchParams.get("error_description");
 
     if (error) {
-      toast.error("Authentication failed. Please try again.");
-      RouterPush(router, "/");
+      const msg = errorDescription || error;
+      toast.error(`Authentication failed: ${msg.replace(/_/g, " ")}`);
+      window.location.href = "/";
       return;
     }
 
-    if (token) {
-      localStorage.setItem(userAccessToken, token);
-      clearBookingDates();
+    const processAuth = async () => {
+      let token = searchParams.get("token");
 
-      toast.success("Successfully logged in!");
-      const nextRoute = localStorage.getItem("nextRoute");
-      if (nextRoute) {
-        RouterPush(router, nextRoute);
-      } else {
-        RouterPush(router, "/");
+      if (!token) {
+        try {
+          const session = await getSession();
+          if (session?.data) {
+            token =
+              (session.data as any)?.token ||
+              (session.data as any)?.session?.token;
+          }
+        } catch (e) {}
       }
 
-    } else {
-      toast.error("No authentication token received");
-      RouterPush(router, "/");
-    }
+      localStorage.setItem(userAccessToken, token || "better-auth-session");
+      clearBookingDates();
+      toast.success("Successfully logged in!");
+
+      const nextRoute = localStorage.getItem("nextRoute");
+      if (nextRoute) {
+        localStorage.removeItem("nextRoute");
+        window.location.href = nextRoute;
+      } else {
+        window.location.href = "/";
+      }
+    };
+
+    processAuth();
   }, [searchParams, router]);
 
   return (

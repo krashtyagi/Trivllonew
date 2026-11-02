@@ -9,6 +9,7 @@ import { dotoggleLike } from "./hotel/hotel.service";
 import { useRouter } from "next/navigation";
 import { RouterPush } from "@/components/RouterPush";
 import { userAccessToken } from "@/types/auth";
+import { signOut } from "@/lib/auth-client";
 
 
 export const handleRefresh = (queryClient: any, queryKey: string[]) => {
@@ -190,6 +191,7 @@ export const useLogout = () => {
     const queryClient = useQueryClient();
 
     const logout = () => {
+      signOut().catch(() => {});
       localStorage.removeItem(userAccessToken);
       localStorage.removeItem("trivllo_user_wishlist");
       queryClient.removeQueries({ queryKey: ["current_user"] });

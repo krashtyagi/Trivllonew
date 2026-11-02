@@ -1,5 +1,6 @@
 import { axiosApi } from "@/lib/axios";
 import { userAccessToken } from "@/types/auth";
+import { authClient } from "@/lib/auth-client";
 import { create } from "zustand";
 import { useHotelStore } from "./hotel.store";
 import { useBikesStore } from "./bikes.store";
@@ -106,6 +107,56 @@ export const useAuthStore = create<AuthStates>()((set) => ({
   userLogin: async (data: Login_signup_Data) => {
     set({ isLoging: true });
     try {
+      if (data.email && data.password) {
+        const res = await authClient.signIn.email({
+          email: data.email,
+          password: data.password,
+        });
+
+        if (res.data) {
+          set({ currUser: res.data.user as any });
+          let sessionToken =
+            (res.data as any)?.token ||
+            (res.data as any)?.session?.token ||
+            (res.data as any)?.sessionToken;
+
+          if (!sessionToken) {
+            try {
+              const sessionRes = await authClient.getSession();
+              sessionToken =
+                (sessionRes?.data as any)?.token ||
+                (sessionRes?.data as any)?.session?.token;
+            } catch (e) {}
+          }
+
+          localStorage.setItem(
+            userAccessToken,
+            sessionToken || "better-auth-session"
+          );
+          clearBookingDates();
+          return { success: true, message: "Logged in successfully" };
+        }
+
+        if (res.error) {
+          // Fallback to legacy email-login during transition
+          try {
+            const fallbackRes = await axiosApi.post("/auth/email-login", data);
+            if (fallbackRes.data.success) {
+              set({ currUser: fallbackRes.data.data.user });
+              const token = fallbackRes.data.accessToken;
+              if (token) localStorage.setItem(userAccessToken, token);
+              clearBookingDates();
+              return { success: true, message: fallbackRes.data.message };
+            }
+          } catch (e) {}
+
+          return {
+            success: false,
+            message: res.error.message || "Login failed",
+          };
+        }
+      }
+
       const res = await axiosApi.post("/auth/email-login", data);
       if (res.data.success) {
         set({ currUser: res.data.data.user });

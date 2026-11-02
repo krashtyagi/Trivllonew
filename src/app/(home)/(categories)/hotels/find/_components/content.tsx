@@ -76,7 +76,7 @@ export const ContentFrame = (props: Props) => {
             <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-foreground leading-tight">
               <span>Explore hotels in </span>
               <span className="font-cursive text-2xl sm:text-3xl md:text-4xl text-[#0c3926] dark:text-emerald-400 capitalize">
-                {city || "India"}
+                {searchParams.get("city") || city || "India"}
               </span>
             </h1>
           </div>
@@ -110,6 +110,7 @@ export const ContentFrame = (props: Props) => {
 
 export const Content = ({ className }: { className: string }) => {
   const { city } = useHotelStore();
+  const searchParams = useSearchParams();
   const isMobile = useIsMobile();
   const { hotels, isLoading } = useHotelContext();
   const { wrap } = useNuqsContext();
@@ -152,7 +153,7 @@ export const Content = ({ className }: { className: string }) => {
 
           <h3 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
             No hotels found in{" "}
-            <span className="capitalize">{city || "this destination"}</span>
+            <span className="capitalize">{searchParams.get("city") || city || "this destination"}</span>
           </h3>
 
           <p className="text-xs sm:text-sm text-muted-foreground mt-2 leading-relaxed max-w-xs font-normal">

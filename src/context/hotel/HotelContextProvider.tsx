@@ -7,7 +7,7 @@ import {
   parseAsString,
   parseAsInteger,
 } from "nuqs"
-import { useSearchParams } from "next/navigation"
+import { useSearchParams, useRouter, usePathname } from "next/navigation"
 import { useGetHotelsByFiltersDemo, useHotelSearch } from "@/services/hotel/querys"
 import { Hotel } from "@/types"
 import { useHotelStore } from "@/store/hotel.store"
@@ -29,15 +29,24 @@ export const HotelContextProvider = ({
   children: React.ReactNode
 }) => {
   const { filters, setFilters, page, setPage } = useNuqsContext()
+  const router = useRouter()
+  const pathname = usePathname()
   const searchParams = useSearchParams()
   const queryCity = searchParams.get("city")
   const { guests, city, setCity, date } = useHotelStore()
 
   useEffect(() => {
-    if (queryCity && queryCity.trim() && queryCity.toLowerCase() !== city?.toLowerCase()) {
-      setCity(queryCity.trim())
+    const normQuery = queryCity?.trim().toLowerCase()
+    const normStore = city?.trim().toLowerCase()
+
+    if (normQuery && normQuery !== normStore) {
+      setCity(queryCity!.trim())
+    } else if (!normQuery && normStore && pathname === "/hotels/find") {
+      const params = new URLSearchParams(searchParams.toString())
+      params.set("city", normStore)
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false })
     }
-  }, [queryCity, city, setCity])
+  }, [queryCity, city, setCity, pathname, router, searchParams])
 
   const activeCity = queryCity?.trim() || city
 

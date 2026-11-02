@@ -35,12 +35,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     const storedToken = localStorage.getItem(userAccessToken);
     setToken(storedToken);
     setLoading(false);
-    if (!storedToken) {
+    if (!isLoading && !data?.data && !storedToken) {
       RouterPush(navigate, '/');
     }
-  }, [navigate]);
+  }, [navigate, isLoading, data]);
 
-  if (loading || !data || isLoading) {
+  if (loading || isLoading) {
     return (
       <div className="w-full min-h-screen pt-6">
         <ProfileLayoutSkeleton />
@@ -48,7 +48,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (!token) {
+  if (!data?.data && !token) {
     return (
       <div className="w-full flex items-center justify-center">
         <p>Unauthorise</p>

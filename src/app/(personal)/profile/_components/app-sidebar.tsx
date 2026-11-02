@@ -14,6 +14,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/auth.store";
 import { AlertOverlay } from "@/components/ui/alert-dialouge";
 import { userAccessToken } from "@/types/auth";
+import { signOut } from "@/lib/auth-client";
 
 export function ProfileSidebar({ className }: { className?: string }) {
   const { navMain, user } = useProfileSidebar();
@@ -129,7 +130,10 @@ export const Logout = ({ refetch }: { refetch: () => void }) => {
   const queryClient = useQueryClient();
   const { t } = useTranslation();
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await signOut();
+    } catch (e) {}
     localStorage.removeItem(userAccessToken);
     localStorage.removeItem("nextRoute");
     localStorage.removeItem("trivllo_user_wishlist");
